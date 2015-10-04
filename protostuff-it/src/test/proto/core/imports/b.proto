@@ -1,7 +1,0 @@
-syntax = "proto2";
-
-package core.imports;
-
-message B {
-    optional int32 x = 1;
-}

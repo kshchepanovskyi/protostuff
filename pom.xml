@@ -447,11 +447,7 @@
     <module>protostuff-xml</module>
     <module>protostuff-yaml</module>
     <module>protostuff-kvp</module>
-    <module>protostuff-parser</module>
-    <module>protostuff-compiler</module>
-    <module>protostuff-maven-plugin</module>
     <module>protostuff-uberjar</module>
-    <module>protostuff-it</module>
     <module>protostuff-bom</module>
     <module>protostuff-benchmarks</module>
   </modules>
