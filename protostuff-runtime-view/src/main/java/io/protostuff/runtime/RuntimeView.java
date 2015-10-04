@@ -107,13 +107,6 @@ public final class RuntimeView
         }
 
         @Override
-        public boolean isInitialized(T message)
-        {
-            // same as runtime schema
-            return true;
-        }
-
-        @Override
         public T newMessage()
         {
             return instantiator.newInstance();

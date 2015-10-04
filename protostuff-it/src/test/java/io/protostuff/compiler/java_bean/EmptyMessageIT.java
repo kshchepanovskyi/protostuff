@@ -33,8 +33,6 @@ public class EmptyMessageIT
     @Test
     public void testEmptyMessageSchema() throws Exception
     {
-        EmptyMessage message = new EmptyMessage();
-        Assert.assertEquals(true, EMPTY_MESSAGE_SCHEMA.isInitialized(message));
         Assert.assertNotNull(EMPTY_MESSAGE_SCHEMA.newMessage());
         Assert.assertEquals(EmptyMessage.class, EMPTY_MESSAGE_SCHEMA.typeClass());
     }

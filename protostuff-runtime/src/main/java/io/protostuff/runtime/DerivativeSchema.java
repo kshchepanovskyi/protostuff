@@ -54,12 +54,6 @@ public abstract class DerivativeSchema implements Schema<Object>
     }
 
     @Override
-    public boolean isInitialized(Object owner)
-    {
-        return true;
-    }
-
-    @Override
     public String messageFullName()
     {
         return Object.class.getName();

@@ -409,12 +409,6 @@ public abstract class IdStrategy
         }
 
         @Override
-        public boolean isInitialized(Object owner)
-        {
-            return true;
-        }
-
-        @Override
         public String messageFullName()
         {
             return Object.class.getName();
@@ -488,12 +482,6 @@ public abstract class IdStrategy
         public int getFieldNumber(String name)
         {
             return name.length() == 1 && name.charAt(0) == 'v' ? 1 : 0;
-        }
-
-        @Override
-        public boolean isInitialized(Collection<Object> owner)
-        {
-            return true;
         }
 
         @Override
@@ -600,12 +588,6 @@ public abstract class IdStrategy
         }
 
         @Override
-        public boolean isInitialized(Object owner)
-        {
-            return true;
-        }
-
-        @Override
         public String messageFullName()
         {
             return Array.class.getName();
@@ -688,12 +670,6 @@ public abstract class IdStrategy
         public final int getFieldNumber(String name)
         {
             return name.length() == 1 && name.charAt(0) == 'e' ? 1 : 0;
-        }
-
-        @Override
-        public boolean isInitialized(Map<Object, Object> owner)
-        {
-            return true;
         }
 
         @Override
@@ -824,12 +800,6 @@ public abstract class IdStrategy
                 default:
                     return 0;
             }
-        }
-
-        @Override
-        public boolean isInitialized(Entry<Object, Object> message)
-        {
-            return true;
         }
 
         @Override
@@ -976,12 +946,6 @@ public abstract class IdStrategy
         }
 
         @Override
-        public boolean isInitialized(Object owner)
-        {
-            return true;
-        }
-
-        @Override
         public String messageFullName()
         {
             return Object.class.getName();
@@ -1044,12 +1008,6 @@ public abstract class IdStrategy
         public int getFieldNumber(String name)
         {
             return ClassSchema.number(name);
-        }
-
-        @Override
-        public boolean isInitialized(Object owner)
-        {
-            return true;
         }
 
         @Override
@@ -1118,12 +1076,6 @@ public abstract class IdStrategy
         }
 
         @Override
-        public boolean isInitialized(Object owner)
-        {
-            return true;
-        }
-
-        @Override
         public String messageFullName()
         {
             return Collection.class.getName();
@@ -1187,12 +1139,6 @@ public abstract class IdStrategy
         public int getFieldNumber(String name)
         {
             return PolymorphicMapSchema.number(name);
-        }
-
-        @Override
-        public boolean isInitialized(Object owner)
-        {
-            return true;
         }
 
         @Override

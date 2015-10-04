@@ -372,30 +372,6 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(foo, parsedFoo);
     }
 
-    public void testNestedRequiredField()
-    {
-        Schema<WrapperPojo> schema = WrapperPojo.SCHEMA;
-        WrapperPojo message = new WrapperPojo();
-        message.requiresName = new RequiresName();
-        message.requiresName.description = "some description";
-
-        byte[] data = XmlIOUtil.toByteArray(message, schema);
-
-        WrapperPojo parsed = new WrapperPojo();
-
-        try
-        {
-            XmlIOUtil.mergeFrom(data, parsed, schema);
-        }
-        catch (UninitializedMessageException e)
-        {
-            // expected
-            return;
-        }
-
-        assertTrue(false);
-    }
-
     static class RequiresName
     {
 
@@ -434,12 +410,6 @@ public class XmlCoreSerDeserTest extends TestCase
                     default:
                         return 0;
                 }
-            }
-
-            @Override
-            public boolean isInitialized(RequiresName message)
-            {
-                return message.name != null;
             }
 
             @Override
@@ -517,12 +487,6 @@ public class XmlCoreSerDeserTest extends TestCase
             public int getFieldNumber(String name)
             {
                 return name.length() == 1 && name.charAt(0) == 'w' ? 1 : 0;
-            }
-
-            @Override
-            public boolean isInitialized(WrapperPojo message)
-            {
-                return true;
             }
 
             @Override

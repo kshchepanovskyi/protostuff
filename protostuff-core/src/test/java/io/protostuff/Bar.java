@@ -278,12 +278,6 @@ public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable
     }
 
     @Override
-    public boolean isInitialized(Bar message)
-    {
-        return true;
-    }
-
-    @Override
     public Bar newMessage()
     {
         return new Bar();

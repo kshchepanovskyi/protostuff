@@ -485,8 +485,6 @@ public final class ByteArrayInput implements Input
         if (value == null)
             value = schema.newMessage();
         schema.mergeFrom(this, value);
-        if (!schema.isInitialized(value))
-            throw new UninitializedMessageException(value, schema);
         checkLastTagWas(0);
 
         // restore old limit
@@ -500,8 +498,6 @@ public final class ByteArrayInput implements Input
         if (value == null)
             value = schema.newMessage();
         schema.mergeFrom(this, value);
-        if (!schema.isInitialized(value))
-            throw new UninitializedMessageException(value, schema);
         // handling is in #readFieldNumber
         checkLastTagWas(0);
         return value;

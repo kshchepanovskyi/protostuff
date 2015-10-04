@@ -80,15 +80,6 @@ public abstract class Pipe
             return wrappedSchema.getFieldNumber(name);
         }
 
-        /**
-         * Always returns true since we're just transferring data.
-         */
-        @Override
-        public boolean isInitialized(Pipe message)
-        {
-            return true;
-        }
-
         @Override
         public String messageFullName()
         {

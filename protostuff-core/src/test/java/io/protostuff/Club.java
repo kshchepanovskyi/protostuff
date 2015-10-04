@@ -159,12 +159,6 @@ public final class Club implements Externalizable, Message<Club>
         }
 
         @Override
-        public boolean isInitialized(Club message)
-        {
-            return true;
-        }
-
-        @Override
         public void mergeFrom(Input input, Club message) throws IOException
         {
             for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))

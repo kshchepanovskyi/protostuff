@@ -25,6 +25,7 @@ import java.io.IOException;
  * serialization of objects from 3rd party libraries.
  * 
  * @author David Yu
+ * @author Kostiantyn Shchepanovskyi
  */
 public interface Schema<T>
 {
@@ -48,11 +49,6 @@ public interface Schema<T>
      * </pre>
      */
     int getFieldNumber(String name);
-
-    /**
-     * Returns true if there is no required field or if all the required fields are set.
-     */
-    boolean isInitialized(T message);
 
     /**
      * Creates the message/object tied to this schema.

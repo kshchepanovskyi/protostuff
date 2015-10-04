@@ -38,9 +38,6 @@ import io.protostuff.Pipe;
 <endif>
 
 import io.protostuff.Schema;
-<if(message.requiredFieldPresent)>
-import io.protostuff.UninitializedMessageException;
-<endif>
 
 <message.proto.messages:message_header_import(message=it, module=module, options=options)>
 

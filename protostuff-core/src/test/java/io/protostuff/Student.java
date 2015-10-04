@@ -129,12 +129,6 @@ public final class Student implements Externalizable, Message<Student>
         }
 
         @Override
-        public boolean isInitialized(Student message)
-        {
-            return true;
-        }
-
-        @Override
         public void mergeFrom(Input input, Student message) throws IOException
         {
             for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))

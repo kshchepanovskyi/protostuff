@@ -45,12 +45,6 @@ public abstract class CustomSchema<T> implements Schema<T>
     }
 
     @Override
-    public boolean isInitialized(T message)
-    {
-        return schema.isInitialized(message);
-    }
-
-    @Override
     public void mergeFrom(Input input, T message) throws IOException
     {
         schema.mergeFrom(input, message);

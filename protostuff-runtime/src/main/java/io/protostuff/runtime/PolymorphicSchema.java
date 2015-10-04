@@ -65,12 +65,6 @@ public abstract class PolymorphicSchema implements Schema<Object>
     }
 
     @Override
-    public boolean isInitialized(Object message)
-    {
-        return true;
-    }
-
-    @Override
     public Object newMessage()
     {
         // cannot instantiate because the type is dynamic.

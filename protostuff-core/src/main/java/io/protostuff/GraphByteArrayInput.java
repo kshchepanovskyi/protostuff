@@ -125,12 +125,6 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
     }
 
     @Override
-    public boolean isInitialized(Object owner)
-    {
-        return true;
-    }
-
-    @Override
     public String messageFullName()
     {
         throw new UnsupportedOperationException();
@@ -161,9 +155,6 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
 
         // merge using this input.
         schema.mergeFrom(this, message);
-        if (!schema.isInitialized(message))
-            throw new UninitializedMessageException(message, schema);
-
         // restore
         lastSchema = schema;
     }

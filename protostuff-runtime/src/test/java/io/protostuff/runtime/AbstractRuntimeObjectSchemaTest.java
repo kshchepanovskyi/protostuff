@@ -1775,12 +1775,6 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             }
 
             @Override
-            public boolean isInitialized(Bat message)
-            {
-                return true;
-            }
-
-            @Override
             public Bat newMessage()
             {
                 return new Bat();

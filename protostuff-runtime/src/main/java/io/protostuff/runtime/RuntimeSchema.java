@@ -457,15 +457,6 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
             f.writeTo(output, message);
     }
 
-    /**
-     * Always returns true, everything is optional.
-     */
-    @Override
-    public boolean isInitialized(T message)
-    {
-        return true;
-    }
-
     @Override
     public T newMessage()
     {

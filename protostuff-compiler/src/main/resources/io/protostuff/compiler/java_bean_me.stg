@@ -145,10 +145,6 @@ import io.protostuff.me.Pipe;
 <endif>
 
 import io.protostuff.me.Schema;
-<if(message.requiredFieldPresent)>
-import io.protostuff.me.UninitializedMessageException;
-<endif>
-
 
 >>
 
@@ -397,26 +393,9 @@ public String messageFullName()
     return <message.name>.class.getName();
 }
 
-<message:message_method_is_initialized(message=it, options=options)>
 <message:message_field_merge(message=it, options=options, name="message")>
 <message:message_field_write(message=it, options=options, name="message")>
 <message:message_field_map(message=it, options=options)>
->>
-
-message_method_is_initialized(message, options) ::= <<
-<if(message.requiredFieldPresentOnCurrent)>
-public boolean isInitialized(Object /*<message.name>*/ messageObj)
-{
-    <message.name> message = (<message.name>)messageObj;
-    return 
-        <message.fields:field_is_initialized(field=it, options=options, name="message"); separator=" \n&& ">;
-}
-<else>
-public boolean isInitialized(Object /*<message.name>*/ message)
-{
-    return true;
-}
-<endif>
 >>
 
 field_is_initialized(field, options, name) ::= <<
@@ -580,8 +559,6 @@ field_write_switch(field, options, name) ::= <<
 
 singular_field_write_switch(field, options, name) ::= <<
 <if(field.required)>
-if(<name>.<var(val=field.name, fmt="CC", options=options)> == null)
-    throw new UninitializedMessageException(<name>);
 <if(field.messageField)>
 output.writeObject(<field.number>, <name>.<var(val=field.name, fmt="CC", options=options)>, <field.javaType>.getSchema(), false);
 <elseif(field.enumField)>

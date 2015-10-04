@@ -304,9 +304,6 @@ public final class XmlInput implements Input
 
         schema.mergeFrom(this, value);
 
-        if (!schema.isInitialized(value))
-            throw new UninitializedMessageException(value, schema);
-
         // onto the next
         nextTag();
 

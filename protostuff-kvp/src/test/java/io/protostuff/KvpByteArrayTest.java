@@ -99,12 +99,6 @@ public class KvpByteArrayTest extends AbstractTest
         }
 
         @Override
-        public boolean isInitialized(PojoWithBiggerByteArray message)
-        {
-            return true;
-        }
-
-        @Override
         public String messageFullName()
         {
             return PojoWithBiggerByteArray.class.getName();

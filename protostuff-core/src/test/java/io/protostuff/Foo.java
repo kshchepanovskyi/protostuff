@@ -284,12 +284,6 @@ public final class Foo implements Message<Foo>, Schema<Foo>, Externalizable
     }
 
     @Override
-    public boolean isInitialized(Foo message)
-    {
-        return true;
-    }
-
-    @Override
     public Foo newMessage()
     {
         return new Foo();

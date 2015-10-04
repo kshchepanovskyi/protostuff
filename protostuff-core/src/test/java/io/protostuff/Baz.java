@@ -121,12 +121,6 @@ public final class Baz implements Message<Baz>, Schema<Baz>, Externalizable
     }
 
     @Override
-    public boolean isInitialized(Baz message)
-    {
-        return true;
-    }
-
-    @Override
     public Baz newMessage()
     {
         return new Baz();

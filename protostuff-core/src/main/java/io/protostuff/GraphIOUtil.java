@@ -236,10 +236,6 @@ public final class GraphIOUtil
             }
         }
 
-        // check it since this message is embedded in the DataInput.
-        if (!schema.isInitialized(message))
-            throw new UninitializedMessageException(message, schema);
-
         return len;
     }
 

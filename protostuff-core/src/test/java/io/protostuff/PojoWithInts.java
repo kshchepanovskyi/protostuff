@@ -210,12 +210,6 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
     }
 
     @Override
-    public boolean isInitialized(PojoWithInts message)
-    {
-        return true;
-    }
-
-    @Override
     public void mergeFrom(Input input, PojoWithInts message) throws IOException
     {
         for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))

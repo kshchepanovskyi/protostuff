@@ -309,10 +309,6 @@ public final class CodedInput implements Input
             value = schema.newMessage();
         }
         schema.mergeFrom(this, value);
-        if (!schema.isInitialized(value))
-        {
-            throw new UninitializedMessageException(value, schema);
-        }
         checkLastTagWas(0);
         // --recursionDepth;
         popLimit(oldLimit);
@@ -334,10 +330,6 @@ public final class CodedInput implements Input
             value = schema.newMessage();
         }
         schema.mergeFrom(this, value);
-        if (!schema.isInitialized(value))
-        {
-            throw new UninitializedMessageException(value, schema);
-        }
         // handling is in #readFieldNumber
         checkLastTagWas(0);
         // --recursionDepth;

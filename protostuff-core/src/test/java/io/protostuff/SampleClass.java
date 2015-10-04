@@ -91,11 +91,6 @@ public final class SampleClass implements Externalizable, Message<SampleClass>
             return SampleClass.class.getName();
         }
 
-        public boolean isInitialized(SampleClass message)
-        {
-            return true;
-        }
-
         public void mergeFrom(Input input, SampleClass message) throws IOException
         {
             for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))

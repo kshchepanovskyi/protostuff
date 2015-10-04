@@ -98,12 +98,6 @@ public final class HasHasBar implements Message<HasHasBar>, Schema<HasHasBar>, E
     }
 
     @Override
-    public boolean isInitialized(HasHasBar message)
-    {
-        return message.hasBar != null;
-    }
-
-    @Override
     public HasHasBar newMessage()
     {
         return new HasHasBar();

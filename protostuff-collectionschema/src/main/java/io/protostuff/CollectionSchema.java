@@ -355,12 +355,6 @@ public abstract class CollectionSchema<V> implements Schema<Collection<V>>
     }
 
     @Override
-    public final boolean isInitialized(Collection<V> map)
-    {
-        return true;
-    }
-
-    @Override
     public final String messageFullName()
     {
         return Collection.class.getName();

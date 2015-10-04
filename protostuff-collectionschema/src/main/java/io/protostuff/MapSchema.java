@@ -272,12 +272,6 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>>
     }
 
     @Override
-    public final boolean isInitialized(Map<K, V> map)
-    {
-        return true;
-    }
-
-    @Override
     public final String messageFullName()
     {
         return Map.class.getName();
@@ -405,12 +399,6 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>>
                 default:
                     return 0;
             }
-        }
-
-        @Override
-        public boolean isInitialized(Entry<K, V> message)
-        {
-            return true;
         }
 
         @Override

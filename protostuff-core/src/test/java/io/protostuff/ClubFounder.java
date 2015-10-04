@@ -110,12 +110,6 @@ public final class ClubFounder implements Externalizable, Message<ClubFounder>
         }
 
         @Override
-        public boolean isInitialized(ClubFounder message)
-        {
-            return true;
-        }
-
-        @Override
         public void mergeFrom(Input input, ClubFounder message) throws IOException
         {
             for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))

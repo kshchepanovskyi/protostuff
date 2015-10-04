@@ -147,11 +147,6 @@ public final class PojoWithRepeated implements Externalizable, Message<PojoWithR
         return PojoWithRepeated.class.getName();
     }
 
-    public boolean isInitialized(PojoWithRepeated message)
-    {
-        return true;
-    }
-
     public void mergeFrom(Input input, PojoWithRepeated message) throws IOException
     {
         try

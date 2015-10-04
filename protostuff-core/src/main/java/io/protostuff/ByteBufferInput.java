@@ -496,8 +496,6 @@ public final class ByteBufferInput implements Input
             value = schema.newMessage();
         ByteBufferInput nestedInput = new ByteBufferInput(dup, decodeNestedMessageAsGroup);
         schema.mergeFrom(nestedInput, value);
-        if (!schema.isInitialized(value))
-            throw new UninitializedMessageException(value, schema);
         nestedInput.checkLastTagWas(0);
         // checkLastTagWas(0);
 
@@ -513,8 +511,6 @@ public final class ByteBufferInput implements Input
         if (value == null)
             value = schema.newMessage();
         schema.mergeFrom(this, value);
-        if (!schema.isInitialized(value))
-            throw new UninitializedMessageException(value, schema);
         // handling is in #readFieldNumber
         checkLastTagWas(0);
         return value;
