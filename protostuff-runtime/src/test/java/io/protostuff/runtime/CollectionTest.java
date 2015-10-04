@@ -33,7 +33,6 @@ import io.protostuff.Schema;
  * Tests for abstract generic collection types.
  * 
  * @author David Yu
- * @created Sep 11, 2010
  */
 public class CollectionTest
 {

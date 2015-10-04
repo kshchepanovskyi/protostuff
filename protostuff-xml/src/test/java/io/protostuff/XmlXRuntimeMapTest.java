@@ -28,7 +28,6 @@ import io.protostuff.runtime.AbstractRuntimeMapTest;
  * Test xml ser/deser for runtime {@link Map} fields.
  * 
  * @author David Yu
- * @created Jan 22, 2011
  */
 public class XmlXRuntimeMapTest extends AbstractRuntimeMapTest
 {

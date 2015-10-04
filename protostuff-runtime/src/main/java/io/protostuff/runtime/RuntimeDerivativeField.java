@@ -31,7 +31,6 @@ import io.protostuff.WireFormat.FieldType;
  * will most likey be out-of-order (unless you have control of the json serialization).
  * 
  * @author David Yu
- * @created Jan 16, 2011
  */
 abstract class RuntimeDerivativeField<T> extends Field<T>
 {

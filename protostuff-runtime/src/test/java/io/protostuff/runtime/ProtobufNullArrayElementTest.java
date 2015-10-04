@@ -30,7 +30,6 @@ import io.protostuff.StringSerializer.STRING;
  * Protobuf impl for {@link NullArrayElementTest}.
  * 
  * @author David Yu
- * @created Sep 29, 2014
  */
 public class ProtobufNullArrayElementTest extends NullArrayElementTest
 {

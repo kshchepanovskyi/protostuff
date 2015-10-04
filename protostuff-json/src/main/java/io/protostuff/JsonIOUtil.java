@@ -37,7 +37,6 @@ import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
  * Utility for the JSON serialization/deserialization of messages and objects tied to a schema.
  * 
  * @author David Yu
- * @created Nov 20, 2009
  */
 public final class JsonIOUtil
 {

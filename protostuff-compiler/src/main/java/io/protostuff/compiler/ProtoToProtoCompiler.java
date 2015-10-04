@@ -35,7 +35,6 @@ import io.protostuff.parser.Proto;
  * Kind of preprocessor for proto files. Able to extend one messages with fields from other ones.
  * 
  * @author Ivan Prisyazhniy, Igor Scherbak
- * @created Mar 9, 2012
  */
 public class ProtoToProtoCompiler extends STCodeGenerator
 {

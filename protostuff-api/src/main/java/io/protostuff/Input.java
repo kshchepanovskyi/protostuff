@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
  * An Input lets an application read primitive data types and objects from a source of data.
  * 
  * @author David Yu
- * @created Nov 9, 2009
  */
 public interface Input
 {

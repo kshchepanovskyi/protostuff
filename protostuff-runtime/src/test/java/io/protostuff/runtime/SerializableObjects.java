@@ -24,7 +24,6 @@ import io.protostuff.runtime.Foo.EnumSample;
  * The objects to be tested.
  * 
  * @author David Yu
- * @created Nov 13, 2009
  */
 public final class SerializableObjects
 {

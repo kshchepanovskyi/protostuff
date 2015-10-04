@@ -30,7 +30,6 @@ import io.protostuff.runtime.SerializableObjects;
  * Test case for json runtime pipes.
  * 
  * @author David Yu
- * @created Jan 16, 2011
  */
 public class JsonRuntimePipeTest extends AbstractTest
 {

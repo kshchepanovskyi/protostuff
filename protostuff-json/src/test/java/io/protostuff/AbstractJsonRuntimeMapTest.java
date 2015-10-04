@@ -28,7 +28,6 @@ import io.protostuff.runtime.AbstractRuntimeMapTest;
  * Test json ser/deser for runtime {@link Map} fields.
  * 
  * @author David Yu
- * @created Jan 22, 2011
  */
 public abstract class AbstractJsonRuntimeMapTest extends AbstractRuntimeMapTest
 {

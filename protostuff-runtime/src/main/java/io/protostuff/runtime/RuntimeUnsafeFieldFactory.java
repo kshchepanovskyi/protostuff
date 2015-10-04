@@ -52,7 +52,6 @@ import io.protostuff.WireFormat.FieldType;
  * Field factory via sun.misc.Unsafe.
  * 
  * @author David Yu
- * @created Jul 7, 2011
  */
 public final class RuntimeUnsafeFieldFactory
 {

@@ -25,7 +25,6 @@ import java.io.IOException;
  * serialization of objects from 3rd party libraries.
  * 
  * @author David Yu
- * @created Nov 9, 2009
  */
 public interface Schema<T>
 {

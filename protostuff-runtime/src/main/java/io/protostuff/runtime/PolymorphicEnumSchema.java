@@ -44,7 +44,6 @@ import io.protostuff.Schema;
  * Used when a field is declared as {@code Enum<?>} (with or with-out generics).
  * 
  * @author David Yu
- * @created Apr 25, 2012
  */
 public abstract class PolymorphicEnumSchema extends PolymorphicSchema
 {

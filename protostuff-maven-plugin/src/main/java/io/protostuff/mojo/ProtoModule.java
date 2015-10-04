@@ -19,7 +19,6 @@ package io.protostuff.mojo;
  * implementation="io.protostuff.protocompiler.ProtoModule" on your {@code <protoModule> </protoModule>} tags
  * 
  * @author David Yu
- * @created Jan 14, 2010
  */
 public class ProtoModule extends io.protostuff.compiler.ProtoModule
 {

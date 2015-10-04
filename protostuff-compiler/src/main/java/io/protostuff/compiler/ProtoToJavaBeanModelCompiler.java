@@ -37,7 +37,6 @@ import io.protostuff.parser.Proto;
  * </ul>
  * 
  * @author Ivan Prisyazhniy
- * @created Mar 9, 2012
  */
 public class ProtoToJavaBeanModelCompiler extends STCodeGenerator
 {

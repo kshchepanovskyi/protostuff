@@ -34,7 +34,6 @@ import io.protostuff.WireFormat.FieldType;
  * Static utility for creating runtime {@link Collection} fields.
  * 
  * @author David Yu
- * @created Jan 26, 2011
  */
 final class RuntimeCollectionFieldFactory
 {

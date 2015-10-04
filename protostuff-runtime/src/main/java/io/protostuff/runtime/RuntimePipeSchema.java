@@ -25,7 +25,6 @@ import io.protostuff.Schema;
  * Runtime pipe schema.
  * 
  * @author David Yu
- * @created Nov 9, 2012
  */
 public final class RuntimePipeSchema<T> extends Pipe.Schema<T>
 {

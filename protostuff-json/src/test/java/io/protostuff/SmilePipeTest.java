@@ -21,7 +21,6 @@ import java.util.Arrays;
  * Test case for smile pipes.
  * 
  * @author David Yu
- * @created Feb 11, 2011
  */
 public class SmilePipeTest extends AbstractTest
 {

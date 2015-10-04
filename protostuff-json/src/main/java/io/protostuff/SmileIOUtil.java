@@ -32,7 +32,6 @@ import com.fasterxml.jackson.dataformat.smile.SmileParser;
  * Smile IO utilities for messages.
  * 
  * @author David Yu
- * @created Feb 10, 2011
  */
 public final class SmileIOUtil
 {

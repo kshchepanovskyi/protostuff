@@ -18,7 +18,6 @@ package io.protostuff.runtime;
  * A filter for the fields that need to be included.
  * 
  * @author David Yu
- * @created Nov 9, 2012
  */
 public interface Predicate
 {

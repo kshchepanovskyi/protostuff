@@ -33,7 +33,6 @@ import io.protostuff.WireFormat.FieldType;
  * Static utility for creating runtime repeated (list/collection) fields.
  * 
  * @author David Yu
- * @created Jan 23, 2011
  */
 final class RuntimeRepeatedFieldFactory
 {

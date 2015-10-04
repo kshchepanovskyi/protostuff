@@ -38,7 +38,6 @@ import io.protostuff.Morph;
  * A factory to create runtime {@link Field fields} based on reflection.
  * 
  * @author David Yu
- * @created Nov 10, 2009
  */
 public abstract class RuntimeFieldFactory<V> implements Delegate<V>
 {

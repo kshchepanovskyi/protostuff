@@ -25,7 +25,6 @@ import io.protostuff.StringSerializer.STRING;
  * Test case for json pipes.
  * 
  * @author David Yu
- * @created Oct 8, 2010
  */
 public class JsonPipeTest extends AbstractTest
 {
