@@ -72,12 +72,8 @@ public class InheritanceTest extends AbstractTest
                 return false;
             }
             final InputDevice other = (InputDevice) obj;
-            if ((this.name == null) ? (other.name != null) : !this.name
-                    .equals(other.name))
-            {
-                return false;
-            }
-            return true;
+            return !((this.name == null) ? (other.name != null) : !this.name
+                    .equals(other.name));
         }
 
         @Override
@@ -120,11 +116,7 @@ public class InheritanceTest extends AbstractTest
                 return false;
             }
             final Mouse other = (Mouse) obj;
-            if (this.numberOfButtons != other.numberOfButtons)
-            {
-                return false;
-            }
-            return true;
+            return this.numberOfButtons == other.numberOfButtons;
         }
 
         @Override
@@ -167,11 +159,7 @@ public class InheritanceTest extends AbstractTest
                 return false;
             }
             final KeyBoard other = (KeyBoard) obj;
-            if (this.numberOfKeys != other.numberOfKeys)
-            {
-                return false;
-            }
-            return true;
+            return this.numberOfKeys == other.numberOfKeys;
         }
 
         @Override
@@ -214,13 +202,9 @@ public class InheritanceTest extends AbstractTest
                 return false;
             }
             final InputSystem other = (InputSystem) obj;
-            if (this.inputDevices != other.inputDevices
+            return !(this.inputDevices != other.inputDevices
                     && (this.inputDevices == null || !this.inputDevices
-                            .equals(other.inputDevices)))
-            {
-                return false;
-            }
-            return true;
+                    .equals(other.inputDevices)));
         }
 
         @Override

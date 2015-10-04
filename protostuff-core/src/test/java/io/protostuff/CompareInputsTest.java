@@ -107,11 +107,11 @@ public class CompareInputsTest extends AbstractTest
 
     public interface Deserializer
     {
-        public <T extends Message<T>> void mergeFrom(byte[] data, T message) throws IOException;
+        <T extends Message<T>> void mergeFrom(byte[] data, T message) throws IOException;
 
-        public String getName();
+        String getName();
 
-        public Serializer getSerializer();
+        Serializer getSerializer();
     }
 
     public static final Deserializer PROTOBUF_CODED_INPUT = new Deserializer()

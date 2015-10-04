@@ -282,10 +282,8 @@ public final class PojoWithArrayAndSet implements Serializable
         }
         else if (!someFloatAsSet.equals(other.someFloatAsSet))
             return false;
-        if (!Arrays.equals(somePrimitiveDoubleAsArray,
-                other.somePrimitiveDoubleAsArray))
-            return false;
-        return true;
+        return Arrays.equals(somePrimitiveDoubleAsArray,
+                other.somePrimitiveDoubleAsArray);
     }
 
 }

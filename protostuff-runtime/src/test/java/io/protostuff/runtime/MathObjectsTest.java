@@ -187,9 +187,7 @@ public class MathObjectsTest extends AbstractTest
             }
             else if (!biList.equals(other.biList))
                 return false;
-            if (id != other.id)
-                return false;
-            return true;
+            return id == other.id;
         }
 
     }

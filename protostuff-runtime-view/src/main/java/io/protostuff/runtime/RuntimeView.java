@@ -365,7 +365,7 @@ public final class RuntimeView
 			{
 				return INCLUDE.create(ms, instantiator, pf, args);
 			}
-		};
+		}
     }
 
     static <T> HashMap<String, Field<T>> copyAndExclude(Class<? super T> typeClass,

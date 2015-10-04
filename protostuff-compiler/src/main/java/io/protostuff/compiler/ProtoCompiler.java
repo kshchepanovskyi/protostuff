@@ -28,11 +28,11 @@ public interface ProtoCompiler
     /**
      * The unique id that basically is the target output.
      */
-    public String getOutputId();
+    String getOutputId();
 
     /**
      * Compiles the proto configured/encapsulated in the module.
      */
-    public void compile(ProtoModule module) throws IOException;
+    void compile(ProtoModule module) throws IOException;
 
 }

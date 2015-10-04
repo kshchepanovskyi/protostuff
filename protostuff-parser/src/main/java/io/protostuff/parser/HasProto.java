@@ -23,5 +23,5 @@ package io.protostuff.parser;
 public interface HasProto
 {
 
-    public Proto getProto();
+    Proto getProto();
 }

@@ -181,9 +181,7 @@ public class FilterFieldsByGroupTest extends AbstractTest
                 return false;
             if (prop3b != other.prop3b)
                 return false;
-            if (propAll != other.propAll)
-                return false;
-            return true;
+            return propAll == other.propAll;
         }
 
         @Override

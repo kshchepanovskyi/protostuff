@@ -48,27 +48,27 @@ public interface Delegate<V>
     /**
      * The field type (for possible reflective operations in future releases).
      */
-    public FieldType getFieldType();
+    FieldType getFieldType();
 
     /**
      * Reads the value from the input.
      */
-    public V readFrom(Input input) throws IOException;
+    V readFrom(Input input) throws IOException;
 
     /**
      * Writes the {@code value} to the output.
      */
-    public void writeTo(Output output, int number, V value, boolean repeated)
+    void writeTo(Output output, int number, V value, boolean repeated)
             throws IOException;
 
     /**
      * Transfers the type from the input to the output.
      */
-    public void transfer(Pipe pipe, Input input, Output output, int number,
-            boolean repeated) throws IOException;
+    void transfer(Pipe pipe, Input input, Output output, int number,
+                  boolean repeated) throws IOException;
 
     /**
      * The class of the target value.
      */
-    public Class<?> typeClass();
+    Class<?> typeClass();
 }

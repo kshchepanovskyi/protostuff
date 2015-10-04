@@ -211,7 +211,7 @@ public class PolymorphicRuntimeGraphTest extends AbstractTest
     {
         public enum Display
         {
-            INLINE, BLOCK;
+            INLINE, BLOCK
         }
 
         // default is block

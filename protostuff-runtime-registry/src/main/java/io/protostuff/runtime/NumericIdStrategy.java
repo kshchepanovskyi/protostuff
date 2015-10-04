@@ -366,35 +366,35 @@ public abstract class NumericIdStrategy extends IdStrategy
         /**
          * Collection ids start at 1.
          */
-        public <T extends Collection<?>> Registry registerCollection(
+        <T extends Collection<?>> Registry registerCollection(
                 CollectionSchema.MessageFactory factory, int id);
 
         /**
          * Map ids start at 1.
          */
-        public <T extends Map<?, ?>> Registry registerMap(
+        <T extends Map<?, ?>> Registry registerMap(
                 MapSchema.MessageFactory factory, int id);
 
         /**
          * Enum ids start at 1.
          */
-        public <T extends Enum<T>> Registry registerEnum(Class<T> clazz, int id);
+        <T extends Enum<T>> Registry registerEnum(Class<T> clazz, int id);
 
         /**
          * Enum ids start at 1.
          */
-        public Registry registerEnum(EnumIO<?> eio, int id);
+        Registry registerEnum(EnumIO<?> eio, int id);
 
         /**
          * Pojo ids start at 1.
          */
-        public <T> Registry registerPojo(Class<T> clazz, int id);
+        <T> Registry registerPojo(Class<T> clazz, int id);
 
         /**
          * Pojo ids start at 1.
          */
-        public <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
-                int id);
+        <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
+                                  int id);
 
         /**
          * If you are sure that you are only using a single implementation of your interface/abstract class, then it
@@ -404,14 +404,14 @@ public abstract class NumericIdStrategy extends IdStrategy
          * <p>
          * Pojo ids start at 1.
          */
-        public <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass);
+        <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass);
 
         /**
          * Register a {@link Delegate} and assign an id.
          * <p>
          * Delegate ids start at 1.
          */
-        public <T> Registry registerDelegate(Delegate<T> delegate, int id);
+        <T> Registry registerDelegate(Delegate<T> delegate, int id);
     }
 
 }

@@ -295,8 +295,7 @@ public final class XmlIOUtil
      * Merges the {@code message} from the {@link XMLStreamReader} using the given {@code schema}.
      */
     public static <T> void mergeFrom(XMLStreamReader parser, T message, Schema<T> schema)
-            throws IOException, XMLStreamException, XmlInputException
-    {
+            throws IOException, XMLStreamException {
         // final String simpleName = schema.messageName();
 
         if (parser.nextTag() != START_ELEMENT ||
@@ -443,8 +442,7 @@ public final class XmlIOUtil
      * Serializes the {@code message} into an {@link XMLStreamWriter} using the given {@code schema}.
      */
     public static <T> void writeTo(XMLStreamWriter writer, T message, Schema<T> schema)
-            throws IOException, XMLStreamException, XmlOutputException
-    {
+            throws IOException, XMLStreamException {
         writer.writeStartElement(schema.messageName());
 
         schema.writeTo(new XmlOutput(writer, schema), message);

@@ -37,12 +37,12 @@ public interface Formatter
     /**
      * Returns the formatted string.
      */
-    public String format(String str);
+    String format(String str);
 
     /**
      * Built-in formatters.
      */
-    public enum BUILTIN implements Formatter
+    enum BUILTIN implements Formatter
     {
         /**
          * uppercase.

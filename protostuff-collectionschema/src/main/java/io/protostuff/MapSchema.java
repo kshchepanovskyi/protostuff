@@ -39,12 +39,12 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>>
         /**
          * Creates a new {@link Map} message.
          */
-        public <K, V> Map<K, V> newMessage();
+        <K, V> Map<K, V> newMessage();
 
         /**
          * The type to instantiate.
          */
-        public Class<?> typeClass();
+        Class<?> typeClass();
     }
 
     /**
@@ -164,7 +164,7 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>>
 
         public final Class<?> typeClass;
 
-        private MessageFactories(Class<?> typeClass)
+        MessageFactories(Class<?> typeClass)
         {
             this.typeClass = typeClass;
         }

@@ -137,10 +137,8 @@ public class PolymorphicSerializationTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             Mammal other = (Mammal) obj;
-            if (Float.floatToIntBits(normalBodyTemperature) != Float
-                    .floatToIntBits(other.normalBodyTemperature))
-                return false;
-            return true;
+            return Float.floatToIntBits(normalBodyTemperature) == Float
+                    .floatToIntBits(other.normalBodyTemperature);
         }
 
     }

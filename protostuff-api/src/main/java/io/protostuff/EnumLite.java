@@ -52,5 +52,5 @@ package io.protostuff;
  */
 public interface EnumLite<E extends Enum<E>>
 {
-    public int getNumber();
+    int getNumber();
 }

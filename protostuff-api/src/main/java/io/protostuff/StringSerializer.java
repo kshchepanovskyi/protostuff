@@ -439,7 +439,7 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0x80 | ((c >> 0) & 0x3F));
             }
-            else if (Character.isHighSurrogate((char) c) && i < len && Character.isLowSurrogate((char) str.charAt(i)))
+            else if (Character.isHighSurrogate(c) && i < len && Character.isLowSurrogate(str.charAt(i)))
             {
                 // We have a surrogate pair, so use the 4-byte encoding.
                 if (offset == limit)
@@ -469,7 +469,7 @@ public final class StringSerializer
                     }
                 }
 
-                int codePoint = Character.toCodePoint((char) c, (char) str.charAt(i));
+                int codePoint = Character.toCodePoint(c, str.charAt(i));
 
                 buffer[offset++] = (byte) (0xF0 | ((codePoint >> 18) & 0x07));
 
@@ -685,7 +685,7 @@ public final class StringSerializer
                 buffer[offset++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
                 buffer[offset++] = (byte) (0x80 | ((c >> 0) & 0x3F));
             }
-            else if (Character.isHighSurrogate((char) c) && i < len && Character.isLowSurrogate((char) str.charAt(i)))
+            else if (Character.isHighSurrogate((char) c) && i < len && Character.isLowSurrogate(str.charAt(i)))
             {
                 // We have a surrogate pair, so use the 4-byte encoding.
                 adjustableLimit += 3;
@@ -696,7 +696,7 @@ public final class StringSerializer
                     return writeUTF8(str, i - 1, len, buffer, offset, buffer.length, session, lb);
                 }
 
-                int codePoint = Character.toCodePoint((char) c, (char) str.charAt(i));
+                int codePoint = Character.toCodePoint((char) c, str.charAt(i));
                 buffer[offset++] = (byte) (0xF0 | ((codePoint >> 18) & 0x07));
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 12) & 0x3F));
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 6) & 0x3F));

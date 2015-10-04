@@ -25,27 +25,27 @@ public interface Predicate
     /**
      * Returns true if the field is included.
      */
-    public boolean apply(Field<?> f);
+    boolean apply(Field<?> f);
 
     /**
      * Returns true if the field is included.
      * <p>
      * The predicate logic can be dynamic based on the contents of the message.
      */
-    public boolean apply(Field<?> f, Object message);
+    boolean apply(Field<?> f, Object message);
 
-    public interface Factory
+    interface Factory
     {
         /**
          * Creates a new predicate based from the args.
          */
-        public Predicate create(String[] args);
+        Predicate create(String[] args);
     }
 
     /**
      * A predicate that includes only a single field with the provided number.
      */
-    public static final class EQ implements Predicate, Predicate.Factory
+    final class EQ implements Predicate, Predicate.Factory
     {
         final int num;
 
@@ -77,7 +77,7 @@ public interface Predicate
     /**
      * A predicate that includes all fields except the provided number.
      */
-    public static final class NOTEQ implements Predicate, Predicate.Factory
+    final class NOTEQ implements Predicate, Predicate.Factory
     {
         final int num;
 
@@ -109,7 +109,7 @@ public interface Predicate
     /**
      * A predicate that includes fields that are greater than the provider number.
      */
-    public static final class GT implements Predicate, Predicate.Factory
+    final class GT implements Predicate, Predicate.Factory
     {
         final int num;
 
@@ -141,7 +141,7 @@ public interface Predicate
     /**
      * A predicate that includes fields that are lesser than the provider number.
      */
-    public static final class LT implements Predicate, Predicate.Factory
+    final class LT implements Predicate, Predicate.Factory
     {
         final int num;
 
@@ -173,7 +173,7 @@ public interface Predicate
     /**
      * A predicate that includes fields if they are within range of the provided numbers, min and max.
      */
-    public static final class RANGE implements Predicate, Predicate.Factory
+    final class RANGE implements Predicate, Predicate.Factory
     {
         final int min, max;
 
@@ -206,7 +206,7 @@ public interface Predicate
     /**
      * The opposite of {@link RANGE}.
      */
-    public static final class NOTRANGE implements Predicate, Predicate.Factory
+    final class NOTRANGE implements Predicate, Predicate.Factory
     {
         final int min, max;
 
@@ -239,7 +239,7 @@ public interface Predicate
     /**
      * Built-in factories that filters based on the field number.
      */
-    public enum Factories implements Predicate.Factory
+    enum Factories implements Predicate.Factory
     {
         EQ
         {
@@ -290,6 +290,6 @@ public interface Predicate
                 return new Predicate.NOTRANGE(Integer.parseInt(args[0]),
                         Integer.parseInt(args[1]));
             }
-        };
+        }
     }
 }

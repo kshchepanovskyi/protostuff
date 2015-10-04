@@ -23,6 +23,6 @@ package io.protostuff.parser;
 public interface HasName
 {
 
-    public String getName();
+    String getName();
 
 }

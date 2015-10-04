@@ -288,9 +288,7 @@ public final class Baz implements Message<Baz>, Schema<Baz>, Externalizable
         }
         else if (!name.equals(other.name))
             return false;
-        if (timestamp != other.timestamp)
-            return false;
-        return true;
+        return timestamp == other.timestamp;
     }
 
     @Override

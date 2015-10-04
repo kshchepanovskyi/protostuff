@@ -42,12 +42,12 @@ public abstract class CollectionSchema<V> implements Schema<Collection<V>>
         /**
          * Creates a new {@code Collection} message.
          */
-        public <V> Collection<V> newMessage();
+        <V> Collection<V> newMessage();
 
         /**
          * The type to instantiate.
          */
-        public Class<?> typeClass();
+        Class<?> typeClass();
     }
 
     public enum MessageFactories implements MessageFactory
@@ -281,7 +281,7 @@ public abstract class CollectionSchema<V> implements Schema<Collection<V>>
 
         public final Class<?> typeClass;
 
-        private MessageFactories(Class<?> typeClass)
+        MessageFactories(Class<?> typeClass)
         {
             this.typeClass = typeClass;
         }

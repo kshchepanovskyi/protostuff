@@ -251,9 +251,9 @@ public class CompareOutputsTest extends AbstractTest
     public interface Serializer
     {
 
-        public <T extends Message<T>> byte[] serialize(T message);
+        <T extends Message<T>> byte[] serialize(T message);
 
-        public String getName();
+        String getName();
 
     }
 

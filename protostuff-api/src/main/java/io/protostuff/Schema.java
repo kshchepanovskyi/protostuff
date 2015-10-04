@@ -38,7 +38,7 @@ public interface Schema<T>
      * return String.valueOf(number);
      * </pre>
      */
-    public String getFieldName(int number);
+    String getFieldName(int number);
 
     /**
      * Gets the field number associated with the name. This is particularly useful when serializing to different formats
@@ -48,43 +48,43 @@ public interface Schema<T>
      * return Integer.parseInt(name);
      * </pre>
      */
-    public int getFieldNumber(String name);
+    int getFieldNumber(String name);
 
     /**
      * Returns true if there is no required field or if all the required fields are set.
      */
-    public boolean isInitialized(T message);
+    boolean isInitialized(T message);
 
     /**
      * Creates the message/object tied to this schema.
      */
-    public T newMessage();
+    T newMessage();
 
     /**
      * Returns the simple name of the message tied to this schema. Allows custom schemas to provide a custom name other
      * than typeClass().getSimpleName();
      */
-    public String messageName();
+    String messageName();
 
     /**
      * Returns the full name of the message tied to this schema. Allows custom schemas to provide a custom name other
      * than typeClass().getName();
      */
-    public String messageFullName();
+    String messageFullName();
 
     /**
      * Gets the class of the message.
      */
-    public Class<? super T> typeClass();
+    Class<? super T> typeClass();
 
     /**
      * Deserializes a message/object from the {@link Input input}.
      */
-    public void mergeFrom(Input input, T message) throws IOException;
+    void mergeFrom(Input input, T message) throws IOException;
 
     /**
      * Serializes a message/object to the {@link Output output}.
      */
-    public void writeTo(Output output, T message) throws IOException;
+    void writeTo(Output output, T message) throws IOException;
 
 }

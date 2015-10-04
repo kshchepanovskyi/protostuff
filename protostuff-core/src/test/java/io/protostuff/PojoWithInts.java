@@ -352,9 +352,7 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
             return false;
         if (someUint32 != other.someUint32)
             return false;
-        if (someUint64 != other.someUint64)
-            return false;
-        return true;
+        return someUint64 == other.someUint64;
     }
 
     @Override

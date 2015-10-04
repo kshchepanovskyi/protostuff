@@ -357,10 +357,8 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             Employee other = (Employee) obj;
-            if (Double.doubleToLongBits(salary) != Double
-                    .doubleToLongBits(other.salary))
-                return false;
-            return true;
+            return Double.doubleToLongBits(salary) == Double
+                    .doubleToLongBits(other.salary);
         }
 
     }
@@ -447,9 +445,7 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             Accountant other = (Accountant) obj;
-            if (certified != other.certified)
-                return false;
-            return true;
+            return certified == other.certified;
         }
 
     }
@@ -1005,9 +1001,7 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest
             }
             else if (!peopleByName.equals(other.peopleByName))
                 return false;
-            if (startup != other.startup)
-                return false;
-            return true;
+            return startup == other.startup;
         }
 
         @Override

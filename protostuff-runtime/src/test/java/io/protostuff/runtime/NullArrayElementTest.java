@@ -107,7 +107,7 @@ public abstract class NullArrayElementTest extends AbstractTest
     {
         SMALL,
         MEDIUM,
-        LARGE;
+        LARGE
     }
 
     public static final class PojoWithNonPrimitiveArrays
@@ -226,9 +226,7 @@ public abstract class NullArrayElementTest extends AbstractTest
                 return false;
             if (!Arrays.equals(somePojoArray, other.somePojoArray))
                 return false;
-            if (!Arrays.equals(stringArray, other.stringArray))
-                return false;
-            return true;
+            return Arrays.equals(stringArray, other.stringArray);
         }
     }
 

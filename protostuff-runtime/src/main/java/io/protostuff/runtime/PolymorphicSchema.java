@@ -46,7 +46,7 @@ public abstract class PolymorphicSchema implements Schema<Object>
      */
     public interface Handler
     {
-        public void setValue(Object value, Object owner);
+        void setValue(Object value, Object owner);
     }
 
     /**
@@ -54,8 +54,8 @@ public abstract class PolymorphicSchema implements Schema<Object>
      */
     public interface Factory
     {
-        public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, Handler handler);
+        PolymorphicSchema newSchema(Class<?> typeClass,
+                                    IdStrategy strategy, Handler handler);
     }
 
     public final IdStrategy strategy;

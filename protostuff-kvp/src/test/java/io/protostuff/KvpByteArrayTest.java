@@ -60,9 +60,7 @@ public class KvpByteArrayTest extends AbstractTest
                 return false;
             if (id != other.id)
                 return false;
-            if (ts != other.ts)
-                return false;
-            return true;
+            return ts == other.ts;
         }
 
     }

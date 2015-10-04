@@ -107,8 +107,6 @@ public final class SampleDelegates
         }
     }
 
-    ;
-
     public static final class Singleton
     {
         public static final Singleton INSTANCE = new Singleton();

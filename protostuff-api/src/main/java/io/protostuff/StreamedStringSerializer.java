@@ -173,7 +173,7 @@ public final class StreamedStringSerializer
                 buffer[offset++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
                 buffer[offset++] = (byte) (0x80 | ((c >> 0) & 0x3F));
             }
-            else if (Character.isHighSurrogate((char) c) && i < len && Character.isLowSurrogate((char) str.charAt(i)))
+            else if (Character.isHighSurrogate(c) && i < len && Character.isLowSurrogate(str.charAt(i)))
             {
                 // We have a surrogate pair, so use the 4-byte encoding.
                 if (offset + 4 > buffer.length)
@@ -182,7 +182,7 @@ public final class StreamedStringSerializer
                     lb.offset = offset = session.flush(buffer, lb.start, offset - lb.start);
                 }
 
-                int codePoint = Character.toCodePoint((char) c, (char) str.charAt(i));
+                int codePoint = Character.toCodePoint(c, str.charAt(i));
                 buffer[offset++] = (byte) (0xF0 | ((codePoint >> 18) & 0x07));
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 12) & 0x3F));
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 6) & 0x3F));

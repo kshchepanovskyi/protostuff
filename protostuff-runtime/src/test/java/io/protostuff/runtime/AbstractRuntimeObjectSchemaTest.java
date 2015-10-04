@@ -189,13 +189,13 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             {
                 return 3;
             }
-        };
+        }
     }
 
     public interface Instrument
     {
 
-        public String getName();
+        String getName();
 
     }
 
@@ -284,16 +284,14 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             Guitar other = (Guitar) obj;
-            if (stringCount != other.stringCount)
-                return false;
-            return true;
+            return stringCount == other.stringCount;
         }
 
     }
 
     public enum GuitarPickup
     {
-        UNDER_THE_SADDLE, SOUNDHOLE, CONTACT, MICROPHONE;
+        UNDER_THE_SADDLE, SOUNDHOLE, CONTACT, MICROPHONE
     }
 
     public static final class AcousticGuitar extends Guitar
@@ -413,41 +411,37 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
             expectEnum = Size.LARGE;
 
-            expectCollectionStringV = newList(new String[] { "bar", "baz" });
+            expectCollectionStringV = newList("bar", "baz");
 
             expectBassGuitar = new BassGuitar(4, false);
 
-            expectCollectionEnumV = newList(new Size[] { Size.SMALL,
-                    Size.MEDIUM, Size.LARGE });
+            expectCollectionEnumV = newList(Size.SMALL,
+                    Size.MEDIUM, Size.LARGE);
 
-            expectCollectionGuitarV = newList(new Guitar[] {
-                    new AcousticGuitar(GuitarPickup.MICROPHONE),
-                    new BassGuitar(5, true) });
+            expectCollectionGuitarV = newList(new AcousticGuitar(GuitarPickup.MICROPHONE),
+                    new BassGuitar(5, true));
 
-            List<Integer> intFirst = newList(new Integer[] { 1, 2, 3, 4 });
+            List<Integer> intFirst = newList(1, 2, 3, 4);
 
-            List<Integer> intSecond = newList(new Integer[] { 4, 5, 6, 7 });
+            List<Integer> intSecond = newList(4, 5, 6, 7);
 
-            expectCollectionIntegerCollectionV = newList(new List[] { intFirst,
-                    intSecond });
+            expectCollectionIntegerCollectionV = newList(intFirst,
+                    intSecond);
 
-            List<Size> enumFirst = newList(new Size[] { Size.SMALL });
-            List<Size> enumSecond = newList(new Size[] { Size.MEDIUM });
-            List<Size> enumThird = newList(new Size[] { Size.LARGE });
+            List<Size> enumFirst = newList(Size.SMALL);
+            List<Size> enumSecond = newList(Size.MEDIUM);
+            List<Size> enumThird = newList(Size.LARGE);
 
-            expectCollectionEnumCollectionV = newList(new List[] { enumFirst,
-                    enumSecond, enumThird });
+            expectCollectionEnumCollectionV = newList(enumFirst,
+                    enumSecond, enumThird);
 
-            List<Guitar> guitarFirst = newList(new Guitar[] {
-                    new AcousticGuitar(GuitarPickup.MICROPHONE),
-                    new BassGuitar(5, true) });
+            List<Guitar> guitarFirst = newList(new AcousticGuitar(GuitarPickup.MICROPHONE),
+                    new BassGuitar(5, true));
 
-            List<Guitar> guitarSecond = newList(new Guitar[] {
-                    new AcousticGuitar(GuitarPickup.CONTACT),
-                    new BassGuitar(6, true) });
+            List<Guitar> guitarSecond = newList(new AcousticGuitar(GuitarPickup.CONTACT),
+                    new BassGuitar(6, true));
 
-            expectCollectionGuitarCollectionV = newList(new List[] {
-                    guitarFirst, guitarSecond });
+            expectCollectionGuitarCollectionV = newList(guitarFirst, guitarSecond);
 
             Map<Integer, String> mapIntegerKStringV = newMap();
             mapIntegerKStringV.put(1, "1");
@@ -466,24 +460,23 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
             Map<Guitar, List<Size>> mapGuitarKEnumCollectionV = newMap();
             mapGuitarKEnumCollectionV.put(new BassGuitar(4, false),
-                    newList(new Size[] { Size.SMALL }));
+                    newList(Size.SMALL));
             mapGuitarKEnumCollectionV.put(new BassGuitar(5, true),
-                    newList(new Size[] { Size.MEDIUM }));
+                    newList(Size.MEDIUM));
 
             expectMapGuitarKEnumCollectionV = mapGuitarKEnumCollectionV;
 
             List<Guitar> guitarK1 = newList(new Guitar[] { new BassGuitar(4,
                     true) });
 
-            List<Guitar> guitarK2 = newList(new Guitar[] {
-                    new AcousticGuitar(GuitarPickup.UNDER_THE_SADDLE),
-                    new BassGuitar(5, false) });
+            List<Guitar> guitarK2 = newList(new AcousticGuitar(GuitarPickup.UNDER_THE_SADDLE),
+                    new BassGuitar(5, false));
 
             Map<List<Guitar>, List<String>> mapGuitarCollectionKStringCollectionV = newMap();
             mapGuitarCollectionKStringCollectionV.put(guitarK1,
-                    newList(new String[] { "1" }));
+                    newList("1"));
             mapGuitarCollectionKStringCollectionV.put(guitarK2,
-                    newList(new String[] { "1", "2" }));
+                    newList("1", "2"));
 
             expectMapGuitarCollectionKStringCollectionV = mapGuitarCollectionKStringCollectionV;
 
@@ -911,22 +904,21 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
                     new AcousticGuitar(GuitarPickup.SOUNDHOLE) };
 
             expectListStringVArray = new List[] {
-                    newList(new String[] { "foo", "bar", "baz" }),
-                    newList(new String[] { "1", "2" }),
-                    newList(new String[] { "3" }) };
+                    newList("foo", "bar", "baz"),
+                    newList("1", "2"),
+                    newList("3") };
 
-            expectListPojoVArray = new List[] { newList(new Pojo[] { new Pojo()
-                    .fill() }) };
+            expectListPojoVArray = new List[] { newList(new Pojo()
+                    .fill()) };
 
             expectListGuitarVArray = new List[] {
-                    newList(new Guitar[] { new BassGuitar(6, true),
-                            new AcousticGuitar(GuitarPickup.UNDER_THE_SADDLE) }),
-                    newList(new Guitar[] { new BassGuitar(5, false), }) };
+                    newList(new BassGuitar(6, true),
+                            new AcousticGuitar(GuitarPickup.UNDER_THE_SADDLE)),
+                    newList(new BassGuitar(5, false)) };
 
-            expectListObjectVArray = new List[] { newList(new Object[] {
-                    new Pojo().fill(),
+            expectListObjectVArray = new List[] { newList(new Pojo().fill(),
                     new AcousticGuitar(GuitarPickup.CONTACT),
-                    new BassGuitar(4, true) }) };
+                    new BassGuitar(4, true)) };
 
             Map<Size, String> mapEnumKStringVFirst = newMap();
             mapEnumKStringVFirst.put(Size.SMALL, "s");
@@ -1272,21 +1264,20 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
         PojoWithCollection fill()
         {
-            someCollectionObjectV = newList(new Object[] { "foo", 1, 1.1f,
+            someCollectionObjectV = newList("foo", 1, 1.1f,
                     100.001d, System.currentTimeMillis(), new Date(),
-                    Size.LARGE, new Pojo().fill(), new BassGuitar(4, true) });
+                    Size.LARGE, new Pojo().fill(), new BassGuitar(4, true));
 
-            Collection<Object> collectionWildcardV = newList(new Object[] {
-                    "bar", Size.SMALL,
-                    new AcousticGuitar(GuitarPickup.MICROPHONE) });
+            Collection<Object> collectionWildcardV = newList("bar", Size.SMALL,
+                    new AcousticGuitar(GuitarPickup.MICROPHONE));
 
             someCollectionWildcardV = collectionWildcardV;
 
-            someListObjectV = newList(new Object[] { "baz", 2, 2.2f, 200.002d,
-                    Size.MEDIUM, new BassGuitar(6, true) });
+            someListObjectV = newList("baz", 2, 2.2f, 200.002d,
+                    Size.MEDIUM, new BassGuitar(6, true));
 
-            List<Object> listWildcardV = newList(new Object[] { "gg", 3,
-                    30.03f, 300.003d, 300000l, new BassGuitar(5, false) });
+            List<Object> listWildcardV = newList("gg", 3,
+                    30.03f, 300.003d, 300000l, new BassGuitar(5, false));
 
             someListWildcardV = listWildcardV;
 
@@ -1766,9 +1757,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             Bat other = (Bat) obj;
-            if (id != other.id)
-                return false;
-            return true;
+            return id == other.id;
         }
 
         static final Schema<Bat> SCHEMA = new Schema<Bat>()
@@ -2554,9 +2543,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             }
             else if (!o9.equals(other.o9))
                 return false;
-            if (!Arrays.equals(oArray, other.oArray))
-                return false;
-            return true;
+            return Arrays.equals(oArray, other.oArray);
         }
 
         @Override

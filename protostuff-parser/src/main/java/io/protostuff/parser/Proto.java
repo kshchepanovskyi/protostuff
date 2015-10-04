@@ -615,7 +615,7 @@ public class Proto extends AnnotationContainer implements HasOptions
 
     public interface Loader
     {
-        public Proto load(String path, Proto importer) throws Exception;
+        Proto load(String path, Proto importer) throws Exception;
     }
 
 }

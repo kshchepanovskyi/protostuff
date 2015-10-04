@@ -50,7 +50,7 @@ public class RuntimeSchemaEnumTagTest
         // TODO: it is not possible to create this test in simple way until we are using RuntimeEnv singleton
     }
 
-    static enum TaggedEnum
+    enum TaggedEnum
     {
 
         @Tag(value = 1, alias = "one")
@@ -95,10 +95,8 @@ public class RuntimeSchemaEnumTagTest
 
             A a = (A) o;
 
-            if (x != a.x)
-                return false;
+            return x == a.x;
 
-            return true;
         }
 
         @Override

@@ -144,13 +144,13 @@ public abstract class IdStrategy
         /**
          * Creates a new {@link IdStrategy} instance (impl).
          */
-        public IdStrategy create();
+        IdStrategy create();
 
         /**
          * Called after the method {@link #create()} has been called. This is used to prevent classloader issues.
          * RuntimeEnv's {@link RuntimeEnv#ID_STRATEGY} need to be set first.
          */
-        public void postCreate();
+        void postCreate();
     }
 
     /**
