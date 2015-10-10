@@ -1,3 +1,12 @@
+protostuff-2.0.0
+================
+
+* remove `Schema#isInitialized()`;
+* delete `protostuff-uberjar` module;
+* move parser and code generator modules to [dedicated git repository](https://github.com/protostuff/protostuff-compiler);
+* merge `protostuff-runtime-registry`, `protostuff-runtime-view` and 
+  `protostuff-collectionschema` modules into `protostuff-runtime`;
+  
 protostuff-1.3.3 2015-03-23
 ===========================
 
