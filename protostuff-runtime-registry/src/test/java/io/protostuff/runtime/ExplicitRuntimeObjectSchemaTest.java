@@ -31,8 +31,7 @@ package io.protostuff.runtime;
 import static io.protostuff.runtime.SampleDelegates.SINGLETON_DELEGATE;
 
 import junit.framework.TestCase;
-import io.protostuff.CollectionSchema;
-import io.protostuff.MapSchema;
+
 import io.protostuff.runtime.AbstractRuntimeObjectSchemaTest.AcousticGuitar;
 import io.protostuff.runtime.AbstractRuntimeObjectSchemaTest.BassGuitar;
 import io.protostuff.runtime.AbstractRuntimeObjectSchemaTest.Bat;

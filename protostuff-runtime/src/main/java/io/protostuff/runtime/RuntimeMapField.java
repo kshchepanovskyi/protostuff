@@ -18,9 +18,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import io.protostuff.Input;
-import io.protostuff.MapSchema;
-import io.protostuff.MapSchema.MapWrapper;
-import io.protostuff.MapSchema.MessageFactory;
+import io.protostuff.runtime.MapSchema.MapWrapper;
+import io.protostuff.runtime.MapSchema.MessageFactory;
 import io.protostuff.Output;
 import io.protostuff.Pipe;
 import io.protostuff.Tag;

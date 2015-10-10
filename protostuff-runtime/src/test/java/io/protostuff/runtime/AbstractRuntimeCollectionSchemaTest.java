@@ -59,7 +59,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import io.protostuff.AbstractTest;
-import io.protostuff.CollectionSchema;
 import io.protostuff.Pipe;
 import io.protostuff.Schema;
 

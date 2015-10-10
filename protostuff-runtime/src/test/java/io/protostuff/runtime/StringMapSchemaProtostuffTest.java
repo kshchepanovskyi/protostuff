@@ -1,5 +1,5 @@
 //========================================================================
-//Copyright 2007-2011 David Yu dyuproject@gmail.com
+//Copyright 2007-2010 David Yu dyuproject@gmail.com
 //------------------------------------------------------------------------
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -12,22 +12,35 @@
 //limitations under the License.
 //========================================================================
 
-package io.protostuff;
+package io.protostuff.runtime;
 
-import io.protostuff.runtime.CollectionSchema;
+import java.io.IOException;
+import java.util.Map;
+
+import io.protostuff.AbstractTest;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
 
 /**
- * Test runtime collection fields with {@link CollectionSchema} via json ser/deser.
+ * Tests for the {@link StringMapSchema} via protostuff.
  * 
  * @author David Yu
  */
-public class JsonCoreRuntimeCollectionSchemaTest extends AbstractJsonRuntimeCollectionSchemaTest
+public class StringMapSchemaProtostuffTest extends StringMapSchemaTest
 {
 
     @Override
-    public boolean isNumeric()
+    public <T extends Map<String, String>> void mergeFrom(byte[] data, int offset, int length,
+            T message, Schema<T> schema) throws IOException
     {
-        return false;
+        ProtostuffIOUtil.mergeFrom(data, offset, length, message, schema);
+    }
+
+    @Override
+    public <T extends Map<String, String>> byte[] toByteArray(T message, Schema<T> schema)
+            throws IOException
+    {
+        return ProtostuffIOUtil.toByteArray(message, schema, AbstractTest.buf());
     }
 
 }

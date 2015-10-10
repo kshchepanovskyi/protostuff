@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import io.protostuff.CollectionSchema.MessageFactory;
+import io.protostuff.runtime.CollectionSchema.MessageFactory;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Message;

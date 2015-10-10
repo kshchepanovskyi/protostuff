@@ -17,6 +17,9 @@ package io.protostuff;
 import java.io.IOException;
 import java.util.Map;
 
+import io.protostuff.runtime.StringMapSchema;
+import io.protostuff.runtime.StringMapSchemaTest;
+
 /**
  * Json IO tests for the {@link StringMapSchema}.
  * 

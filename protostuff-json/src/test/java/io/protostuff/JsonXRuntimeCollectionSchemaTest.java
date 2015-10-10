@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import io.protostuff.StringSerializer.STRING;
+import io.protostuff.runtime.CollectionSchema;
 
 /**
  * Test runtime collection fields with {@link CollectionSchema} via jsonx ser/deser.

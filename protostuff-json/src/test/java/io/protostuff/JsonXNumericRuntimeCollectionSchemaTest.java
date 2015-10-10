@@ -14,6 +14,8 @@
 
 package io.protostuff;
 
+import io.protostuff.runtime.CollectionSchema;
+
 /**
  * Test runtime collection fields with {@link CollectionSchema} via jsonx (numeric) ser/deser.
  * 

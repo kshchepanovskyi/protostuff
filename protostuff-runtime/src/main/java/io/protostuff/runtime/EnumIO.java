@@ -24,9 +24,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.protostuff.CollectionSchema;
 import io.protostuff.Input;
-import io.protostuff.MapSchema;
 import io.protostuff.Output;
 import io.protostuff.Pipe;
 import io.protostuff.Tag;

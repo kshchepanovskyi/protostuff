@@ -42,9 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.protostuff.ByteString;
-import io.protostuff.CollectionSchema;
 import io.protostuff.Input;
-import io.protostuff.MapSchema;
 import io.protostuff.Output;
 import io.protostuff.Pipe;
 import io.protostuff.Schema;

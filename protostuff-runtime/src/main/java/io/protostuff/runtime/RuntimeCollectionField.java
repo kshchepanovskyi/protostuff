@@ -17,8 +17,7 @@ package io.protostuff.runtime;
 import java.io.IOException;
 import java.util.Collection;
 
-import io.protostuff.CollectionSchema;
-import io.protostuff.CollectionSchema.MessageFactory;
+import io.protostuff.runtime.CollectionSchema.MessageFactory;
 import io.protostuff.Input;
 import io.protostuff.Output;
 import io.protostuff.Pipe;

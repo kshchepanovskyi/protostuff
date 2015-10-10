@@ -21,8 +21,8 @@ import java.util.Map;
 
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
-import io.protostuff.MapSchema.MapWrapper;
-import io.protostuff.MapSchema.MessageFactory;
+import io.protostuff.runtime.MapSchema.MapWrapper;
+import io.protostuff.runtime.MapSchema.MessageFactory;
 import io.protostuff.Message;
 import io.protostuff.Morph;
 import io.protostuff.Output;

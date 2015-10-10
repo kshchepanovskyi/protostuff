@@ -15,9 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.protostuff.CollectionSchema;
 import io.protostuff.Input;
-import io.protostuff.MapSchema;
 import io.protostuff.Message;
 import io.protostuff.Output;
 import io.protostuff.Pipe;

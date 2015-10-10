@@ -40,9 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
-import io.protostuff.CollectionSchema;
 import io.protostuff.Input;
-import io.protostuff.MapSchema;
 import io.protostuff.Message;
 import io.protostuff.Output;
 import io.protostuff.Pipe;

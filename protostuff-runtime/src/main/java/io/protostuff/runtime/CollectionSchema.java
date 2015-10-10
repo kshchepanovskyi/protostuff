@@ -12,11 +12,17 @@
 //limitations under the License.
 //========================================================================
 
-package io.protostuff;
+package io.protostuff.runtime;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import io.protostuff.Input;
+import io.protostuff.Output;
+import io.protostuff.Pipe;
+import io.protostuff.ProtostuffException;
+import io.protostuff.Schema;
 
 /**
  * A schema for standard jdk {@link Collection collections}. Null values are not serialized/written.

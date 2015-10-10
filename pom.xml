@@ -438,7 +438,6 @@
   <modules>
     <module>protostuff-api</module>
     <module>protostuff-core</module>
-    <module>protostuff-collectionschema</module>
     <module>protostuff-runtime</module>
     <module>protostuff-runtime-md</module>
     <module>protostuff-runtime-registry</module>

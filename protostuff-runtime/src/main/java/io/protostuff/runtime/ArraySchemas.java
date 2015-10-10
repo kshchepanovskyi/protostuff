@@ -39,7 +39,7 @@ import java.util.Date;
 import io.protostuff.ByteString;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
-import io.protostuff.MapSchema.MapWrapper;
+import io.protostuff.runtime.MapSchema.MapWrapper;
 import io.protostuff.Output;
 import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
