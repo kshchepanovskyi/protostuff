@@ -1,7 +1,3 @@
-==============================================================
- protostuff
- Copyright 2009 David Yu dyuproject@gmail.com
-==============================================================
 
 protobuf is copyright Google inc unless otherwise noted. 
 It is licensed under the BSD license.
