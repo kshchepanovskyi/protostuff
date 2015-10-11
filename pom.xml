@@ -124,12 +124,12 @@
           <excludes>
             <exclude>changelog.md</exclude>
             <exclude>readme.md</exclude>
-            <exclude>LICENSE.txt</exclude>
+            <exclude>license.txt</exclude>
             <exclude>copyright.txt</exclude>
             <exclude>format-license-headers.sh</exclude>
             <exclude>formatter.xml</exclude>
             <exclude>**/pom.xml</exclude>
-            <exclude>NOTICE.txt</exclude>
+            <exclude>notice.txt</exclude>
             <exclude>src/test/resources/**</exclude>
             <exclude>src/main/resources/**</exclude>
           </excludes>
