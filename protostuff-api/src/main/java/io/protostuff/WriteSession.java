@@ -18,9 +18,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Designed to be subclassed by implementations of {@link Output} for easier serialization code for streaming or full
- * buffering. This is used when objects need to be serialzied/written into a {@code LinkedBuffer}.
- * 
+ * Designed to be subclassed by implementations of {@link Output} for easier serialization code for
+ * streaming or full buffering. This is used when objects need to be serialzied/written into
+ * a {@code LinkedBuffer}.
+ *
  * @author David Yu
  */
 public class WriteSession
