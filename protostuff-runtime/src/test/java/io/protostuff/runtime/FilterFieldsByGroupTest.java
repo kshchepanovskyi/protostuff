@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -23,19 +20,135 @@ import io.protostuff.Tag;
 
 /**
  * The fields are filtered dependending on the Tag annotation {@link Tag#groupFilter()}.
- * 
+ *
  * @author David Yu
  */
-public class FilterFieldsByGroupTest extends AbstractTest
-{
+public class FilterFieldsByGroupTest extends AbstractTest {
 
     // power of two (max of 31 bits/groups allowed)
     static final int GROUP1 = 1;
     static final int GROUP2 = 2;
     static final int GROUP3 = 4;
 
-    static class Inner
-    {
+    static void verifyPrimary(IdStrategy strategy) throws Exception {
+        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
+        Inner message = new Inner().fillAll(true);
+
+        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
+        Inner parsed = new Inner();
+        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
+
+        assertTrue(message.equals(parsed));
+    }
+
+    static void verifyGroup1(IdStrategy strategy) throws Exception {
+        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
+        Inner message = new Inner().fillAll(true);
+
+        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
+        Inner parsed = new Inner();
+        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
+
+        assertTrue(!message.equals(parsed));
+
+        assertTrue(message.propAll == parsed.propAll);
+
+        assertTrue(message.prop1a == parsed.prop1a);
+        assertTrue(message.prop1b == parsed.prop1b);
+
+        assertTrue(message.prop2a != parsed.prop2a);
+        assertTrue(message.prop2b != parsed.prop2b);
+
+        assertTrue(message.prop3a != parsed.prop3a);
+        assertTrue(message.prop3b != parsed.prop3b);
+
+        assertTrue(message.prop1and2a == parsed.prop1and2a);
+        assertTrue(message.prop1and2b == parsed.prop1and2b);
+
+        assertTrue(message.prop1and3a == parsed.prop1and3a);
+        assertTrue(message.prop1and3b == parsed.prop1and3b);
+
+        assertTrue(message.prop2and3a != parsed.prop2and3a);
+        assertTrue(message.prop2and3b != parsed.prop2and3b);
+    }
+
+    static void verifyGroup2(IdStrategy strategy) throws Exception {
+        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
+        Inner message = new Inner().fillAll(true);
+
+        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
+        Inner parsed = new Inner();
+        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
+
+        assertTrue(!message.equals(parsed));
+
+        assertTrue(message.propAll == parsed.propAll);
+
+        assertTrue(message.prop1a != parsed.prop1a);
+        assertTrue(message.prop1b != parsed.prop1b);
+
+        assertTrue(message.prop2a == parsed.prop2a);
+        assertTrue(message.prop2b == parsed.prop2b);
+
+        assertTrue(message.prop3a != parsed.prop3a);
+        assertTrue(message.prop3b != parsed.prop3b);
+
+        assertTrue(message.prop1and2a == parsed.prop1and2a);
+        assertTrue(message.prop1and2b == parsed.prop1and2b);
+
+        assertTrue(message.prop1and3a != parsed.prop1and3a);
+        assertTrue(message.prop1and3b != parsed.prop1and3b);
+
+        assertTrue(message.prop2and3a == parsed.prop2and3a);
+        assertTrue(message.prop2and3b == parsed.prop2and3b);
+    }
+
+    static void verifyGroup3(IdStrategy strategy) throws Exception {
+        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
+        Inner message = new Inner().fillAll(true);
+
+        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
+        Inner parsed = new Inner();
+        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
+
+        assertTrue(!message.equals(parsed));
+
+        assertTrue(message.propAll == parsed.propAll);
+
+        assertTrue(message.prop1a != parsed.prop1a);
+        assertTrue(message.prop1b != parsed.prop1b);
+
+        assertTrue(message.prop2a != parsed.prop2a);
+        assertTrue(message.prop2b != parsed.prop2b);
+
+        assertTrue(message.prop3a == parsed.prop3a);
+        assertTrue(message.prop3b == parsed.prop3b);
+
+        assertTrue(message.prop1and2a != parsed.prop1and2a);
+        assertTrue(message.prop1and2b != parsed.prop1and2b);
+
+        assertTrue(message.prop1and3a == parsed.prop1and3a);
+        assertTrue(message.prop1and3b == parsed.prop1and3b);
+
+        assertTrue(message.prop2and3a == parsed.prop2and3a);
+        assertTrue(message.prop2and3b == parsed.prop2and3b);
+    }
+
+    public void testIt() throws Exception {
+        // contains all fields
+        DefaultIdStrategy primary = new DefaultIdStrategy();
+
+        DefaultIdStrategy g1 = new DefaultIdStrategy(primary, GROUP1);
+        DefaultIdStrategy g2 = new DefaultIdStrategy(primary, GROUP2);
+        DefaultIdStrategy g3 = new DefaultIdStrategy(primary, GROUP3);
+
+        verifyPrimary(primary);
+        verifyGroup1(g1);
+        verifyGroup2(g2);
+        verifyGroup3(g3);
+    }
+
+    static class Inner {
 
         // ============ ALL
 
@@ -102,8 +215,7 @@ public class FilterFieldsByGroupTest extends AbstractTest
         // exclude
         public boolean prop2and3b = false;
 
-        public Inner fillAll(boolean value)
-        {
+        public Inner fillAll(boolean value) {
             propAll = value;
 
             prop1a = value;
@@ -128,8 +240,7 @@ public class FilterFieldsByGroupTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + (prop1a ? 1231 : 1237);
@@ -149,8 +260,7 @@ public class FilterFieldsByGroupTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -186,8 +296,7 @@ public class FilterFieldsByGroupTest extends AbstractTest
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "Inner [propAll=" + propAll + ", prop1a=" + prop1a
                     + ", prop1b=" + prop1b + ", prop2a=" + prop2a + ", prop2b="
                     + prop2b + ", prop3a=" + prop3a + ", prop3b=" + prop3b
@@ -197,129 +306,6 @@ public class FilterFieldsByGroupTest extends AbstractTest
                     + prop2and3a + ", prop2and3b=" + prop2and3b + "]";
         }
 
-    }
-
-    public void testIt() throws Exception
-    {
-        // contains all fields
-        DefaultIdStrategy primary = new DefaultIdStrategy();
-
-        DefaultIdStrategy g1 = new DefaultIdStrategy(primary, GROUP1);
-        DefaultIdStrategy g2 = new DefaultIdStrategy(primary, GROUP2);
-        DefaultIdStrategy g3 = new DefaultIdStrategy(primary, GROUP3);
-
-        verifyPrimary(primary);
-        verifyGroup1(g1);
-        verifyGroup2(g2);
-        verifyGroup3(g3);
-    }
-
-    static void verifyPrimary(IdStrategy strategy) throws Exception
-    {
-        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
-        Inner message = new Inner().fillAll(true);
-
-        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
-        Inner parsed = new Inner();
-        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
-
-        assertTrue(message.equals(parsed));
-    }
-
-    static void verifyGroup1(IdStrategy strategy) throws Exception
-    {
-        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
-        Inner message = new Inner().fillAll(true);
-
-        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
-        Inner parsed = new Inner();
-        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
-
-        assertTrue(!message.equals(parsed));
-
-        assertTrue(message.propAll == parsed.propAll);
-
-        assertTrue(message.prop1a == parsed.prop1a);
-        assertTrue(message.prop1b == parsed.prop1b);
-
-        assertTrue(message.prop2a != parsed.prop2a);
-        assertTrue(message.prop2b != parsed.prop2b);
-
-        assertTrue(message.prop3a != parsed.prop3a);
-        assertTrue(message.prop3b != parsed.prop3b);
-
-        assertTrue(message.prop1and2a == parsed.prop1and2a);
-        assertTrue(message.prop1and2b == parsed.prop1and2b);
-
-        assertTrue(message.prop1and3a == parsed.prop1and3a);
-        assertTrue(message.prop1and3b == parsed.prop1and3b);
-
-        assertTrue(message.prop2and3a != parsed.prop2and3a);
-        assertTrue(message.prop2and3b != parsed.prop2and3b);
-    }
-
-    static void verifyGroup2(IdStrategy strategy) throws Exception
-    {
-        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
-        Inner message = new Inner().fillAll(true);
-
-        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
-        Inner parsed = new Inner();
-        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
-
-        assertTrue(!message.equals(parsed));
-
-        assertTrue(message.propAll == parsed.propAll);
-
-        assertTrue(message.prop1a != parsed.prop1a);
-        assertTrue(message.prop1b != parsed.prop1b);
-
-        assertTrue(message.prop2a == parsed.prop2a);
-        assertTrue(message.prop2b == parsed.prop2b);
-
-        assertTrue(message.prop3a != parsed.prop3a);
-        assertTrue(message.prop3b != parsed.prop3b);
-
-        assertTrue(message.prop1and2a == parsed.prop1and2a);
-        assertTrue(message.prop1and2b == parsed.prop1and2b);
-
-        assertTrue(message.prop1and3a != parsed.prop1and3a);
-        assertTrue(message.prop1and3b != parsed.prop1and3b);
-
-        assertTrue(message.prop2and3a == parsed.prop2and3a);
-        assertTrue(message.prop2and3b == parsed.prop2and3b);
-    }
-
-    static void verifyGroup3(IdStrategy strategy) throws Exception
-    {
-        Schema<Inner> schema = RuntimeSchema.getSchema(Inner.class, strategy);
-        Inner message = new Inner().fillAll(true);
-
-        byte[] data = ProtostuffIOUtil.toByteArray(message, schema, buf());
-        Inner parsed = new Inner();
-        ProtostuffIOUtil.mergeFrom(data, parsed, schema);
-
-        assertTrue(!message.equals(parsed));
-
-        assertTrue(message.propAll == parsed.propAll);
-
-        assertTrue(message.prop1a != parsed.prop1a);
-        assertTrue(message.prop1b != parsed.prop1b);
-
-        assertTrue(message.prop2a != parsed.prop2a);
-        assertTrue(message.prop2b != parsed.prop2b);
-
-        assertTrue(message.prop3a == parsed.prop3a);
-        assertTrue(message.prop3b == parsed.prop3b);
-
-        assertTrue(message.prop1and2a != parsed.prop1and2a);
-        assertTrue(message.prop1and2b != parsed.prop1and2b);
-
-        assertTrue(message.prop1and3a == parsed.prop1and3a);
-        assertTrue(message.prop1and3b == parsed.prop1and3b);
-
-        assertTrue(message.prop2and3a == parsed.prop2and3a);
-        assertTrue(message.prop2and3b == parsed.prop2and3b);
     }
 
     /*

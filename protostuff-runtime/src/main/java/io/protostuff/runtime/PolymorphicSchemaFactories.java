@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -23,40 +20,34 @@ import io.protostuff.runtime.PolymorphicSchema.Handler;
 
 /**
  * Polymorphic types.
- * 
+ *
  * @author David Yu
  */
-public enum PolymorphicSchemaFactories implements PolymorphicSchema.Factory
-{
+public enum PolymorphicSchemaFactories implements PolymorphicSchema.Factory {
 
-    ARRAY
-    {
+    ARRAY {
         @Override
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
+                                           IdStrategy strategy, final Handler handler) {
             @SuppressWarnings("unchecked")
             Class<Object> ct = (Class<Object>) typeClass.getComponentType();
 
             RuntimeFieldFactory<?> rff = RuntimeFieldFactory.getFieldFactory(
                     ct, strategy);
 
-            if (rff == RuntimeFieldFactory.DELEGATE)
-            {
+            if (rff == RuntimeFieldFactory.DELEGATE) {
                 // delegate
                 return strategy.getDelegateWrapper(ct).newSchema(typeClass,
                         strategy, handler);
             }
 
-            if (rff.id > 0 && rff.id < 15)
-            {
+            if (rff.id > 0 && rff.id < 15) {
                 // scalar
                 return ArraySchemas.newSchema(rff.id, ct, typeClass, strategy,
                         handler);
             }
 
-            if (ct.isEnum())
-            {
+            if (ct.isEnum()) {
                 // enum
                 return strategy.getEnumIO(ct).newSchema(typeClass, strategy,
                         handler);
@@ -64,133 +55,101 @@ public enum PolymorphicSchemaFactories implements PolymorphicSchema.Factory
 
             if (rff == RuntimeFieldFactory.POJO
                     || (rff == RuntimeFieldFactory.POLYMORPHIC_POJO && RuntimeFieldFactory
-                            .pojo(ct, null, strategy)))
-            {
+                    .pojo(ct, null, strategy))) {
                 // pojo
                 return strategy.getSchemaWrapper(ct, true).newSchema(typeClass,
                         strategy, handler);
             }
 
-            return new ArraySchema(strategy)
-            {
+            return new ArraySchema(strategy) {
                 @Override
-                protected void setValue(Object value, Object owner)
-                {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    NUMBER
-    {
+    NUMBER {
         @Override
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new NumberSchema(strategy)
-            {
-                protected void setValue(Object value, Object owner)
-                {
+                                           IdStrategy strategy, final Handler handler) {
+            return new NumberSchema(strategy) {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    CLASS
-    {
+    CLASS {
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new ClassSchema(strategy)
-            {
+                                           IdStrategy strategy, final Handler handler) {
+            return new ClassSchema(strategy) {
                 @Override
-                protected void setValue(Object value, Object owner)
-                {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    ENUM
-    {
+    ENUM {
         @Override
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new PolymorphicEnumSchema(strategy)
-            {
+                                           IdStrategy strategy, final Handler handler) {
+            return new PolymorphicEnumSchema(strategy) {
                 @Override
-                protected void setValue(Object value, Object owner)
-                {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    COLLECTION
-    {
+    COLLECTION {
         @Override
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new PolymorphicCollectionSchema(strategy)
-            {
-                protected void setValue(Object value, Object owner)
-                {
+                                           IdStrategy strategy, final Handler handler) {
+            return new PolymorphicCollectionSchema(strategy) {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    MAP
-    {
+    MAP {
         @Override
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new PolymorphicMapSchema(strategy)
-            {
-                protected void setValue(Object value, Object owner)
-                {
+                                           IdStrategy strategy, final Handler handler) {
+            return new PolymorphicMapSchema(strategy) {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    THROWABLE
-    {
+    THROWABLE {
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new PolymorphicThrowableSchema(strategy)
-            {
+                                           IdStrategy strategy, final Handler handler) {
+            return new PolymorphicThrowableSchema(strategy) {
                 @Override
-                protected void setValue(Object value, Object owner)
-                {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     },
-    OBJECT
-    {
+    OBJECT {
         @Override
         public PolymorphicSchema newSchema(Class<?> typeClass,
-                IdStrategy strategy, final Handler handler)
-        {
-            return new ObjectSchema(strategy)
-            {
+                                           IdStrategy strategy, final Handler handler) {
+            return new ObjectSchema(strategy) {
                 @Override
-                protected void setValue(Object value, Object owner)
-                {
+                protected void setValue(Object value, Object owner) {
                     handler.setValue(value, owner);
                 }
             };
         }
     };
 
-    public static PolymorphicSchema.Factory getFactoryFromField(Class<?> clazz)
-    {
+    public static PolymorphicSchema.Factory getFactoryFromField(Class<?> clazz) {
         if (clazz.isArray())
             return ARRAY;
 
@@ -216,8 +175,7 @@ public enum PolymorphicSchemaFactories implements PolymorphicSchema.Factory
     }
 
     public static PolymorphicSchema.Factory getFactoryFromRepeatedValueGenericType(
-            Class<?> clazz)
-    {
+            Class<?> clazz) {
         if (clazz.isArray())
             return ARRAY;
 
@@ -240,38 +198,32 @@ public enum PolymorphicSchemaFactories implements PolymorphicSchema.Factory
     }
 
     public static PolymorphicSchema getSchemaFromCollectionOrMapGenericType(
-            Class<?> clazz, IdStrategy strategy)
-    {
-        if (clazz.isArray())
-        {
+            Class<?> clazz, IdStrategy strategy) {
+        if (clazz.isArray()) {
             @SuppressWarnings("unchecked")
             Class<Object> ct = (Class<Object>) clazz.getComponentType();
 
             RuntimeFieldFactory<?> rff = RuntimeFieldFactory.getFieldFactory(
                     ct, strategy);
 
-            if (rff == RuntimeFieldFactory.DELEGATE)
-            {
+            if (rff == RuntimeFieldFactory.DELEGATE) {
                 // delegate
                 return strategy.getDelegateWrapper(ct).genericElementSchema;
             }
 
-            if (rff.id > 0 && rff.id < 15)
-            {
+            if (rff.id > 0 && rff.id < 15) {
                 // scalar
                 return ArraySchemas.getGenericElementSchema(rff.id);
             }
 
-            if (ct.isEnum())
-            {
+            if (ct.isEnum()) {
                 // enum
                 return strategy.getEnumIO(ct).genericElementSchema;
             }
 
             if (rff == RuntimeFieldFactory.POJO
                     || (rff == RuntimeFieldFactory.POLYMORPHIC_POJO && RuntimeFieldFactory
-                            .pojo(ct, null, strategy)))
-            {
+                    .pojo(ct, null, strategy))) {
                 // pojo
                 return strategy.getSchemaWrapper(ct, true).genericElementSchema;
             }

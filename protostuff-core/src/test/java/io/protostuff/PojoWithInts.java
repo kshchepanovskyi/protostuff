@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -21,21 +18,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-public final class PojoWithInts implements Externalizable, Message<PojoWithInts>, Schema<PojoWithInts>
-{
-
-    public static Schema<PojoWithInts> getSchema()
-    {
-        return DEFAULT_INSTANCE;
-    }
-
-    public static PojoWithInts getDefaultInstance()
-    {
-        return DEFAULT_INSTANCE;
-    }
+public final class PojoWithInts implements Externalizable, Message<PojoWithInts>, Schema<PojoWithInts> {
 
     static final PojoWithInts DEFAULT_INSTANCE = new PojoWithInts();
-
     private int someInt32;
     private int someUint32;
     private int someSint32;
@@ -46,189 +31,165 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
     private long someSint64;
     private long someFixed64;
     private long someSfixed64;
+    public PojoWithInts() {
 
-    public PojoWithInts()
-    {
+    }
 
+    public static Schema<PojoWithInts> getSchema() {
+        return DEFAULT_INSTANCE;
+    }
+
+    public static PojoWithInts getDefaultInstance() {
+        return DEFAULT_INSTANCE;
     }
 
     // getters and setters
 
     // someInt32
 
-    public int getSomeInt32()
-    {
+    public int getSomeInt32() {
         return someInt32;
     }
 
-    public void setSomeInt32(int someInt32)
-    {
+    public void setSomeInt32(int someInt32) {
         this.someInt32 = someInt32;
     }
 
     // someUint32
 
-    public int getSomeUint32()
-    {
+    public int getSomeUint32() {
         return someUint32;
     }
 
-    public void setSomeUint32(int someUint32)
-    {
+    public void setSomeUint32(int someUint32) {
         this.someUint32 = someUint32;
     }
 
     // someSint32
 
-    public int getSomeSint32()
-    {
+    public int getSomeSint32() {
         return someSint32;
     }
 
-    public void setSomeSint32(int someSint32)
-    {
+    public void setSomeSint32(int someSint32) {
         this.someSint32 = someSint32;
     }
 
     // someFixed32
 
-    public int getSomeFixed32()
-    {
+    public int getSomeFixed32() {
         return someFixed32;
     }
 
-    public void setSomeFixed32(int someFixed32)
-    {
+    public void setSomeFixed32(int someFixed32) {
         this.someFixed32 = someFixed32;
     }
 
     // someSfixed32
 
-    public int getSomeSfixed32()
-    {
+    public int getSomeSfixed32() {
         return someSfixed32;
     }
 
-    public void setSomeSfixed32(int someSfixed32)
-    {
+    public void setSomeSfixed32(int someSfixed32) {
         this.someSfixed32 = someSfixed32;
     }
 
     // someInt64
 
-    public long getSomeInt64()
-    {
+    public long getSomeInt64() {
         return someInt64;
     }
 
-    public void setSomeInt64(long someInt64)
-    {
+    public void setSomeInt64(long someInt64) {
         this.someInt64 = someInt64;
     }
 
     // someUint64
 
-    public long getSomeUint64()
-    {
+    public long getSomeUint64() {
         return someUint64;
     }
 
-    public void setSomeUint64(long someUint64)
-    {
+    public void setSomeUint64(long someUint64) {
         this.someUint64 = someUint64;
     }
 
     // someSint64
 
-    public long getSomeSint64()
-    {
+    public long getSomeSint64() {
         return someSint64;
     }
 
-    public void setSomeSint64(long someSint64)
-    {
+    public void setSomeSint64(long someSint64) {
         this.someSint64 = someSint64;
     }
 
     // someFixed64
 
-    public long getSomeFixed64()
-    {
+    public long getSomeFixed64() {
         return someFixed64;
     }
 
-    public void setSomeFixed64(long someFixed64)
-    {
+    public void setSomeFixed64(long someFixed64) {
         this.someFixed64 = someFixed64;
     }
 
     // someSfixed64
 
-    public long getSomeSfixed64()
-    {
+    public long getSomeSfixed64() {
         return someSfixed64;
     }
 
-    public void setSomeSfixed64(long someSfixed64)
-    {
+    public void setSomeSfixed64(long someSfixed64) {
         this.someSfixed64 = someSfixed64;
     }
 
     // java serialization
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException
-    {
+    public void readExternal(ObjectInput in) throws IOException {
         GraphIOUtil.mergeDelimitedFrom(in, this, this);
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
+    public void writeExternal(ObjectOutput out) throws IOException {
         GraphIOUtil.writeDelimitedTo(out, this, this);
     }
 
     // message method
 
     @Override
-    public Schema<PojoWithInts> cachedSchema()
-    {
+    public Schema<PojoWithInts> cachedSchema() {
         return this;
     }
 
     // schema methods
 
     @Override
-    public PojoWithInts newMessage()
-    {
+    public PojoWithInts newMessage() {
         return new PojoWithInts();
     }
 
     @Override
-    public Class<PojoWithInts> typeClass()
-    {
+    public Class<PojoWithInts> typeClass() {
         return PojoWithInts.class;
     }
 
     @Override
-    public String messageName()
-    {
+    public String messageName() {
         return PojoWithInts.class.getSimpleName();
     }
 
     @Override
-    public String messageFullName()
-    {
+    public String messageFullName() {
         return PojoWithInts.class.getName();
     }
 
     @Override
-    public void mergeFrom(Input input, PojoWithInts message) throws IOException
-    {
-        for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))
-        {
-            switch (number)
-            {
+    public void mergeFrom(Input input, PojoWithInts message) throws IOException {
+        for (int number = input.readFieldNumber(this); ; number = input.readFieldNumber(this)) {
+            switch (number) {
                 case 0:
                     return;
                 case 1:
@@ -268,8 +229,7 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
     }
 
     @Override
-    public void writeTo(Output output, PojoWithInts message) throws IOException
-    {
+    public void writeTo(Output output, PojoWithInts message) throws IOException {
         if (message.someInt32 != 0)
             output.writeInt32(1, message.someInt32, false);
 
@@ -302,20 +262,17 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
     }
 
     @Override
-    public String getFieldName(int number)
-    {
+    public String getFieldName(int number) {
         return Integer.toString(number);
     }
 
     @Override
-    public int getFieldNumber(String name)
-    {
+    public int getFieldNumber(String name) {
         return Integer.parseInt(name);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + someFixed32;
@@ -332,8 +289,7 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -363,8 +319,7 @@ public final class PojoWithInts implements Externalizable, Message<PojoWithInts>
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "PojoWithInts [someFixed32=" + someFixed32 + ", someFixed64=" + someFixed64 + ", someInt32=" + someInt32
                 + ", someInt64=" + someInt64
                 + ", someSfixed32=" + someSfixed32 + ", someSfixed64=" + someSfixed64 + ", someSint32=" + someSint32

@@ -1,20 +1,27 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
+
+import java.io.IOException;
+
+import io.protostuff.GraphInput;
+import io.protostuff.Input;
+import io.protostuff.Output;
+import io.protostuff.Pipe;
+import io.protostuff.ProtostuffException;
+import io.protostuff.Schema;
+import io.protostuff.StatefulOutput;
 
 import static io.protostuff.runtime.RuntimeFieldFactory.BIGDECIMAL;
 import static io.protostuff.runtime.RuntimeFieldFactory.BIGINTEGER;
@@ -43,28 +50,28 @@ import static io.protostuff.runtime.RuntimeFieldFactory.STR_INT64;
 import static io.protostuff.runtime.RuntimeFieldFactory.STR_POJO;
 import static io.protostuff.runtime.RuntimeFieldFactory.STR_SHORT;
 
-import java.io.IOException;
-
-import io.protostuff.GraphInput;
-import io.protostuff.Input;
-import io.protostuff.Output;
-import io.protostuff.Pipe;
-import io.protostuff.ProtostuffException;
-import io.protostuff.Schema;
-import io.protostuff.StatefulOutput;
-
 /**
  * Used when the type is {@link java.lang.Number}.
- * 
+ *
  * @author David Yu
  */
-public abstract class NumberSchema extends PolymorphicSchema
-{
+public abstract class NumberSchema extends PolymorphicSchema {
 
-    static String name(int number)
-    {
-        switch (number)
-        {
+    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
+            this) {
+        @Override
+        protected void transfer(Pipe pipe, Input input, Output output)
+                throws IOException {
+            transferObject(this, pipe, input, output, strategy);
+        }
+    };
+
+    public NumberSchema(IdStrategy strategy) {
+        super(strategy);
+    }
+
+    static String name(int number) {
+        switch (number) {
             case ID_BYTE:
                 return STR_BYTE;
             case ID_SHORT:
@@ -81,7 +88,7 @@ public abstract class NumberSchema extends PolymorphicSchema
                 return STR_BIGDECIMAL;
             case ID_BIGINTEGER:
                 return STR_BIGINTEGER;
-                // AtomicInteger and AtomicLong
+            // AtomicInteger and AtomicLong
             case ID_POJO:
                 return STR_POJO;
             default:
@@ -89,13 +96,11 @@ public abstract class NumberSchema extends PolymorphicSchema
         }
     }
 
-    static int number(String name)
-    {
+    static int number(String name) {
         if (name.length() != 1)
             return 0;
 
-        switch (name.charAt(0))
-        {
+        switch (name.charAt(0)) {
             case '_':
                 return 127;
             case 'b':
@@ -119,74 +124,14 @@ public abstract class NumberSchema extends PolymorphicSchema
         }
     }
 
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this)
-    {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException
-        {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
-
-    public NumberSchema(IdStrategy strategy)
-    {
-        super(strategy);
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema()
-    {
-        return pipeSchema;
-    }
-
-    @Override
-    public String getFieldName(int number)
-    {
-        return name(number);
-    }
-
-    @Override
-    public int getFieldNumber(String name)
-    {
-        return number(name);
-    }
-
-    @Override
-    public String messageFullName()
-    {
-        return Number.class.getName();
-    }
-
-    @Override
-    public String messageName()
-    {
-        return Number.class.getSimpleName();
-    }
-
-    @Override
-    public void mergeFrom(Input input, Object owner) throws IOException
-    {
-        setValue(readObjectFrom(input, this, owner, strategy), owner);
-    }
-
-    @Override
-    public void writeTo(Output output, Object value) throws IOException
-    {
-        writeObjectTo(output, value, this, strategy);
-    }
-
     @SuppressWarnings("unchecked")
     static void writeObjectTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy) throws IOException
-    {
+                              Schema<?> currentSchema, IdStrategy strategy) throws IOException {
         final Class<Object> clazz = (Class<Object>) value.getClass();
 
         final RuntimeFieldFactory<Object> inline = RuntimeFieldFactory
                 .getInline(clazz);
-        if (inline != null)
-        {
+        if (inline != null) {
             // scalar value
             inline.writeTo(output, inline.id, value, false);
             return;
@@ -196,8 +141,7 @@ public abstract class NumberSchema extends PolymorphicSchema
         final Schema<Object> schema = strategy.writePojoIdTo(output, ID_POJO,
                 clazz).getSchema();
 
-        if (output instanceof StatefulOutput)
-        {
+        if (output instanceof StatefulOutput) {
             // update using the derived schema.
             ((StatefulOutput) output).updateLast(schema, currentSchema);
         }
@@ -206,20 +150,17 @@ public abstract class NumberSchema extends PolymorphicSchema
     }
 
     static Object readObjectFrom(Input input, Schema<?> schema, Object owner,
-            IdStrategy strategy) throws IOException
-    {
+                                 IdStrategy strategy) throws IOException {
         final int number = input.readFieldNumber(schema);
 
-        if (number == ID_POJO)
-        {
+        if (number == ID_POJO) {
             // AtomicInteger/AtomicLong
             final Schema<Object> derivedSchema = strategy.resolvePojoFrom(
                     input, number).getSchema();
 
             final Object pojo = derivedSchema.newMessage();
 
-            if (input instanceof GraphInput)
-            {
+            if (input instanceof GraphInput) {
                 // update the actual reference.
                 ((GraphInput) input).updateLast(pojo, owner);
             }
@@ -229,8 +170,7 @@ public abstract class NumberSchema extends PolymorphicSchema
         }
 
         final Object value;
-        switch (number)
-        {
+        switch (number) {
             case ID_BYTE:
                 value = BYTE.readFrom(input);
                 break;
@@ -259,8 +199,7 @@ public abstract class NumberSchema extends PolymorphicSchema
                 throw new ProtostuffException("Corrupt input.");
         }
 
-        if (input instanceof GraphInput)
-        {
+        if (input instanceof GraphInput) {
             // update the actual reference.
             ((GraphInput) input).updateLast(value, owner);
         }
@@ -272,17 +211,14 @@ public abstract class NumberSchema extends PolymorphicSchema
     }
 
     static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-            Input input, Output output, IdStrategy strategy) throws IOException
-    {
+                               Input input, Output output, IdStrategy strategy) throws IOException {
         final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        if (number == ID_POJO)
-        {
+        if (number == ID_POJO) {
             // AtomicInteger/AtomicLong
             final Pipe.Schema<Object> derivedPipeSchema = strategy
                     .transferPojoId(input, output, number).getPipeSchema();
 
-            if (output instanceof StatefulOutput)
-            {
+            if (output instanceof StatefulOutput) {
                 // update using the derived schema.
                 ((StatefulOutput) output).updateLast(derivedPipeSchema,
                         pipeSchema);
@@ -292,8 +228,7 @@ public abstract class NumberSchema extends PolymorphicSchema
             return;
         }
 
-        switch (number)
-        {
+        switch (number) {
             case ID_BYTE:
                 BYTE.transfer(pipe, input, output, number, false);
                 break;
@@ -321,6 +256,41 @@ public abstract class NumberSchema extends PolymorphicSchema
             default:
                 throw new ProtostuffException("Corrupt input.");
         }
+    }
+
+    @Override
+    public Pipe.Schema<Object> getPipeSchema() {
+        return pipeSchema;
+    }
+
+    @Override
+    public String getFieldName(int number) {
+        return name(number);
+    }
+
+    @Override
+    public int getFieldNumber(String name) {
+        return number(name);
+    }
+
+    @Override
+    public String messageFullName() {
+        return Number.class.getName();
+    }
+
+    @Override
+    public String messageName() {
+        return Number.class.getSimpleName();
+    }
+
+    @Override
+    public void mergeFrom(Input input, Object owner) throws IOException {
+        setValue(readObjectFrom(input, this, owner, strategy), owner);
+    }
+
+    @Override
+    public void writeTo(Output output, Object value) throws IOException {
+        writeObjectTo(output, value, this, strategy);
     }
 
 }

@@ -1,20 +1,24 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
+
+import junit.framework.TestCase;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.protostuff.SerializableObjects.bar;
 import static io.protostuff.SerializableObjects.baz;
@@ -22,23 +26,14 @@ import static io.protostuff.SerializableObjects.foo;
 import static io.protostuff.SerializableObjects.negativeBar;
 import static io.protostuff.SerializableObjects.negativeBaz;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 /**
  * Testing for json ser/deser against messages.
- * 
+ *
  * @author David Yu
  */
-public class JsonNumericCoreSerDeserTest extends TestCase
-{
+public class JsonNumericCoreSerDeserTest extends TestCase {
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Foo fooCompare = foo;
         Foo dfoo = new Foo();
 
@@ -47,10 +42,8 @@ public class JsonNumericCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(fooCompare, dfoo);
     }
 
-    public void testBar() throws Exception
-    {
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+    public void testBar() throws Exception {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             Bar dbar = new Bar();
 
             byte[] data = JsonIOUtil.toByteArray(barCompare, barCompare.cachedSchema(), true);
@@ -59,10 +52,8 @@ public class JsonNumericCoreSerDeserTest extends TestCase
         }
     }
 
-    public void testBaz() throws Exception
-    {
-        for (Baz bazCompare : new Baz[] { baz, negativeBaz })
-        {
+    public void testBaz() throws Exception {
+        for (Baz bazCompare : new Baz[]{baz, negativeBaz}) {
             Baz dbaz = new Baz();
 
             byte[] data = JsonIOUtil.toByteArray(bazCompare, bazCompare.cachedSchema(), true);
@@ -71,8 +62,7 @@ public class JsonNumericCoreSerDeserTest extends TestCase
         }
     }
 
-    public void testListIO() throws Exception
-    {
+    public void testListIO() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(SerializableObjects.bar);
         bars.add(SerializableObjects.negativeBar);

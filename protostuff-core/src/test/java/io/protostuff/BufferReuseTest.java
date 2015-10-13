@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -24,69 +21,57 @@ import io.protostuff.Foo.EnumSample;
 
 /**
  * Test for re-using a thread-local buffer across many serializations.
- * 
+ *
  * @author David Yu
  */
-public class BufferReuseTest extends StandardTest
-{
+public class BufferReuseTest extends StandardTest {
 
     private static final ThreadLocal<LinkedBuffer> localBuffer =
-            new ThreadLocal<LinkedBuffer>()
-            {
+            new ThreadLocal<LinkedBuffer>() {
                 @Override
-                protected LinkedBuffer initialValue()
-                {
+                protected LinkedBuffer initialValue() {
                     return buf();
                 }
             };
 
     @Override
-    protected <T> void mergeFrom(byte[] data, int offset, int length, T message, Schema<T> schema) throws IOException
-    {
+    protected <T> void mergeFrom(byte[] data, int offset, int length, T message, Schema<T> schema) throws IOException {
         ByteArrayInputStream in = new ByteArrayInputStream(data, offset, length);
         ProtostuffIOUtil.mergeFrom(in, message, schema, localBuffer.get());
     }
 
     @Override
-    protected <T> byte[] toByteArray(T message, Schema<T> schema)
-    {
+    protected <T> byte[] toByteArray(T message, Schema<T> schema) {
         final LinkedBuffer buffer = localBuffer.get();
-        try
-        {
+        try {
             return ProtostuffIOUtil.toByteArray(message, schema, buffer);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
-    public void testFooSizeLimited() throws Exception
-    {
+    public void testFooSizeLimited() throws Exception {
         final Foo fooCompare = SerializableObjects.newFoo(
-                new Integer[] { 90210, -90210, 0 },
-                new String[] { "ab", "cd" },
-                new Bar[] { SerializableObjects.bar, SerializableObjects.negativeBar,
+                new Integer[]{90210, -90210, 0},
+                new String[]{"ab", "cd"},
+                new Bar[]{SerializableObjects.bar, SerializableObjects.negativeBar,
                         SerializableObjects.bar, SerializableObjects.negativeBar,
-                        SerializableObjects.bar, SerializableObjects.negativeBar },
-                new EnumSample[] { EnumSample.TYPE0, EnumSample.TYPE2 },
-                new ByteString[] { ByteString.copyFromUtf8("ef"), ByteString.copyFromUtf8("gh") },
-                new Boolean[] { true, false },
-                new Float[] { 1234.4321f, -1234.4321f, 0f },
-                new Double[] { 12345678.87654321d, -12345678.87654321d, 0d },
-                new Long[] { 7060504030201l, -7060504030201l, 0l });
+                        SerializableObjects.bar, SerializableObjects.negativeBar},
+                new EnumSample[]{EnumSample.TYPE0, EnumSample.TYPE2},
+                new ByteString[]{ByteString.copyFromUtf8("ef"), ByteString.copyFromUtf8("gh")},
+                new Boolean[]{true, false},
+                new Float[]{1234.4321f, -1234.4321f, 0f},
+                new Double[]{12345678.87654321d, -12345678.87654321d, 0d},
+                new Long[]{7060504030201l, -7060504030201l, 0l});
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         final LinkedBuffer buffer = LinkedBuffer.allocate(256);
 
-        try
-        {
+        try {
             ProtostuffIOUtil.writeDelimitedTo(out, fooCompare, fooCompare.cachedSchema(),
                     buffer);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
 
@@ -96,13 +81,10 @@ public class BufferReuseTest extends StandardTest
         Foo foo = new Foo();
 
         boolean hasException = true;
-        try
-        {
+        try {
             ProtostuffIOUtil.mergeDelimitedFrom(in, foo, foo.cachedSchema(), buffer);
             hasException = false;
-        }
-        catch (ProtostuffException e)
-        {
+        } catch (ProtostuffException e) {
             assertTrue(e.getMessage().startsWith("size limit exceeded."));
         }
 

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -25,32 +22,28 @@ import io.protostuff.Schema;
 
 /**
  * Tests for the {@link StringMapSchema}.
- * 
+ *
  * @author David Yu
  */
-public abstract class StringMapSchemaTest extends AbstractTest
-{
+public abstract class StringMapSchemaTest extends AbstractTest {
 
     public static final StringMapSchema<String> SCHEMA = StringMapSchema.VALUE_STRING;
 
     public abstract <T extends Map<String, String>> void mergeFrom(byte[] data, int offset,
-            int length, T message, Schema<T> schema) throws IOException;
+                                                                   int length, T message, Schema<T> schema) throws IOException;
 
-    private <T extends Map<String, String>> void mergeFrom(byte[] data, T message, Schema<T> schema) throws IOException
-    {
+    private <T extends Map<String, String>> void mergeFrom(byte[] data, T message, Schema<T> schema) throws IOException {
         mergeFrom(data, 0, data.length, message, schema);
     }
 
     public abstract <T extends Map<String, String>> byte[] toByteArray(T message,
-            Schema<T> schema) throws IOException;
+                                                                       Schema<T> schema) throws IOException;
 
-    protected Map<String, String> newMap()
-    {
+    protected Map<String, String> newMap() {
         return new HashMap<>();
     }
 
-    public void testEmptyMap() throws Exception
-    {
+    public void testEmptyMap() throws Exception {
         Map<String, String> map = newMap();
 
         byte[] data = toByteArray(map, SCHEMA);
@@ -60,8 +53,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testSingleEntry() throws Exception
-    {
+    public void testSingleEntry() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
 
@@ -72,8 +64,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testSingleEntryNullValue() throws Exception
-    {
+    public void testSingleEntryNullValue() throws Exception {
         Map<String, String> map = newMap();
         map.put("key", null);
 
@@ -84,8 +75,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testSingleEntryEmptyString() throws Exception
-    {
+    public void testSingleEntryEmptyString() throws Exception {
         Map<String, String> map = newMap();
         map.put("", "");
 
@@ -96,8 +86,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testSingleEntryEmptyKey() throws Exception
-    {
+    public void testSingleEntryEmptyKey() throws Exception {
         Map<String, String> map = newMap();
         map.put("", "value");
 
@@ -108,8 +97,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testSingleEntryEmptyValue() throws Exception
-    {
+    public void testSingleEntryEmptyValue() throws Exception {
         Map<String, String> map = newMap();
         map.put("key", "");
 
@@ -120,8 +108,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testTwoEntries() throws Exception
-    {
+    public void testTwoEntries() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");
@@ -133,8 +120,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testTwoEntriesContainsNullValue() throws Exception
-    {
+    public void testTwoEntriesContainsNullValue() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", null);
@@ -146,8 +132,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testTwoEntriesContainsEmptyKey() throws Exception
-    {
+    public void testTwoEntriesContainsEmptyKey() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("", "");
@@ -159,8 +144,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testTwoEntriesContainsEmptyValue() throws Exception
-    {
+    public void testTwoEntriesContainsEmptyValue() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "");
@@ -172,8 +156,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testMultipleEntries() throws Exception
-    {
+    public void testMultipleEntries() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");
@@ -188,8 +171,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testMultipleEntriesContainNullValue() throws Exception
-    {
+    public void testMultipleEntriesContainNullValue() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");
@@ -205,8 +187,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testMultipleEntriesContainNullValues() throws Exception
-    {
+    public void testMultipleEntriesContainNullValues() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");
@@ -223,8 +204,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testMultipleEntriesContainsEmptyKey() throws Exception
-    {
+    public void testMultipleEntriesContainsEmptyKey() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");
@@ -240,8 +220,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testMultipleEntriesContainsEmptyValue() throws Exception
-    {
+    public void testMultipleEntriesContainsEmptyValue() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");
@@ -257,8 +236,7 @@ public abstract class StringMapSchemaTest extends AbstractTest
         assertEquals(map, mapCompare);
     }
 
-    public void testMultipleEntriesContainsEmptyKeyAndNullValues() throws Exception
-    {
+    public void testMultipleEntriesContainsEmptyKeyAndNullValues() throws Exception {
         Map<String, String> map = newMap();
         map.put("foo", "bar");
         map.put("bar", "baz");

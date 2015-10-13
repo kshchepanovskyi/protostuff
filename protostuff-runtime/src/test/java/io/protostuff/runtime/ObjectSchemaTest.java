@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 //================================================================================
 //Copyright (c) 2011, David Yu
@@ -44,6 +41,8 @@
 
 package io.protostuff.runtime;
 
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -54,51 +53,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import io.protostuff.GraphIOUtil;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.Schema;
 
 /**
  * Test cyclic ser/deser on fields where the type is dynamic.
- * 
+ *
  * @author David Yu
  */
 
-public class ObjectSchemaTest extends TestCase
-{
+public class ObjectSchemaTest extends TestCase {
 
-    public void testGraph()
-    {
-        System.err.println(RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS);
-
-        Bean bean = fill(new Bean());
-
-        verify(bean);
-
-        Schema<Bean> schema = RuntimeSchema.getSchema(Bean.class);
-        // print(schema);
-        byte[] bytes = GraphIOUtil.toByteArray(bean, schema,
-                LinkedBuffer.allocate(256));
-
-        Bean deBean = new Bean();
-        GraphIOUtil.mergeFrom(bytes, deBean, schema);
-
-        verify(deBean);
-    }
-
-    static void print(Schema<?> schema)
-    {
+    static void print(Schema<?> schema) {
         int i = 1;
         for (String name = schema.getFieldName(i); name != null; name = schema
-                .getFieldName(++i))
-        {
+                .getFieldName(++i)) {
             System.err.println(name);
         }
     }
 
-    static Bean fill(Bean bean)
-    {
+    static Bean fill(Bean bean) {
         bean.name = "test";
 
         Item share = new Item("share");
@@ -163,7 +138,7 @@ public class ObjectSchemaTest extends TestCase
         secondNamedMap.put(share8, share8);
         bean.secondNamedMap = secondNamedMap;
 
-        bean.firstIntArray = bean.secondIntArray = new int[] { 1, 2, 3 };
+        bean.firstIntArray = bean.secondIntArray = new int[]{1, 2, 3};
 
         Item share9 = new Item("share9");
         Set<String> set = newSet("share9");
@@ -225,15 +200,15 @@ public class ObjectSchemaTest extends TestCase
         bean.secondEnumMapList = secondEnumMapList;
 
         Item share14 = new Item("share14");
-        bean.itemArray = bean.firstItemArray = bean.secondItemArray = new Item[] {
+        bean.itemArray = bean.firstItemArray = bean.secondItemArray = new Item[]{
                 share, share2, share3, share4, share5, share6, share7, share8,
-                share9, share10, share11, share12, share13, share14 };
+                share9, share10, share11, share12, share13, share14};
 
         bean.itemArray2d = new Item[1][];
         bean.itemArray2d[0] = bean.firstItemArray;
 
-        bean.itemArrayWrapper = new Object[] { bean.itemArray,
-                bean.itemArray2d, share };
+        bean.itemArrayWrapper = new Object[]{bean.itemArray,
+                bean.itemArray2d, share};
 
         Item share15 = new Item("share15");
         Set<Item> firstSet = newSet(share15);
@@ -257,8 +232,7 @@ public class ObjectSchemaTest extends TestCase
         return bean;
     }
 
-    static void verify(Bean bean)
-    {
+    static void verify(Bean bean) {
         assertEquals(bean.name, "test");
 
         assertNotNull(bean.firstList);
@@ -400,8 +374,7 @@ public class ObjectSchemaTest extends TestCase
         assertTrue(bean.anotherIdentityMap.get(Order.DESCENDING) == share);
     }
 
-    static <T> Set<T> newSet(T... ts)
-    {
+    static <T> Set<T> newSet(T... ts) {
         HashSet<T> set = new HashSet<>();
 
         for (T t : ts)
@@ -410,23 +383,19 @@ public class ObjectSchemaTest extends TestCase
         return set;
     }
 
-    static <K, V> Map<K, V> newMap()
-    {
+    static <K, V> Map<K, V> newMap() {
         return new HashMap<>();
     }
 
-    static <T> Set<T> newSet()
-    {
+    static <T> Set<T> newSet() {
         return new HashSet<>();
     }
 
-    static <T> List<T> newList()
-    {
+    static <T> List<T> newList() {
         return new ArrayList<>();
     }
 
-    static <T> List<T> newList(T... ts)
-    {
+    static <T> List<T> newList(T... ts) {
         ArrayList<T> list = new ArrayList<>();
 
         for (T t : ts)
@@ -435,22 +404,41 @@ public class ObjectSchemaTest extends TestCase
         return list;
     }
 
-    static <K, V> Map<K, V> newMap(K key, V value)
-    {
+    static <K, V> Map<K, V> newMap(K key, V value) {
         HashMap<K, V> map = new HashMap<>();
         map.put(key, value);
         return map;
     }
 
-    enum Order
-    {
+    public void testGraph() {
+        System.err.println(RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS);
+
+        Bean bean = fill(new Bean());
+
+        verify(bean);
+
+        Schema<Bean> schema = RuntimeSchema.getSchema(Bean.class);
+        // print(schema);
+        byte[] bytes = GraphIOUtil.toByteArray(bean, schema,
+                LinkedBuffer.allocate(256));
+
+        Bean deBean = new Bean();
+        GraphIOUtil.mergeFrom(bytes, deBean, schema);
+
+        verify(deBean);
+    }
+
+    enum Order {
         ASCENDING, DESCENDING
+    }
+
+    public interface HasName {
+        String getName();
     }
 
     @SuppressWarnings("rawtypes")
     // explicitly without generics
-    public static class Bean
-    {
+    public static class Bean {
         public String name;
 
         public List firstList, secondList;
@@ -464,84 +452,56 @@ public class ObjectSchemaTest extends TestCase
         public Named firstNamed, secondNamed;
 
         public Object firstObject, secondObject;
-
+        public Set firstSet, secondSet;
+        public IdentityHashMap identityMap, anotherIdentityMap;
         Map<String, ?> firstStringMap, secondStringMap;
-
         Map<HasName, ?> firstHasNameMap, secondHasNameMap;
-
         Map<Named, ?> firstNamedMap, secondNamedMap;
-
         int[] firstIntArray, secondIntArray;
-
         Map<Set<String>, ?> firstSetMap, secondSetMap;
-
         Map<List<Order>, ?> firstListMap, secondListMap;
-
         Map<EnumSet<Order>, ?> firstEnumSetMap, secondEnumSetMap;
-
         List<Map<String, ?>> firstMapList, secondMapList;
-
         List<EnumMap<Order, Item>> firstEnumMapList, secondEnumMapList;
-
         Item[] firstItemArray, secondItemArray;
-
         Object itemArray;
-
         Item[][] itemArray2d;
-
         Object[] itemArrayWrapper;
 
-        public Set firstSet, secondSet;
-
-        public IdentityHashMap identityMap, anotherIdentityMap;
-
     }
 
-    public interface HasName
-    {
-        String getName();
-    }
-
-    public static abstract class Named
-    {
+    public static abstract class Named {
         public abstract String getName();
     }
 
-    public static class Item extends Named implements HasName
-    {
+    public static class Item extends Named implements HasName {
 
         public String name;
 
-        public Item()
-        {
+        public Item() {
 
         }
 
-        public Item(String name)
-        {
+        public Item(String name) {
             this.name = name;
         }
 
         @Override
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
-        public String toString()
-        {
+        public String toString() {
             return "name:" + name;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             return name.hashCode();
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -549,12 +509,10 @@ public class ObjectSchemaTest extends TestCase
             if (getClass() != obj.getClass())
                 return false;
             Item other = (Item) obj;
-            if (name == null)
-            {
+            if (name == null) {
                 if (other.name != null)
                     return false;
-            }
-            else if (!name.equals(other.name))
+            } else if (!name.equals(other.name))
                 return false;
             return true;
         }

@@ -1,20 +1,19 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
+
+import java.io.IOException;
 
 import static io.protostuff.StringSerializer.FIVE_BYTE_LOWER_LIMIT;
 import static io.protostuff.StringSerializer.FOUR_BYTE_EXCLUSIVE;
@@ -30,33 +29,26 @@ import static io.protostuff.StringSerializer.putBytesFromInt;
 import static io.protostuff.StringSerializer.putBytesFromLong;
 import static io.protostuff.StringSerializer.writeFixed2ByteInt;
 
-import java.io.IOException;
-
 /**
  * UTF-8 String serialization
- * 
+ *
  * @author David Yu
  */
-public final class StreamedStringSerializer
-{
+public final class StreamedStringSerializer {
 
-    private StreamedStringSerializer()
-    {
+    private StreamedStringSerializer() {
     }
 
     /**
      * Writes the stringified int into the {@link LinkedBuffer}.
      */
     public static LinkedBuffer writeInt(final int value, final WriteSession session,
-            LinkedBuffer lb) throws IOException
-    {
-        if (value == Integer.MIN_VALUE)
-        {
+                                        LinkedBuffer lb) throws IOException {
+        if (value == Integer.MIN_VALUE) {
             final int valueLen = INT_MIN_VALUE.length;
             session.size += valueLen;
 
-            if (lb.offset + valueLen > lb.buffer.length)
-            {
+            if (lb.offset + valueLen > lb.buffer.length) {
                 // not enough size
                 lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
                 // lb = new LinkedBuffer(session.nextBufferSize, lb);
@@ -72,8 +64,7 @@ public final class StreamedStringSerializer
         final int size = (value < 0) ? StringSerializer.stringSize(-value) + 1 : StringSerializer.stringSize(value);
         session.size += size;
 
-        if (lb.offset + size > lb.buffer.length)
-        {
+        if (lb.offset + size > lb.buffer.length) {
             // not enough size
             lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
             // lb = new LinkedBuffer(session.nextBufferSize, lb);
@@ -90,15 +81,12 @@ public final class StreamedStringSerializer
      * Writes the stringified long into the {@link LinkedBuffer}.
      */
     public static LinkedBuffer writeLong(final long value, final WriteSession session,
-            LinkedBuffer lb) throws IOException
-    {
-        if (value == Long.MIN_VALUE)
-        {
+                                         LinkedBuffer lb) throws IOException {
+        if (value == Long.MIN_VALUE) {
             final int valueLen = LONG_MIN_VALUE.length;
             session.size += valueLen;
 
-            if (lb.offset + valueLen > lb.buffer.length)
-            {
+            if (lb.offset + valueLen > lb.buffer.length) {
                 // TODO space efficiency (slower path)
                 // not enough size
                 lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
@@ -115,8 +103,7 @@ public final class StreamedStringSerializer
         final int size = (value < 0) ? StringSerializer.stringSize(-value) + 1 : StringSerializer.stringSize(value);
         session.size += size;
 
-        if (lb.offset + size > lb.buffer.length)
-        {
+        if (lb.offset + size > lb.buffer.length) {
             // TODO space efficiency (slower path)
             // not enough size
             lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
@@ -135,8 +122,7 @@ public final class StreamedStringSerializer
      * buffer
      */
     public static LinkedBuffer writeFloat(final float value, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                          final LinkedBuffer lb) throws IOException {
         return writeAscii(Float.toString(value), session, lb);
     }
 
@@ -145,8 +131,7 @@ public final class StreamedStringSerializer
      * buffer
      */
     public static LinkedBuffer writeDouble(final double value, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                           final LinkedBuffer lb) throws IOException {
         return writeAscii(Double.toString(value), session, lb);
     }
 
@@ -154,8 +139,7 @@ public final class StreamedStringSerializer
      * Writes the utf8-encoded bytes from the string into the {@link LinkedBuffer}.
      */
     public static LinkedBuffer writeUTF8(final String str, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                         final LinkedBuffer lb) throws IOException {
         final int len = str.length();
         if (len == 0)
             return lb;
@@ -164,35 +148,26 @@ public final class StreamedStringSerializer
         int limit = buffer.length, offset = lb.offset, i = 0;
 
         char c;
-        do
-        {
+        do {
             c = str.charAt(i++);
-            if (c < 0x0080)
-            {
-                if (offset == limit)
-                {
+            if (c < 0x0080) {
+                if (offset == limit) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset = session.flush(buffer, lb.start, offset - lb.start);
                 }
                 // ascii
                 buffer[offset++] = (byte) c;
-            }
-            else if (c < 0x0800)
-            {
-                if (offset + 2 > limit)
-                {
+            } else if (c < 0x0800) {
+                if (offset + 2 > limit) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset = session.flush(buffer, lb.start, offset - lb.start);
                 }
 
                 buffer[offset++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
                 buffer[offset++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-            }
-            else if (Character.isHighSurrogate(c) && i < len && Character.isLowSurrogate(str.charAt(i)))
-            {
+            } else if (Character.isHighSurrogate(c) && i < len && Character.isLowSurrogate(str.charAt(i))) {
                 // We have a surrogate pair, so use the 4-byte encoding.
-                if (offset + 4 > buffer.length)
-                {
+                if (offset + 4 > buffer.length) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset = session.flush(buffer, lb.start, offset - lb.start);
                 }
@@ -204,11 +179,8 @@ public final class StreamedStringSerializer
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 0) & 0x3F));
 
                 i++;
-            }
-            else
-            {
-                if (offset + 3 > limit)
-                {
+            } else {
+                if (offset + 3 > limit) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset = session.flush(buffer, lb.start, offset - lb.start);
                 }
@@ -231,8 +203,7 @@ public final class StreamedStringSerializer
      * only contains ascii chars.
      */
     public static LinkedBuffer writeAscii(final String str, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                          final LinkedBuffer lb) throws IOException {
         final int len = str.length();
         if (len == 0)
             return lb;
@@ -244,8 +215,7 @@ public final class StreamedStringSerializer
         // actual size
         session.size += len;
 
-        if (offset + len > limit)
-        {
+        if (offset + len > limit) {
             // need to flush
             int index = 0, start = lb.start, bufSize = limit - start, available = limit - offset, remaining = len
                     - available;
@@ -257,16 +227,13 @@ public final class StreamedStringSerializer
             // flush and reset
             offset = session.flush(buffer, start, bufSize);
 
-            while (remaining-- > 0)
-            {
+            while (remaining-- > 0) {
                 if (offset == limit)
                     offset = session.flush(buffer, start, bufSize);
 
                 buffer[offset++] = (byte) str.charAt(index++);
             }
-        }
-        else
-        {
+        } else {
             // fast path
             for (int i = 0; i < len; i++)
                 buffer[offset++] = (byte) str.charAt(i);
@@ -278,11 +245,9 @@ public final class StreamedStringSerializer
     }
 
     private static void flushAndReset(LinkedBuffer node, final WriteSession session)
-            throws IOException
-    {
+            throws IOException {
         int len;
-        do
-        {
+        do {
             if ((len = node.offset - node.start) > 0)
                 node.offset = session.flush(node, node.buffer, node.start, len);
         } while ((node = node.next) != null);
@@ -293,9 +258,8 @@ public final class StreamedStringSerializer
      * behavior as {@link java.io.DataOutputStream#writeUTF(String)}.
      */
     public static LinkedBuffer writeUTF8FixedDelimited(final String str,
-            final WriteSession session,
-            LinkedBuffer lb) throws IOException
-    {
+                                                       final WriteSession session,
+                                                       LinkedBuffer lb) throws IOException {
         return writeUTF8FixedDelimited(str, false, session, lb);
     }
 
@@ -303,20 +267,17 @@ public final class StreamedStringSerializer
      * The length of the utf8 bytes is written first before the string - which is fixed 2-bytes.
      */
     public static LinkedBuffer writeUTF8FixedDelimited(final String str,
-            final boolean littleEndian, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                                       final boolean littleEndian, final WriteSession session,
+                                                       final LinkedBuffer lb) throws IOException {
         int lastSize = session.size, len = str.length(), withIntOffset = lb.offset + 2;
 
         // the buffer could very well be almost-full.
-        if (withIntOffset + len > lb.buffer.length)
-        {
+        if (withIntOffset + len > lb.buffer.length) {
             // flush what we have.
             lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
             withIntOffset = lb.offset + 2;
 
-            if (len == 0)
-            {
+            if (len == 0) {
                 writeFixed2ByteInt(0, lb.buffer, withIntOffset - 2, littleEndian);
                 lb.offset = withIntOffset;
                 // update size
@@ -325,8 +286,7 @@ public final class StreamedStringSerializer
             }
 
             // if true, the string is too large to fit in the buffer
-            if (withIntOffset + len > lb.buffer.length)
-            {
+            if (withIntOffset + len > lb.buffer.length) {
                 lb.offset = withIntOffset;
 
                 // slow path
@@ -345,9 +305,7 @@ public final class StreamedStringSerializer
 
                 return lb;
             }
-        }
-        else if (len == 0)
-        {
+        } else if (len == 0) {
             writeFixed2ByteInt(0, lb.buffer, withIntOffset - 2, littleEndian);
             lb.offset = withIntOffset;
             // update size
@@ -366,8 +324,7 @@ public final class StreamedStringSerializer
         // update size
         session.size += 2;
 
-        if (rb != lb)
-        {
+        if (rb != lb) {
             // flush and reset nodes
             flushAndReset(lb, session);
         }
@@ -376,14 +333,12 @@ public final class StreamedStringSerializer
     }
 
     private static LinkedBuffer writeUTF8OneByteDelimited(final String str, final int index,
-            final int len, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                                          final int len, final WriteSession session,
+                                                          final LinkedBuffer lb) throws IOException {
         int lastSize = session.size, withIntOffset = lb.offset + 1;
 
         // the buffer could very well be almost-full.
-        if (withIntOffset + len > lb.buffer.length)
-        {
+        if (withIntOffset + len > lb.buffer.length) {
             // flush what we have.
             lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
             withIntOffset = lb.offset + 1;
@@ -399,8 +354,7 @@ public final class StreamedStringSerializer
         // update size
         session.size++;
 
-        if (rb != lb)
-        {
+        if (rb != lb) {
             // flush and reset nodes
             flushAndReset(lb, session);
         }
@@ -409,22 +363,19 @@ public final class StreamedStringSerializer
     }
 
     private static LinkedBuffer writeUTF8VarDelimited(final String str, final int index,
-            final int len, final int lowerLimit, int expectedSize,
-            final WriteSession session, final LinkedBuffer lb)
-            throws IOException
-    {
+                                                      final int len, final int lowerLimit, int expectedSize,
+                                                      final WriteSession session, final LinkedBuffer lb)
+            throws IOException {
         int lastSize = session.size, offset = lb.offset, withIntOffset = offset + expectedSize;
 
         // the buffer could very well be almost-full.
-        if (withIntOffset + len > lb.buffer.length)
-        {
+        if (withIntOffset + len > lb.buffer.length) {
             // flush what we have.
             offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
             withIntOffset = offset + expectedSize;
 
             // if true, the string is too large to fit in the buffer
-            if (withIntOffset + len > lb.buffer.length)
-            {
+            if (withIntOffset + len > lb.buffer.length) {
                 // not enough space for the string.
                 lb.offset = withIntOffset;
 
@@ -434,8 +385,7 @@ public final class StreamedStringSerializer
 
                 int size = session.size - lastSize;
 
-                if (size < lowerLimit)
-                {
+                if (size < lowerLimit) {
                     session.size += (--expectedSize);
 
                     // we've nothing existing to flush
@@ -481,13 +431,11 @@ public final class StreamedStringSerializer
 
         int size = session.size - lastSize;
 
-        if (size < lowerLimit)
-        {
+        if (size < lowerLimit) {
             // if the buffer was fully used
             // or if the string was atleast 683 bytes
             // for this method, expected size only either be 2/3/4/5
-            if (rb != lb || expectedSize != 2)
-            {
+            if (rb != lb || expectedSize != 2) {
                 // flush it
                 session.size += (--expectedSize);
 
@@ -499,21 +447,17 @@ public final class StreamedStringSerializer
 
                 lb.buffer[o] = (byte) (size);
 
-                if (existingOffset == lb.start)
-                {
+                if (existingOffset == lb.start) {
                     // nothing was written prior to this string
                     // flush and reset
                     lb.offset = session.flush(lb, lb.buffer, offset, lb.offset - offset);
-                }
-                else
-                {
+                } else {
                     // flush and reset
                     lb.offset = session.flush(lb.buffer, lb.start, existingOffset - lb.start,
                             lb.buffer, offset, lb.offset - offset);
                 }
 
-                if (rb != lb)
-                {
+                if (rb != lb) {
                     // flush and reset nodes
                     flushAndReset(lb.next, session);
                 }
@@ -537,8 +481,7 @@ public final class StreamedStringSerializer
 
         lb.buffer[offset] = (byte) (size);
 
-        if (rb != lb)
-        {
+        if (rb != lb) {
             // flush and reset nodes
             flushAndReset(lb, session);
         }
@@ -550,13 +493,10 @@ public final class StreamedStringSerializer
      * The length of the utf8 bytes is written first before the string - which is a variable int (1 to 5 bytes).
      */
     public static LinkedBuffer writeUTF8VarDelimited(final String str, final WriteSession session,
-            final LinkedBuffer lb) throws IOException
-    {
+                                                     final LinkedBuffer lb) throws IOException {
         final int len = str.length();
-        if (len == 0)
-        {
-            if (lb.offset == lb.buffer.length)
-            {
+        if (len == 0) {
+            if (lb.offset == lb.buffer.length) {
                 // buffer full
                 // flush
                 lb.offset = session.flush(lb.buffer, lb.start, lb.offset - lb.start);
@@ -569,28 +509,24 @@ public final class StreamedStringSerializer
             return lb;
         }
 
-        if (len < ONE_BYTE_EXCLUSIVE)
-        {
+        if (len < ONE_BYTE_EXCLUSIVE) {
             // the varint will be max 1-byte. (even if all chars are non-ascii)
             return writeUTF8OneByteDelimited(str, 0, len, session, lb);
         }
 
-        if (len < TWO_BYTE_EXCLUSIVE)
-        {
+        if (len < TWO_BYTE_EXCLUSIVE) {
             // the varint will be max 2-bytes and could be 1-byte. (even if all non-ascii)
             return writeUTF8VarDelimited(str, 0, len, TWO_BYTE_LOWER_LIMIT, 2,
                     session, lb);
         }
 
-        if (len < THREE_BYTE_EXCLUSIVE)
-        {
+        if (len < THREE_BYTE_EXCLUSIVE) {
             // the varint will be max 3-bytes and could be 2-bytes. (even if all non-ascii)
             return writeUTF8VarDelimited(str, 0, len, THREE_BYTE_LOWER_LIMIT, 3,
                     session, lb);
         }
 
-        if (len < FOUR_BYTE_EXCLUSIVE)
-        {
+        if (len < FOUR_BYTE_EXCLUSIVE) {
             // the varint will be max 4-bytes and could be 3-bytes. (even if all non-ascii)
             return writeUTF8VarDelimited(str, 0, len, FOUR_BYTE_LOWER_LIMIT, 4,
                     session, lb);

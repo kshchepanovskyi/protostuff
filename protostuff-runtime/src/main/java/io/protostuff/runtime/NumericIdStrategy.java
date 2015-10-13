@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -37,11 +34,10 @@ import io.protostuff.Schema;
 
 /**
  * Base class for numeric id strategies.
- * 
+ *
  * @author David Yu
  */
-public abstract class NumericIdStrategy extends IdStrategy
-{
+public abstract class NumericIdStrategy extends IdStrategy {
 
     // class ids will be limited to 5 bits (written as the value
     // of the key: RuntimeFieldFactory.ID_ARRAY)
@@ -68,21 +64,39 @@ public abstract class NumericIdStrategy extends IdStrategy
             CID_COLLECTION = 26, CID_MAP = 27,
             CID_POJO = 28, CID_CLASS = 29, CID_DELEGATE = 30;
 
-    protected NumericIdStrategy(IdStrategy primaryGroup, int groupId)
-    {
+    protected NumericIdStrategy(IdStrategy primaryGroup, int groupId) {
         super(primaryGroup, groupId);
+    }
+
+    private static int getPrimitiveOrScalarId(Class<?> clazz, int id) {
+        if (clazz.isPrimitive())
+            return id - 1;
+
+        // if id < 9, its the primitive's boxed type.
+        return id < 9 ? ((id - 1) | 0x08) : (id + 7);
+    }
+
+    protected static <T> ArrayList<T> newList(int size) {
+        List<T> l = Collections.nCopies(size, null);
+        return new ArrayList<>(l);
+    }
+
+    protected static <T> void grow(ArrayList<T> list, int size) {
+        int previousSize = list.size();
+
+        list.ensureCapacity(size);
+        List<T> l = Collections.nCopies(size - previousSize, null);
+        list.addAll(l);
     }
 
     @Override
     protected void writeArrayIdTo(Output output, Class<?> componentType)
-            throws IOException
-    {
+            throws IOException {
         // shouldn't happen
         assert !componentType.isArray();
 
         final RegisteredDelegate<?> rd = getRegisteredDelegate(componentType);
-        if (rd != null)
-        {
+        if (rd != null) {
             output.writeUInt32(RuntimeFieldFactory.ID_ARRAY,
                     (rd.id << 5) | CID_DELEGATE, false);
             return;
@@ -91,34 +105,23 @@ public abstract class NumericIdStrategy extends IdStrategy
         final RuntimeFieldFactory<?> inline =
                 RuntimeFieldFactory.getInline(componentType);
 
-        if (inline != null)
-        {
+        if (inline != null) {
             output.writeUInt32(RuntimeFieldFactory.ID_ARRAY,
                     getPrimitiveOrScalarId(componentType, inline.id), false);
-        }
-        else if (componentType.isEnum())
-        {
+        } else if (componentType.isEnum()) {
             output.writeUInt32(RuntimeFieldFactory.ID_ARRAY,
                     getEnumId(componentType), false);
-        }
-        else if (Object.class == componentType)
-        {
+        } else if (Object.class == componentType) {
             output.writeUInt32(RuntimeFieldFactory.ID_ARRAY,
                     CID_OBJECT, false);
-        }
-        else if (Class.class == componentType)
-        {
+        } else if (Class.class == componentType) {
             output.writeUInt32(RuntimeFieldFactory.ID_ARRAY,
                     CID_CLASS, false);
-        }
-        else if (!componentType.isInterface() &&
-                !Modifier.isAbstract(componentType.getModifiers()))
-        {
+        } else if (!componentType.isInterface() &&
+                !Modifier.isAbstract(componentType.getModifiers())) {
             output.writeUInt32(RuntimeFieldFactory.ID_ARRAY,
                     getId(componentType), false);
-        }
-        else
-        {
+        } else {
             // too many possible interfaces and abstract types that it would be costly
             // to index it at runtime (Not all subclasses allow dynamic indexing)
             output.writeString(RuntimeFieldFactory.ID_ARRAY_MAPPED,
@@ -128,8 +131,7 @@ public abstract class NumericIdStrategy extends IdStrategy
 
     @Override
     protected void transferArrayId(Input input, Output output, int fieldNumber,
-            boolean mapped) throws IOException
-    {
+                                   boolean mapped) throws IOException {
         if (mapped)
             input.transferByteRangeTo(output, true, fieldNumber, false);
         else
@@ -138,16 +140,14 @@ public abstract class NumericIdStrategy extends IdStrategy
 
     @Override
     protected Class<?> resolveArrayComponentTypeFrom(Input input, boolean mapped)
-            throws IOException
-    {
+            throws IOException {
         return mapped ? RuntimeEnv.loadClass(input.readString()) :
                 resolveClass(input.readUInt32());
     }
 
     @Override
     protected void writeClassIdTo(Output output, Class<?> componentType, boolean array)
-            throws IOException
-    {
+            throws IOException {
         // shouldn't happen
         assert !componentType.isArray();
 
@@ -155,8 +155,7 @@ public abstract class NumericIdStrategy extends IdStrategy
                 RuntimeFieldFactory.ID_CLASS_ARRAY : RuntimeFieldFactory.ID_CLASS;
 
         final RegisteredDelegate<?> rd = getRegisteredDelegate(componentType);
-        if (rd != null)
-        {
+        if (rd != null) {
             output.writeUInt32(id,
                     (rd.id << 5) | CID_DELEGATE, false);
             return;
@@ -165,34 +164,23 @@ public abstract class NumericIdStrategy extends IdStrategy
         final RuntimeFieldFactory<?> inline =
                 RuntimeFieldFactory.getInline(componentType);
 
-        if (inline != null)
-        {
+        if (inline != null) {
             output.writeUInt32(id,
                     getPrimitiveOrScalarId(componentType, inline.id), false);
-        }
-        else if (componentType.isEnum())
-        {
+        } else if (componentType.isEnum()) {
             output.writeUInt32(id,
                     getEnumId(componentType), false);
-        }
-        else if (Object.class == componentType)
-        {
+        } else if (Object.class == componentType) {
             output.writeUInt32(id,
                     CID_OBJECT, false);
-        }
-        else if (Class.class == componentType)
-        {
+        } else if (Class.class == componentType) {
             output.writeUInt32(id,
                     CID_CLASS, false);
-        }
-        else if (!componentType.isInterface() &&
-                !Modifier.isAbstract(componentType.getModifiers()))
-        {
+        } else if (!componentType.isInterface() &&
+                !Modifier.isAbstract(componentType.getModifiers())) {
             output.writeUInt32(id,
                     getId(componentType), false);
-        }
-        else
-        {
+        } else {
             // too many possible interfaces and abstract types that it would be costly
             // to index it at runtime (Not all subclasses allow dynamic indexing)
             // mapped class ids are +1 from regular the regular ones
@@ -203,8 +191,7 @@ public abstract class NumericIdStrategy extends IdStrategy
 
     @Override
     protected void transferClassId(Input input, Output output, int fieldNumber,
-            boolean mapped, boolean array) throws IOException
-    {
+                                   boolean mapped, boolean array) throws IOException {
         if (mapped)
             input.transferByteRangeTo(output, true, fieldNumber, false);
         else
@@ -213,30 +200,17 @@ public abstract class NumericIdStrategy extends IdStrategy
 
     @Override
     protected Class<?> resolveClassFrom(Input input, boolean mapped,
-            boolean array) throws IOException
-    {
+                                        boolean array) throws IOException {
         return mapped ? RuntimeEnv.loadClass(input.readString()) :
                 resolveClass(input.readUInt32());
     }
 
-    private static int getPrimitiveOrScalarId(Class<?> clazz, int id)
-    {
-        if (clazz.isPrimitive())
-            return id - 1;
-
-        // if id < 9, its the primitive's boxed type.
-        return id < 9 ? ((id - 1) | 0x08) : (id + 7);
-    }
-
-    private Class<?> resolveClass(int id)
-    {
+    private Class<?> resolveClass(int id) {
         final int type = id & 0x1F;
-        if (type < 16)
-        {
+        if (type < 16) {
             final boolean primitive = type < 8;
             // first 3 bits
-            switch (type & 0x07)
-            {
+            switch (type & 0x07) {
                 case CID_BOOL:
                     return primitive ? boolean.class : Boolean.class;
                 case CID_BYTE:
@@ -258,8 +232,7 @@ public abstract class NumericIdStrategy extends IdStrategy
             }
         }
 
-        switch (type)
-        {
+        switch (type) {
             case CID_STRING:
                 return String.class;
             case CID_BYTES:
@@ -316,38 +289,10 @@ public abstract class NumericIdStrategy extends IdStrategy
 
     protected abstract int getId(Class<?> clazz);
 
-    protected static <T> ArrayList<T> newList(int size)
-    {
-        List<T> l = Collections.nCopies(size, null);
-        return new ArrayList<>(l);
-    }
-
-    protected static <T> void grow(ArrayList<T> list, int size)
-    {
-        int previousSize = list.size();
-
-        list.ensureCapacity(size);
-        List<T> l = Collections.nCopies(size - previousSize, null);
-        list.addAll(l);
-    }
-
-    protected static final class RegisteredDelegate<T> extends HasDelegate<T>
-    {
-        public final int id;
-
-        RegisteredDelegate(int id, Delegate<T> delegate)
-        {
-            super(delegate);
-
-            this.id = id;
-        }
-    }
-
     /**
      * Register your pojos/enums/collections/maps/delegates here.
      */
-    public interface Registry
-    {
+    public interface Registry {
         /**
          * Collection ids start at 1.
          */
@@ -397,6 +342,16 @@ public abstract class NumericIdStrategy extends IdStrategy
          * Delegate ids start at 1.
          */
         <T> Registry registerDelegate(Delegate<T> delegate, int id);
+    }
+
+    protected static final class RegisteredDelegate<T> extends HasDelegate<T> {
+        public final int id;
+
+        RegisteredDelegate(int id, Delegate<T> delegate) {
+            super(delegate);
+
+            this.id = id;
+        }
     }
 
 }

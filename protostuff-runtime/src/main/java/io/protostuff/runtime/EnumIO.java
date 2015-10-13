@@ -1,22 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.RuntimeEnv.ENUMS_BY_NAME;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -32,6 +27,8 @@ import io.protostuff.Pipe;
 import io.protostuff.Tag;
 import io.protostuff.runtime.PolymorphicSchema.Handler;
 
+import static io.protostuff.runtime.RuntimeEnv.ENUMS_BY_NAME;
+
 /**
  * Determines how enums are serialized/deserialized. Default is BY_NUMBER. To enable BY_NAME, set the property
  * "protostuff.runtime.enums_by_name=true".
@@ -39,27 +36,22 @@ import io.protostuff.runtime.PolymorphicSchema.Handler;
  * @author David Yu
  */
 public abstract class EnumIO<E extends Enum<E>> implements
-        PolymorphicSchema.Factory
-{
+        PolymorphicSchema.Factory {
 
     // Used by ObjectSchema to ser/deser both EnumMap and EnumSet.
     private static final java.lang.reflect.Field __keyTypeFromEnumMap;
     private static final java.lang.reflect.Field __elementTypeFromEnumSet;
 
-    static
-    {
+    static {
         boolean success = false;
         java.lang.reflect.Field keyTypeFromMap = null, valueTypeFromSet = null;
-        try
-        {
+        try {
             keyTypeFromMap = EnumMap.class.getDeclaredField("keyType");
             keyTypeFromMap.setAccessible(true);
             valueTypeFromSet = EnumSet.class.getDeclaredField("elementType");
             valueTypeFromSet.setAccessible(true);
             success = true;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // ignore
         }
 
@@ -68,141 +60,18 @@ public abstract class EnumIO<E extends Enum<E>> implements
     }
 
     /**
-     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link ObjectSchema}.
-     */
-    static Class<?> getKeyTypeFromEnumMap(Object enumMap)
-    {
-        if (__keyTypeFromEnumMap == null)
-        {
-            throw new RuntimeException(
-                    "Could not access (reflection) the private "
-                            + "field *keyType* (enumClass) from: class java.util.EnumMap");
-        }
-
-        try
-        {
-            return (Class<?>) __keyTypeFromEnumMap.get(enumMap);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link ObjectSchema}.
-     */
-    static Class<?> getElementTypeFromEnumSet(Object enumSet)
-    {
-        if (__elementTypeFromEnumSet == null)
-        {
-            throw new RuntimeException(
-                    "Could not access (reflection) the private "
-                            + "field *elementType* (enumClass) from: class java.util.EnumSet");
-        }
-
-        try
-        {
-            return (Class<?>) __elementTypeFromEnumSet.get(enumSet);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    static EnumIO<? extends Enum<?>> newEnumIO(Class<?> enumClass)
-    {
-        return ENUMS_BY_NAME ? new ByName(enumClass) : new ByNumber(enumClass);
-    }
-
-    /**
-     * Writes the {@link Enum} to the output.
-     */
-    public void writeTo(Output output, int number, boolean repeated,
-            Enum<?> e) throws IOException
-    {
-        if (ENUMS_BY_NAME)
-        {
-            output.writeString(number, getAlias(e), repeated);
-        }
-        else
-        {
-            output.writeEnum(number, getTag(e), repeated);
-        }
-    }
-
-    /**
-     * Transfers the {@link Enum} from the input to the output.
-     */
-    public static void transfer(Pipe pipe, Input input, Output output,
-            int number, boolean repeated) throws IOException
-    {
-        if (ENUMS_BY_NAME)
-            input.transferByteRangeTo(output, true, number, repeated);
-        else
-            output.writeEnum(number, input.readEnum(), repeated);
-    }
-
-    private static <E extends Enum<E>> CollectionSchema.MessageFactory newEnumSetFactory(
-            final EnumIO<E> eio)
-    {
-        return new CollectionSchema.MessageFactory()
-        {
-            @Override
-            @SuppressWarnings("unchecked")
-            public <V> Collection<V> newMessage()
-            {
-                return (Collection<V>) eio.newEnumSet();
-            }
-
-            @Override
-            public Class<?> typeClass()
-            {
-                return EnumSet.class;
-            }
-        };
-    }
-
-    private static <E extends Enum<E>> MapSchema.MessageFactory newEnumMapFactory(
-            final EnumIO<E> eio)
-    {
-        return new MapSchema.MessageFactory()
-        {
-            @Override
-            @SuppressWarnings("unchecked")
-            public <K, V> Map<K, V> newMessage()
-            {
-                return (Map<K, V>) eio.newEnumMap();
-            }
-
-            @Override
-            public Class<?> typeClass()
-            {
-                return EnumMap.class;
-            }
-        };
-    }
-
-    /**
      * The enum class.
      */
     public final Class<E> enumClass;
-    private volatile CollectionSchema.MessageFactory enumSetFactory;
-    private volatile MapSchema.MessageFactory enumMapFactory;
-
     final ArraySchemas.Base genericElementSchema = new ArraySchemas.EnumArray(
             null, this);
-
     private final String[] alias;
     private final int[] tag;
-
     private final Map<String, E> valueByAliasMap;
     private final Map<Integer, E> valueByTagMap;
-
-    public EnumIO(Class<E> enumClass)
-    {
+    private volatile CollectionSchema.MessageFactory enumSetFactory;
+    private volatile MapSchema.MessageFactory enumMapFactory;
+    public EnumIO(Class<E> enumClass) {
         this.enumClass = enumClass;
         Field[] fields = enumClass.getFields();
         int n = fields.length;
@@ -210,72 +79,151 @@ public abstract class EnumIO<E extends Enum<E>> implements
         tag = new int[n];
         valueByAliasMap = new HashMap<>(n * 2);
         valueByTagMap = new HashMap<>(n * 2);
-        for (E instance : enumClass.getEnumConstants())
-        {
+        for (E instance : enumClass.getEnumConstants()) {
             int ordinal = instance.ordinal();
-            try
-            {
+            try {
                 Field field = enumClass.getField(instance.name());
-                if (field.isAnnotationPresent(Tag.class))
-                {
+                if (field.isAnnotationPresent(Tag.class)) {
                     Tag annotation = field.getAnnotation(Tag.class);
                     tag[ordinal] = annotation.value();
                     alias[ordinal] = annotation.alias();
                     valueByTagMap.put(annotation.value(), instance);
                     valueByAliasMap.put(annotation.alias(), instance);
-                }
-                else
-                {
+                } else {
                     tag[ordinal] = ordinal;
                     alias[ordinal] = field.getName();
                     valueByTagMap.put(ordinal, instance);
                     valueByAliasMap.put(field.getName(), instance);
                 }
-            }
-            catch (NoSuchFieldException e)
-            {
+            } catch (NoSuchFieldException e) {
                 throw new IllegalStateException(e);
             }
         }
     }
 
+    /**
+     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link ObjectSchema}.
+     */
+    static Class<?> getKeyTypeFromEnumMap(Object enumMap) {
+        if (__keyTypeFromEnumMap == null) {
+            throw new RuntimeException(
+                    "Could not access (reflection) the private "
+                            + "field *keyType* (enumClass) from: class java.util.EnumMap");
+        }
+
+        try {
+            return (Class<?>) __keyTypeFromEnumMap.get(enumMap);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link ObjectSchema}.
+     */
+    static Class<?> getElementTypeFromEnumSet(Object enumSet) {
+        if (__elementTypeFromEnumSet == null) {
+            throw new RuntimeException(
+                    "Could not access (reflection) the private "
+                            + "field *elementType* (enumClass) from: class java.util.EnumSet");
+        }
+
+        try {
+            return (Class<?>) __elementTypeFromEnumSet.get(enumSet);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    static EnumIO<? extends Enum<?>> newEnumIO(Class<?> enumClass) {
+        return ENUMS_BY_NAME ? new ByName(enumClass) : new ByNumber(enumClass);
+    }
+
+    /**
+     * Transfers the {@link Enum} from the input to the output.
+     */
+    public static void transfer(Pipe pipe, Input input, Output output,
+                                int number, boolean repeated) throws IOException {
+        if (ENUMS_BY_NAME)
+            input.transferByteRangeTo(output, true, number, repeated);
+        else
+            output.writeEnum(number, input.readEnum(), repeated);
+    }
+
+    private static <E extends Enum<E>> CollectionSchema.MessageFactory newEnumSetFactory(
+            final EnumIO<E> eio) {
+        return new CollectionSchema.MessageFactory() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <V> Collection<V> newMessage() {
+                return (Collection<V>) eio.newEnumSet();
+            }
+
+            @Override
+            public Class<?> typeClass() {
+                return EnumSet.class;
+            }
+        };
+    }
+
+    private static <E extends Enum<E>> MapSchema.MessageFactory newEnumMapFactory(
+            final EnumIO<E> eio) {
+        return new MapSchema.MessageFactory() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <K, V> Map<K, V> newMessage() {
+                return (Map<K, V>) eio.newEnumMap();
+            }
+
+            @Override
+            public Class<?> typeClass() {
+                return EnumMap.class;
+            }
+        };
+    }
+
+    /**
+     * Writes the {@link Enum} to the output.
+     */
+    public void writeTo(Output output, int number, boolean repeated,
+                        Enum<?> e) throws IOException {
+        if (ENUMS_BY_NAME) {
+            output.writeString(number, getAlias(e), repeated);
+        } else {
+            output.writeEnum(number, getTag(e), repeated);
+        }
+    }
+
     @Override
     public PolymorphicSchema newSchema(Class<?> typeClass, IdStrategy strategy,
-            Handler handler)
-    {
+                                       Handler handler) {
         return new ArraySchemas.EnumArray(handler, this);
     }
 
-    public int getTag(Enum<?> element)
-    {
+    public int getTag(Enum<?> element) {
         return tag[element.ordinal()];
     }
 
-    public String getAlias(Enum<?> element)
-    {
+    public String getAlias(Enum<?> element) {
         return alias[element.ordinal()];
     }
 
-    public E getByTag(int tag)
-    {
+    public E getByTag(int tag) {
         return valueByTagMap.get(tag);
     }
 
-    public E getByAlias(String alias)
-    {
+    public E getByAlias(String alias) {
         return valueByAliasMap.get(alias);
     }
 
     /**
      * Returns the factory for an EnumSet (lazy).
      */
-    public CollectionSchema.MessageFactory getEnumSetFactory()
-    {
+    public CollectionSchema.MessageFactory getEnumSetFactory() {
         CollectionSchema.MessageFactory enumSetFactory = this.enumSetFactory;
-        if (enumSetFactory == null)
-        {
-            synchronized (this)
-            {
+        if (enumSetFactory == null) {
+            synchronized (this) {
                 if ((enumSetFactory = this.enumSetFactory) == null)
                     this.enumSetFactory = enumSetFactory = newEnumSetFactory(this);
             }
@@ -286,13 +234,10 @@ public abstract class EnumIO<E extends Enum<E>> implements
     /**
      * Returns the factory for an EnumMap (lazy).
      */
-    public MapSchema.MessageFactory getEnumMapFactory()
-    {
+    public MapSchema.MessageFactory getEnumMapFactory() {
         MapSchema.MessageFactory enumMapFactory = this.enumMapFactory;
-        if (enumMapFactory == null)
-        {
-            synchronized (this)
-            {
+        if (enumMapFactory == null) {
+            synchronized (this) {
                 if ((enumMapFactory = this.enumMapFactory) == null)
                     this.enumMapFactory = enumMapFactory = newEnumMapFactory(this);
             }
@@ -303,16 +248,14 @@ public abstract class EnumIO<E extends Enum<E>> implements
     /**
      * Returns an empty {@link EnumSet}.
      */
-    public EnumSet<E> newEnumSet()
-    {
+    public EnumSet<E> newEnumSet() {
         return EnumSet.noneOf(enumClass);
     }
 
     /**
      * Returns an empty {@link EnumMap}.
      */
-    public <V> EnumMap<E, V> newEnumMap()
-    {
+    public <V> EnumMap<E, V> newEnumMap() {
         return new EnumMap<>(enumClass);
     }
 
@@ -324,16 +267,13 @@ public abstract class EnumIO<E extends Enum<E>> implements
     /**
      * Reads the enum by its name.
      */
-    public static final class ByName<E extends Enum<E>> extends EnumIO<E>
-    {
-        public ByName(Class<E> enumClass)
-        {
+    public static final class ByName<E extends Enum<E>> extends EnumIO<E> {
+        public ByName(Class<E> enumClass) {
             super(enumClass);
         }
 
         @Override
-        public E readFrom(Input input) throws IOException
-        {
+        public E readFrom(Input input) throws IOException {
             String alias = input.readString();
             return getByAlias(alias);
         }
@@ -342,16 +282,13 @@ public abstract class EnumIO<E extends Enum<E>> implements
     /**
      * Reads the enum by its number.
      */
-    public static final class ByNumber<E extends Enum<E>> extends EnumIO<E>
-    {
-        public ByNumber(Class<E> enumClass)
-        {
+    public static final class ByNumber<E extends Enum<E>> extends EnumIO<E> {
+        public ByNumber(Class<E> enumClass) {
             super(enumClass);
         }
 
         @Override
-        public E readFrom(Input input) throws IOException
-        {
+        public E readFrom(Input input) throws IOException {
             int tag = input.readEnum();
             return getByTag(tag);
         }

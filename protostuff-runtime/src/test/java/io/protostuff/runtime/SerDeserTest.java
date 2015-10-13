@@ -1,20 +1,27 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
+
+import junit.framework.TestCase;
+
+import java.util.LinkedHashSet;
+
+import io.protostuff.ComputedSizeOutput;
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
+import io.protostuff.runtime.Bar.Status;
 
 import static io.protostuff.runtime.SerializableObjects.bar;
 import static io.protostuff.runtime.SerializableObjects.baz;
@@ -22,37 +29,67 @@ import static io.protostuff.runtime.SerializableObjects.foo;
 import static io.protostuff.runtime.SerializableObjects.negativeBar;
 import static io.protostuff.runtime.SerializableObjects.negativeBaz;
 
-import java.util.LinkedHashSet;
-
-import junit.framework.TestCase;
-import io.protostuff.ComputedSizeOutput;
-import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
-import io.protostuff.Schema;
-import io.protostuff.runtime.Bar.Status;
-
 /**
  * Serialization and deserialization test cases.
- * 
+ *
  * @author David Yu
  */
-public class SerDeserTest extends TestCase
-{
+public class SerDeserTest extends TestCase {
 
     static final int BUF_SIZE = 256;
 
-    public static LinkedBuffer buf()
-    {
+    public static LinkedBuffer buf() {
         return LinkedBuffer.allocate(BUF_SIZE);
     }
 
-    public <T> byte[] toByteArray(T message, Schema<T> schema)
-    {
+    static PojoWithArrayAndSet filledPojoWithArrayAndSet() {
+        LinkedHashSet<Status> someEnumAsSet = new LinkedHashSet<>();
+        someEnumAsSet.add(Status.PENDING);
+        someEnumAsSet.add(Status.STARTED);
+        someEnumAsSet.add(Status.COMPLETED);
+
+        LinkedHashSet<Bar> someBarAsSet = new LinkedHashSet<>();
+        someBarAsSet.add(bar);
+        someBarAsSet.add(negativeBar);
+
+        LinkedHashSet<Float> someFloatAsSet = new LinkedHashSet<>();
+        someFloatAsSet.add(123.321f);
+        someFloatAsSet.add(-456.654f);
+
+        return new PojoWithArrayAndSet(someEnumAsSet,
+                someEnumAsSet.toArray(new Status[someEnumAsSet.size()]),
+                someBarAsSet,
+                someBarAsSet.toArray(new Bar[someBarAsSet.size()]),
+                someFloatAsSet, someFloatAsSet.toArray(new Float[someFloatAsSet
+                .size()]), new Double[]{112233.332211d,
+                445566.665544d}, new double[]{-112233.332211d,
+                -445566.665544d});
+    }
+
+    static void assertEquals(HasHasBar h1, HasHasBar h2) {
+        // true if both are null
+        if (h1 == h2)
+            return;
+
+        assertEquals(h1.getName(), h2.getName());
+        assertEquals(h1.getHasBar(), h2.getHasBar());
+    }
+
+    static void assertEquals(HasBar h1, HasBar h2) {
+        // true if both are null
+        if (h1 == h2)
+            return;
+
+        assertTrue(h1.getId() == h2.getId());
+        assertEquals(h1.getName(), h2.getName());
+        SerializableObjects.assertEquals(h1.getBar(), h2.getBar());
+    }
+
+    public <T> byte[] toByteArray(T message, Schema<T> schema) {
         return ProtostuffIOUtil.toByteArray(message, schema, buf());
     }
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Schema<Foo> schema = RuntimeSchema.getSchema(Foo.class);
 
         Foo fooCompare = foo;
@@ -70,12 +107,10 @@ public class SerDeserTest extends TestCase
         SerializableObjects.assertEquals(fooCompare, dfoo);
     }
 
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         Schema<Bar> schema = RuntimeSchema.getSchema(Bar.class);
 
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             Bar dbar = new Bar();
 
             int expectedSize = ComputedSizeOutput.getSize(barCompare, schema);
@@ -95,12 +130,10 @@ public class SerDeserTest extends TestCase
         }
     }
 
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         Schema<Baz> schema = RuntimeSchema.getSchema(Baz.class);
 
-        for (Baz bazCompare : new Baz[] { baz, negativeBaz })
-        {
+        for (Baz bazCompare : new Baz[]{baz, negativeBaz}) {
             Baz dbaz = new Baz();
 
             int expectedSize = ComputedSizeOutput.getSize(bazCompare, schema);
@@ -121,8 +154,7 @@ public class SerDeserTest extends TestCase
      * <p>
      * HasBar wraps a message {@link Bar}.
      */
-    public void testJavaSerializable() throws Exception
-    {
+    public void testJavaSerializable() throws Exception {
         Schema<HasHasBar> schema = RuntimeSchema.getSchema(HasHasBar.class);
 
         HasHasBar hhbCompare = new HasHasBar("hhb", new HasBar(12345, "hb",
@@ -137,33 +169,7 @@ public class SerDeserTest extends TestCase
         assertEquals(hhbCompare, dhhb);
     }
 
-    static PojoWithArrayAndSet filledPojoWithArrayAndSet()
-    {
-        LinkedHashSet<Status> someEnumAsSet = new LinkedHashSet<>();
-        someEnumAsSet.add(Status.PENDING);
-        someEnumAsSet.add(Status.STARTED);
-        someEnumAsSet.add(Status.COMPLETED);
-
-        LinkedHashSet<Bar> someBarAsSet = new LinkedHashSet<>();
-        someBarAsSet.add(bar);
-        someBarAsSet.add(negativeBar);
-
-        LinkedHashSet<Float> someFloatAsSet = new LinkedHashSet<>();
-        someFloatAsSet.add(123.321f);
-        someFloatAsSet.add(-456.654f);
-
-        return new PojoWithArrayAndSet(someEnumAsSet,
-                someEnumAsSet.toArray(new Status[someEnumAsSet.size()]),
-                someBarAsSet,
-                someBarAsSet.toArray(new Bar[someBarAsSet.size()]),
-                someFloatAsSet, someFloatAsSet.toArray(new Float[someFloatAsSet
-                        .size()]), new Double[] { 112233.332211d,
-                        445566.665544d }, new double[] { -112233.332211d,
-                        -445566.665544d });
-    }
-
-    public void testPojoWithArrayAndSet() throws Exception
-    {
+    public void testPojoWithArrayAndSet() throws Exception {
         PojoWithArrayAndSet pojoCompare = filledPojoWithArrayAndSet();
 
         Schema<PojoWithArrayAndSet> schema = RuntimeSchema
@@ -180,27 +186,6 @@ public class SerDeserTest extends TestCase
         assertEquals(pojoCompare, dpojo);
         // System.err.println(dpojo.getSomeEnumAsSet());
         // System.err.println(dpojo.getSomeFloatAsSet());
-    }
-
-    static void assertEquals(HasHasBar h1, HasHasBar h2)
-    {
-        // true if both are null
-        if (h1 == h2)
-            return;
-
-        assertEquals(h1.getName(), h2.getName());
-        assertEquals(h1.getHasBar(), h2.getHasBar());
-    }
-
-    static void assertEquals(HasBar h1, HasBar h2)
-    {
-        // true if both are null
-        if (h1 == h2)
-            return;
-
-        assertTrue(h1.getId() == h2.getId());
-        assertEquals(h1.getName(), h2.getName());
-        SerializableObjects.assertEquals(h1.getBar(), h2.getBar());
     }
 
 }

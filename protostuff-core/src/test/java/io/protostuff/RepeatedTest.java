@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -21,10 +18,8 @@ import java.nio.ByteBuffer;
 
 /**
  */
-public class RepeatedTest extends AbstractTest
-{
-    public void testPackedRepeatedByteArray() throws IOException
-    {
+public class RepeatedTest extends AbstractTest {
+    public void testPackedRepeatedByteArray() throws IOException {
         final LinkedBuffer buffer = getProtobufBuffer();
 
         PojoWithRepeated test = new PojoWithRepeated();
@@ -33,8 +28,7 @@ public class RepeatedTest extends AbstractTest
         verify(test);
     }
 
-    public void testPackedRepeatedByteBuffer() throws IOException
-    {
+    public void testPackedRepeatedByteBuffer() throws IOException {
         final LinkedBuffer buffer = getProtobufBuffer();
 
         PojoWithRepeated test = new PojoWithRepeated();
@@ -44,8 +38,7 @@ public class RepeatedTest extends AbstractTest
         verify(test);
     }
 
-    public void testPackedRepeatedCodedInput() throws IOException
-    {
+    public void testPackedRepeatedCodedInput() throws IOException {
         final LinkedBuffer buffer = getProtobufBuffer();
 
         PojoWithRepeated test = new PojoWithRepeated();
@@ -54,31 +47,29 @@ public class RepeatedTest extends AbstractTest
         verify(test);
     }
 
-    private LinkedBuffer getProtobufBuffer() throws IOException
-    {
+    private LinkedBuffer getProtobufBuffer() throws IOException {
         // Generate protobuf with packed repeated fields
         final LinkedBuffer buffer = new LinkedBuffer(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         final ProtobufOutput output = new ProtobufOutput(buffer);
         // 03 // first element (varint 3)
         // 8E 02 // second element (varint 270)
         output.writeByteRange(
-                false, 1, new byte[] { (byte) 0x03, (byte) 0x8E, (byte) 0x02 }, 0, 3, true);
+                false, 1, new byte[]{(byte) 0x03, (byte) 0x8E, (byte) 0x02}, 0, 3, true);
         // Interleave
         output.writeFixed64(2, 8, true);
         // Non packed
         output.writeInt32(1, 1234, true);
         // Interleave
         output.writeByteRange(
-                false, 2, new byte[] { 9, 0, 0, 0, 0, 0, 0, 0 }, 0, 8, true);
+                false, 2, new byte[]{9, 0, 0, 0, 0, 0, 0, 0}, 0, 8, true);
         // 9E A7 05 // third element (varint 86942)
         output.writeByteRange(
-                false, 1, new byte[] { (byte) 0x9E, (byte) 0xA7, (byte) 0x05 }, 0, 3, true);
+                false, 1, new byte[]{(byte) 0x9E, (byte) 0xA7, (byte) 0x05}, 0, 3, true);
 
         return buffer;
     }
 
-    private void verify(final PojoWithRepeated test)
-    {
+    private void verify(final PojoWithRepeated test) {
         assertEquals(4, test.getSomeInt32Count());
         assertEquals((Integer) 3, test.getSomeInt32(0));
         assertEquals((Integer) 270, test.getSomeInt32(1));

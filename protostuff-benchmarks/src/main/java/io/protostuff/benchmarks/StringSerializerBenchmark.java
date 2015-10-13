@@ -1,24 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.benchmarks;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -36,6 +29,10 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+
 import io.protostuff.LinkedBuffer;
 import io.protostuff.StringSerializer;
 import io.protostuff.WriteSession;
@@ -46,17 +43,15 @@ import io.protostuff.WriteSession;
 @Measurement(iterations = 10)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-public class StringSerializerBenchmark
-{
-    @Param({ "1", "10", "100", "1000", "10000", "100000" })
+public class StringSerializerBenchmark {
+    @Param({"1", "10", "100", "1000", "10000", "100000"})
     private int stringLength;
 
     private String s;
     private LinkedBuffer sharedBuffer;
     private WriteSession sharedSession;
 
-    public static void main(String[] args) throws RunnerException
-    {
+    public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(StringSerializerBenchmark.class.getSimpleName())
                 .build();
@@ -64,50 +59,39 @@ public class StringSerializerBenchmark
     }
 
     @Setup
-    public void prepare() throws IOException
-    {
+    public void prepare() throws IOException {
         sharedBuffer = LinkedBuffer.allocate(512);
         sharedSession = new WriteSession(sharedBuffer);
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < stringLength; i++)
-        {
+        for (int i = 0; i < stringLength; i++) {
             sb.append('.');
         }
         s = sb.toString();
     }
 
     @Benchmark
-    public byte[] builtInSerializer()
-    {
+    public byte[] builtInSerializer() {
         return s.getBytes(StandardCharsets.UTF_8);
     }
 
     @Benchmark
-    public byte[] bufferedSerializer()
-    {
-        try
-        {
+    public byte[] bufferedSerializer() {
+        try {
             final WriteSession session = new WriteSession(sharedBuffer);
             StringSerializer.writeUTF8(s, session, sharedBuffer);
             return session.toByteArray();
-        }
-        finally
-        {
+        } finally {
             sharedBuffer.clear();
         }
     }
 
     @Benchmark
-    public byte[] bufferedRecycledSerializer()
-    {
+    public byte[] bufferedRecycledSerializer() {
         final WriteSession session = this.sharedSession;
-        try
-        {
+        try {
             StringSerializer.writeUTF8(s, session, session.head);
             return session.toByteArray();
-        }
-        finally
-        {
+        } finally {
             session.clear();
         }
     }

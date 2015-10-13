@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -23,151 +20,131 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class PojoWithRepeated implements Externalizable, Message<PojoWithRepeated>, Schema<PojoWithRepeated>
-{
-
-    public static Schema<PojoWithRepeated> getSchema()
-    {
-        return DEFAULT_INSTANCE;
-    }
-
-    public static PojoWithRepeated getDefaultInstance()
-    {
-        return DEFAULT_INSTANCE;
-    }
+public final class PojoWithRepeated implements Externalizable, Message<PojoWithRepeated>, Schema<PojoWithRepeated> {
 
     static final PojoWithRepeated DEFAULT_INSTANCE = new PojoWithRepeated();
+    private static final java.util.HashMap<String, Integer> __fieldMap = new java.util.HashMap<>();
+
+    static {
+        __fieldMap.put("someInt32", 1);
+        __fieldMap.put("someFixed64", 2);
+    }
 
     private List<Integer> someInt32;
     private List<Long> someFixed64;
 
-    public PojoWithRepeated()
-    {
+    public PojoWithRepeated() {
 
     }
 
-    @Override
-    public String toString()
-    {
-        return "PojoWithRepeated{" +
-                "someInt32=" + someInt32 +
-                ", someFixed64=" + someFixed64 +
-                '}';
+    public static Schema<PojoWithRepeated> getSchema() {
+        return DEFAULT_INSTANCE;
     }
 
     // getters and setters
 
     // someInt32
 
-    public List<Integer> getSomeInt32List()
-    {
+    public static PojoWithRepeated getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+    }
+
+    @Override
+    public String toString() {
+        return "PojoWithRepeated{" +
+                "someInt32=" + someInt32 +
+                ", someFixed64=" + someFixed64 +
+                '}';
+    }
+
+    public List<Integer> getSomeInt32List() {
         return someInt32;
     }
 
-    public PojoWithRepeated setSomeInt32List(List<Integer> someInt32)
-    {
+    public PojoWithRepeated setSomeInt32List(List<Integer> someInt32) {
         this.someInt32 = someInt32;
         return this;
     }
 
-    public Integer getSomeInt32(int index)
-    {
+    public Integer getSomeInt32(int index) {
         return someInt32 == null ? null : someInt32.get(index);
     }
 
-    public int getSomeInt32Count()
-    {
+    // someFixed64
+
+    public int getSomeInt32Count() {
         return someInt32 == null ? 0 : someInt32.size();
     }
 
-    public PojoWithRepeated addSomeInt32(Integer someInt32)
-    {
+    public PojoWithRepeated addSomeInt32(Integer someInt32) {
         if (this.someInt32 == null)
             this.someInt32 = new ArrayList<>();
         this.someInt32.add(someInt32);
         return this;
     }
 
-    // someFixed64
-
-    public List<Long> getSomeFixed64List()
-    {
+    public List<Long> getSomeFixed64List() {
         return someFixed64;
     }
 
-    public PojoWithRepeated setSomeFixed64List(List<Long> someFixed64)
-    {
+    public PojoWithRepeated setSomeFixed64List(List<Long> someFixed64) {
         this.someFixed64 = someFixed64;
         return this;
     }
 
-    public Long getSomeFixed64(int index)
-    {
+    public Long getSomeFixed64(int index) {
         return someFixed64 == null ? null : someFixed64.get(index);
     }
 
-    public int getSomeFixed64Count()
-    {
+    // java serialization
+
+    public int getSomeFixed64Count() {
         return someFixed64 == null ? 0 : someFixed64.size();
     }
 
-    public PojoWithRepeated addSomeFixed64(Long someFixed64)
-    {
+    public PojoWithRepeated addSomeFixed64(Long someFixed64) {
         if (this.someFixed64 == null)
             this.someFixed64 = new ArrayList<>();
         this.someFixed64.add(someFixed64);
         return this;
     }
 
-    // java serialization
-
-    public void readExternal(ObjectInput in) throws IOException
-    {
-        GraphIOUtil.mergeDelimitedFrom(in, this, this);
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        GraphIOUtil.writeDelimitedTo(out, this, this);
-    }
-
     // message method
 
-    public Schema<PojoWithRepeated> cachedSchema()
-    {
-        return DEFAULT_INSTANCE;
+    public void readExternal(ObjectInput in) throws IOException {
+        GraphIOUtil.mergeDelimitedFrom(in, this, this);
     }
 
     // schema methods
 
-    public PojoWithRepeated newMessage()
-    {
+    public void writeExternal(ObjectOutput out) throws IOException {
+        GraphIOUtil.writeDelimitedTo(out, this, this);
+    }
+
+    public Schema<PojoWithRepeated> cachedSchema() {
+        return DEFAULT_INSTANCE;
+    }
+
+    public PojoWithRepeated newMessage() {
         return new PojoWithRepeated();
     }
 
-    public Class<PojoWithRepeated> typeClass()
-    {
+    public Class<PojoWithRepeated> typeClass() {
         return PojoWithRepeated.class;
     }
 
-    public String messageName()
-    {
+    public String messageName() {
         return PojoWithRepeated.class.getSimpleName();
     }
 
-    public String messageFullName()
-    {
+    public String messageFullName() {
         return PojoWithRepeated.class.getName();
     }
 
-    public void mergeFrom(Input input, PojoWithRepeated message) throws IOException
-    {
-        try
-        {
-            for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))
-            {
-                switch (number)
-                {
+    public void mergeFrom(Input input, PojoWithRepeated message) throws IOException {
+        try {
+            for (int number = input.readFieldNumber(this); ; number = input.readFieldNumber(this)) {
+                switch (number) {
                     case 0:
                         return;
                     case 1:
@@ -184,9 +161,7 @@ public final class PojoWithRepeated implements Externalizable, Message<PojoWithR
                         input.handleUnknownField(number, this);
                 }
             }
-        }
-        finally
-        {
+        } finally {
             if (message.someInt32 != null)
                 message.someInt32 = java.util.Collections.unmodifiableList(message.someInt32);
             else
@@ -198,31 +173,24 @@ public final class PojoWithRepeated implements Externalizable, Message<PojoWithR
         }
     }
 
-    public void writeTo(Output output, PojoWithRepeated message) throws IOException
-    {
-        if (message.someInt32 != null)
-        {
-            for (Integer someInt32 : message.someInt32)
-            {
+    public void writeTo(Output output, PojoWithRepeated message) throws IOException {
+        if (message.someInt32 != null) {
+            for (Integer someInt32 : message.someInt32) {
                 if (someInt32 != null)
                     output.writeInt32(1, someInt32, true);
             }
         }
 
-        if (message.someFixed64 != null)
-        {
-            for (Long someFixed64 : message.someFixed64)
-            {
+        if (message.someFixed64 != null) {
+            for (Long someFixed64 : message.someFixed64) {
                 if (someFixed64 != null)
                     output.writeFixed64(2, someFixed64, true);
             }
         }
     }
 
-    public String getFieldName(int number)
-    {
-        switch (number)
-        {
+    public String getFieldName(int number) {
+        switch (number) {
             case 1:
                 return "someInt32";
             case 2:
@@ -232,17 +200,9 @@ public final class PojoWithRepeated implements Externalizable, Message<PojoWithR
         }
     }
 
-    public int getFieldNumber(String name)
-    {
+    public int getFieldNumber(String name) {
         final Integer number = __fieldMap.get(name);
         return number == null ? 0 : number.intValue();
-    }
-
-    private static final java.util.HashMap<String, Integer> __fieldMap = new java.util.HashMap<>();
-    static
-    {
-        __fieldMap.put("someInt32", 1);
-        __fieldMap.put("someFixed64", 2);
     }
 
 }

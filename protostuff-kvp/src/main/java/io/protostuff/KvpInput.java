@@ -1,29 +1,26 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.NumberParser.parseInt;
-import static io.protostuff.NumberParser.parseLong;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import io.protostuff.StringSerializer.STRING;
+
+import static io.protostuff.NumberParser.parseInt;
+import static io.protostuff.NumberParser.parseLong;
 
 /**
  * An input for deserializing kvp-encoded messages. A kvp encoding is a binary encoding w/c contains a key-value
@@ -33,11 +30,10 @@ import io.protostuff.StringSerializer.STRING;
  * <p>
  * Note that this encoding does not support nested messages. This encoding is mostly useful for headers w/c contain
  * information about the content it carries (see http://projects.unbit.it/uwsgi/wiki/uwsgiProtocol).
- * 
+ *
  * @author David Yu
  */
-public final class KvpInput implements Input
-{
+public final class KvpInput implements Input {
 
     static final int DEFAULT_BUFFER_SIZE =
             Integer.getInteger("kvpinput.default_buffer_size", 1024);
@@ -50,19 +46,16 @@ public final class KvpInput implements Input
     final boolean numeric;
     int offset, limit;
 
-    public KvpInput(InputStream in, boolean numeric)
-    {
+    public KvpInput(InputStream in, boolean numeric) {
         this(in, new byte[DEFAULT_BUFFER_SIZE], numeric);
     }
 
-    public KvpInput(InputStream in, byte[] buffer, boolean numeric)
-    {
+    public KvpInput(InputStream in, byte[] buffer, boolean numeric) {
         this(in, buffer, 0, 0, numeric);
     }
 
     public KvpInput(InputStream in, byte[] buffer, int offset, int limit,
-            boolean numeric)
-    {
+                    boolean numeric) {
         this.in = in;
 
         this.buffer = buffer;
@@ -77,21 +70,18 @@ public final class KvpInput implements Input
      * <p>
      * The caller is responsible that the arg {@code minimum} is not larger than the buffer size.
      */
-    private boolean readable(final int minimum) throws IOException
-    {
+    private boolean readable(final int minimum) throws IOException {
         int existing = limit - offset;
         final int available = buffer.length - limit;
 
-        if (minimum > available + existing)
-        {
+        if (minimum > available + existing) {
             // move to front.
             System.arraycopy(buffer, offset, buffer, 0, existing);
             offset = 0;
             limit = existing;
 
             int read;
-            do
-            {
+            do {
                 read = in.read(buffer, limit, buffer.length - limit);
                 if (read == -1)
                     return false;
@@ -104,8 +94,7 @@ public final class KvpInput implements Input
         }
 
         int read;
-        do
-        {
+        do {
             read = in.read(buffer, limit, buffer.length - limit);
             if (read == -1)
                 return false;
@@ -118,12 +107,10 @@ public final class KvpInput implements Input
     }
 
     private byte[] fill(final byte[] data, int dataOffset, final int len)
-            throws IOException
-    {
+            throws IOException {
         final int existing = limit - offset;
         int toRead = len - existing, read = 0;
-        if (existing != 0)
-        {
+        if (existing != 0) {
             // copy existing
             System.arraycopy(buffer, offset, data, dataOffset, existing);
             dataOffset += existing;
@@ -132,8 +119,7 @@ public final class KvpInput implements Input
         offset = 0;
         limit = 0;
 
-        do
-        {
+        do {
             read = in.read(data, dataOffset, toRead);
             if (read == -1)
                 throw new ProtostuffException("Truncated message.");
@@ -146,10 +132,8 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public <T> int readFieldNumber(Schema<T> schema) throws IOException
-    {
-        if (offset + 2 > limit && !readable(2))
-        {
+    public <T> int readFieldNumber(Schema<T> schema) throws IOException {
+        if (offset + 2 > limit && !readable(2)) {
             if (offset != limit)
                 throw new ProtostuffException("Truncated message.");
 
@@ -166,8 +150,7 @@ public final class KvpInput implements Input
 
         offset += size;
 
-        if (number == 0)
-        {
+        if (number == 0) {
             // skip unknown fields.
             handleUnknownField(number, schema);
             return readFieldNumber(schema);
@@ -177,18 +160,15 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public <T> void handleUnknownField(int fieldNumber, Schema<T> schema) throws IOException
-    {
+    public <T> void handleUnknownField(int fieldNumber, Schema<T> schema) throws IOException {
         if (offset + 2 > limit && !readable(2))
             throw new ProtostuffException("Truncated message.");
 
         final int size = buffer[offset++] | (buffer[offset++] << 8);
-        if (offset + size > limit)
-        {
+        if (offset + size > limit) {
             int toRead = size - (limit - offset), read = 0;
             // read until toRead
-            do
-            {
+            do {
                 read = in.read(buffer, 0, buffer.length);
                 if (read == -1)
                     throw new ProtostuffException("Truncated message.");
@@ -206,14 +186,12 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public <T> T mergeObject(T value, Schema<T> schema) throws IOException
-    {
+    public <T> T mergeObject(T value, Schema<T> schema) throws IOException {
         throw new ProtostuffException("Unsupported.");
     }
 
     @Override
-    public boolean readBool() throws IOException
-    {
+    public boolean readBool() throws IOException {
         if (offset + 3 > limit && !readable(3))
             throw new ProtostuffException("Truncated message.");
 
@@ -226,42 +204,36 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public ByteString readBytes() throws IOException
-    {
+    public ByteString readBytes() throws IOException {
         return ByteString.wrap(readByteArray());
     }
 
     @Override
-    public double readDouble() throws IOException
-    {
+    public double readDouble() throws IOException {
         // TODO efficiency
 
         return Double.parseDouble(readString());
     }
 
     @Override
-    public float readFloat() throws IOException
-    {
+    public float readFloat() throws IOException {
         // TODO efficiency
 
         return Float.parseFloat(readString());
     }
 
     @Override
-    public int readUInt32() throws IOException
-    {
+    public int readUInt32() throws IOException {
         return readInt32();
     }
 
     @Override
-    public long readUInt64() throws IOException
-    {
+    public long readUInt64() throws IOException {
         return readInt64();
     }
 
     @Override
-    public int readInt32() throws IOException
-    {
+    public int readInt32() throws IOException {
         if (offset + 2 > limit && !readable(2))
             throw new ProtostuffException("Truncated message.");
 
@@ -281,8 +253,7 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public long readInt64() throws IOException
-    {
+    public long readInt64() throws IOException {
         if (offset + 2 > limit && !readable(2))
             throw new ProtostuffException("Truncated message.");
 
@@ -302,50 +273,42 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public int readEnum() throws IOException
-    {
+    public int readEnum() throws IOException {
         return readInt32();
     }
 
     @Override
-    public int readFixed32() throws IOException
-    {
+    public int readFixed32() throws IOException {
         return readUInt32();
     }
 
     @Override
-    public long readFixed64() throws IOException
-    {
+    public long readFixed64() throws IOException {
         return readUInt64();
     }
 
     @Override
-    public int readSFixed32() throws IOException
-    {
+    public int readSFixed32() throws IOException {
         return readInt32();
     }
 
     @Override
-    public long readSFixed64() throws IOException
-    {
+    public long readSFixed64() throws IOException {
         return readInt64();
     }
 
     @Override
-    public int readSInt32() throws IOException
-    {
+    public int readSInt32() throws IOException {
         return readInt32();
     }
 
     @Override
-    public long readSInt64() throws IOException
-    {
+    public long readSInt64() throws IOException {
         return readInt64();
     }
 
     @Override
-    public byte[] readByteArray() throws IOException
-    {
+    public byte[] readByteArray() throws IOException {
         if (offset + 2 > limit && !readable(2))
             throw new ProtostuffException("Truncated message.");
 
@@ -367,8 +330,7 @@ public final class KvpInput implements Input
     }
 
     @Override
-    public String readString() throws IOException
-    {
+    public String readString() throws IOException {
         if (offset + 2 > limit && !readable(2))
             throw new ProtostuffException("Truncated message.");
 
@@ -380,10 +342,8 @@ public final class KvpInput implements Input
         if (size > MAX_VALUE_SIZE)
             throw new ProtostuffException("Exceeded kvp max value size.");
 
-        if (offset + size > limit)
-        {
-            if (size > buffer.length)
-            {
+        if (offset + size > limit) {
+            if (size > buffer.length) {
                 // need to create a copy.
                 return STRING.deser(fill(new byte[size], 0, size));
             }
@@ -404,8 +364,7 @@ public final class KvpInput implements Input
 
     @Override
     public void transferByteRangeTo(Output output, boolean utf8String, int fieldNumber,
-            boolean repeated) throws IOException
-    {
+                                    boolean repeated) throws IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -413,8 +372,7 @@ public final class KvpInput implements Input
      * Reads a byte array/ByteBuffer value.
      */
     @Override
-    public ByteBuffer readByteBuffer() throws IOException
-    {
+    public ByteBuffer readByteBuffer() throws IOException {
         return ByteBuffer.wrap(readByteArray());
     }
 }

@@ -1,27 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.RuntimeFieldFactory.ID_COLLECTION;
-import static io.protostuff.runtime.RuntimeFieldFactory.ID_ENUM;
-import static io.protostuff.runtime.RuntimeFieldFactory.ID_ENUM_SET;
-import static io.protostuff.runtime.RuntimeFieldFactory.STR_COLLECTION;
-import static io.protostuff.runtime.RuntimeFieldFactory.STR_ENUM;
-import static io.protostuff.runtime.RuntimeFieldFactory.STR_ENUM_SET;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -42,47 +32,53 @@ import io.protostuff.StatefulOutput;
 import io.protostuff.runtime.IdStrategy.Wrapper;
 import io.protostuff.runtime.RuntimeEnv.Instantiator;
 
+import static io.protostuff.runtime.RuntimeFieldFactory.ID_COLLECTION;
+import static io.protostuff.runtime.RuntimeFieldFactory.ID_ENUM;
+import static io.protostuff.runtime.RuntimeFieldFactory.ID_ENUM_SET;
+import static io.protostuff.runtime.RuntimeFieldFactory.STR_COLLECTION;
+import static io.protostuff.runtime.RuntimeFieldFactory.STR_ENUM;
+import static io.protostuff.runtime.RuntimeFieldFactory.STR_ENUM_SET;
+
 /**
  * Used when the type is an interface (Collection/List/Set/SortedSet).
- * 
+ *
  * @author David Yu
  */
-public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
-{
+public abstract class PolymorphicCollectionSchema extends PolymorphicSchema {
 
     static final int ID_EMPTY_SET = 1, ID_EMPTY_LIST = 2,
 
-            ID_SINGLETON_SET = 3, ID_SINGLETON_LIST = 4,
+    ID_SINGLETON_SET = 3, ID_SINGLETON_LIST = 4,
 
-            ID_SET_FROM_MAP = 5, ID_COPIES_LIST = 6,
+    ID_SET_FROM_MAP = 5, ID_COPIES_LIST = 6,
 
-            ID_UNMODIFIABLE_COLLECTION = 7, ID_UNMODIFIABLE_SET = 8,
+    ID_UNMODIFIABLE_COLLECTION = 7, ID_UNMODIFIABLE_SET = 8,
             ID_UNMODIFIABLE_SORTED_SET = 9, ID_UNMODIFIABLE_LIST = 10,
             ID_UNMODIFIABLE_RANDOM_ACCESS_LIST = 11,
 
-            ID_SYNCHRONIZED_COLLECTION = 12, ID_SYNCHRONIZED_SET = 13,
+    ID_SYNCHRONIZED_COLLECTION = 12, ID_SYNCHRONIZED_SET = 13,
             ID_SYNCHRONIZED_SORTED_SET = 14, ID_SYNCHRONIZED_LIST = 15,
             ID_SYNCHRONIZED_RANDOM_ACCESS_LIST = 16,
 
-            ID_CHECKED_COLLECTION = 17, ID_CHECKED_SET = 18,
+    ID_CHECKED_COLLECTION = 17, ID_CHECKED_SET = 18,
             ID_CHECKED_SORTED_SET = 19, ID_CHECKED_LIST = 20,
             ID_CHECKED_RANDOM_ACCESS_LIST = 21;
 
     static final String STR_EMPTY_SET = "a", STR_EMPTY_LIST = "b",
 
-            STR_SINGLETON_SET = "c", STR_SINGLETON_LIST = "d",
+    STR_SINGLETON_SET = "c", STR_SINGLETON_LIST = "d",
 
-            STR_SET_FROM_MAP = "e", STR_COPIES_LIST = "f",
+    STR_SET_FROM_MAP = "e", STR_COPIES_LIST = "f",
 
-            STR_UNMODIFIABLE_COLLECTION = "g", STR_UNMODIFIABLE_SET = "h",
+    STR_UNMODIFIABLE_COLLECTION = "g", STR_UNMODIFIABLE_SET = "h",
             STR_UNMODIFIABLE_SORTED_SET = "i", STR_UNMODIFIABLE_LIST = "j",
             STR_UNMODIFIABLE_RANDOM_ACCESS_LIST = "k",
 
-            STR_SYNCHRONIZED_COLLECTION = "l", STR_SYNCHRONIZED_SET = "m",
+    STR_SYNCHRONIZED_COLLECTION = "l", STR_SYNCHRONIZED_SET = "m",
             STR_SYNCHRONIZED_SORTED_SET = "n", STR_SYNCHRONIZED_LIST = "o",
             STR_SYNCHRONIZED_RANDOM_ACCESS_LIST = "p",
 
-            STR_CHECKED_COLLECTION = "q", STR_CHECKED_SET = "r",
+    STR_CHECKED_COLLECTION = "q", STR_CHECKED_SET = "r",
             STR_CHECKED_SORTED_SET = "s", STR_CHECKED_LIST = "t",
             STR_CHECKED_RANDOM_ACCESS_LIST = "u";
 
@@ -90,36 +86,35 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
     static final Field fSingletonSet_element, fSingletonList_element,
 
-            fUnmodifiableCollection_c, fUnmodifiableSortedSet_ss,
+    fUnmodifiableCollection_c, fUnmodifiableSortedSet_ss,
             fUnmodifiableList_list,
 
-            fSynchronizedCollection_c, fSynchronizedSortedSet_ss,
+    fSynchronizedCollection_c, fSynchronizedSortedSet_ss,
             fSynchronizedList_list, fSynchronizedCollection_mutex,
 
-            fCheckedCollection_c, fCheckedSortedSet_ss, fCheckedList_list,
+    fCheckedCollection_c, fCheckedSortedSet_ss, fCheckedList_list,
             fCheckedCollection_type,
 
-            fSetFromMap_m, fSetFromMap_s,
+    fSetFromMap_m, fSetFromMap_s,
 
-            fCopiesList_n, fCopiesList_element;
+    fCopiesList_n, fCopiesList_element;
 
     static final Instantiator<?> iSingletonSet, iSingletonList,
 
-            iUnmodifiableCollection, iUnmodifiableSet, iUnmodifiableSortedSet,
+    iUnmodifiableCollection, iUnmodifiableSet, iUnmodifiableSortedSet,
             iUnmodifiableList, iUnmodifiableRandomAccessList,
 
-            iSynchronizedCollection, iSynchronizedSet, iSynchronizedSortedSet,
+    iSynchronizedCollection, iSynchronizedSet, iSynchronizedSortedSet,
             iSynchronizedList, iSynchronizedRandomAccessList,
 
-            iCheckedCollection, iCheckedSet, iCheckedSortedSet, iCheckedList,
+    iCheckedCollection, iCheckedSet, iCheckedSortedSet, iCheckedList,
             iCheckedRandomAccessList,
 
-            iSetFromMap,
+    iSetFromMap,
 
-            iCopiesList;
+    iCopiesList;
 
-    static
-    {
+    static {
         map("java.util.Collections$EmptySet", ID_EMPTY_SET);
         map("java.util.Collections$EmptyList", ID_EMPTY_LIST);
 
@@ -176,8 +171,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 "java.util.Collections$CheckedRandomAccessList",
                 ID_CHECKED_RANDOM_ACCESS_LIST);
 
-        try
-        {
+        try {
             fSingletonSet_element = cSingletonSet.getDeclaredField("element");
 
             fSingletonList_element = cSingletonList.getDeclaredField("element");
@@ -207,9 +201,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                     .getDeclaredField("type");
             fCheckedSortedSet_ss = cCheckedSortedSet.getDeclaredField("ss");
             fCheckedList_list = cCheckedList.getDeclaredField("list");
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -275,17 +267,27 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 .newInstantiator(cCheckedRandomAccessList);
     }
 
-    private static Class<?> map(String className, int id)
-    {
+    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
+            this) {
+        @Override
+        protected void transfer(Pipe pipe, Input input, Output output)
+                throws IOException {
+            transferObject(this, pipe, input, output, strategy);
+        }
+    };
+
+    public PolymorphicCollectionSchema(IdStrategy strategy) {
+        super(strategy);
+    }
+
+    private static Class<?> map(String className, int id) {
         Class<?> clazz = RuntimeEnv.loadClass(className);
         __nonPublicCollections.put(clazz, id);
         return clazz;
     }
 
-    static String name(int number)
-    {
-        switch (number)
-        {
+    static String name(int number) {
+        switch (number) {
             case ID_EMPTY_SET:
                 return STR_EMPTY_SET;
             case ID_EMPTY_LIST:
@@ -339,13 +341,11 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
         }
     }
 
-    static int number(String name)
-    {
+    static int number(String name) {
         if (name.length() != 1)
             return 0;
 
-        switch (name.charAt(0))
-        {
+        switch (name.charAt(0)) {
             case 'a':
                 return 1;
             case 'b':
@@ -399,66 +399,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
         }
     }
 
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this)
-    {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException
-        {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
-
-    public PolymorphicCollectionSchema(IdStrategy strategy)
-    {
-        super(strategy);
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema()
-    {
-        return pipeSchema;
-    }
-
-    @Override
-    public String getFieldName(int number)
-    {
-        return name(number);
-    }
-
-    @Override
-    public int getFieldNumber(String name)
-    {
-        return number(name);
-    }
-
-    @Override
-    public String messageFullName()
-    {
-        return Collection.class.getName();
-    }
-
-    @Override
-    public String messageName()
-    {
-        return Collection.class.getSimpleName();
-    }
-
-    @Override
-    public void mergeFrom(Input input, Object owner) throws IOException
-    {
-        setValue(readObjectFrom(input, this, owner, strategy), owner);
-    }
-
-    @Override
-    public void writeTo(Output output, Object value) throws IOException
-    {
-        writeObjectTo(output, value, this, strategy);
-    }
-
-    static int idFrom(Class<?> clazz)
-    {
+    static int idFrom(Class<?> clazz) {
         final Integer id = __nonPublicCollections.get(clazz);
         if (id == null)
             throw new RuntimeException("Unknown collection: " + clazz);
@@ -466,10 +407,8 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
         return id.intValue();
     }
 
-    static Object instanceFrom(final int id)
-    {
-        switch (id)
-        {
+    static Object instanceFrom(final int id) {
+        switch (id) {
             case ID_EMPTY_SET:
                 return Collections.EMPTY_SET;
             case ID_EMPTY_LIST:
@@ -525,29 +464,23 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
     @SuppressWarnings("unchecked")
     static void writeObjectTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy) throws IOException
-    {
-        if (Collections.class == value.getClass().getDeclaringClass())
-        {
+                              Schema<?> currentSchema, IdStrategy strategy) throws IOException {
+        if (Collections.class == value.getClass().getDeclaringClass()) {
             writeNonPublicCollectionTo(output, value, currentSchema, strategy);
             return;
         }
 
-        if (EnumSet.class.isAssignableFrom(value.getClass()))
-        {
+        if (EnumSet.class.isAssignableFrom(value.getClass())) {
             strategy.writeEnumIdTo(output, ID_ENUM_SET,
                     EnumIO.getElementTypeFromEnumSet(value));
 
             // TODO optimize
-        }
-        else
-        {
+        } else {
             strategy.writeCollectionIdTo(output, ID_COLLECTION,
                     value.getClass());
         }
 
-        if (output instanceof StatefulOutput)
-        {
+        if (output instanceof StatefulOutput) {
             // update using the derived schema.
             ((StatefulOutput) output).updateLast(strategy.COLLECTION_SCHEMA,
                     currentSchema);
@@ -557,15 +490,13 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     static void writeNonPublicCollectionTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy) throws IOException
-    {
+                                           Schema<?> currentSchema, IdStrategy strategy) throws IOException {
         final Integer num = __nonPublicCollections.get(value.getClass());
         if (num == null)
             throw new RuntimeException("Unknown collection: "
                     + value.getClass());
         final int id = num.intValue();
-        switch (id)
-        {
+        switch (id) {
             case ID_EMPTY_SET:
                 output.writeUInt32(id, 0, false);
                 break;
@@ -574,17 +505,13 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 output.writeUInt32(id, 0, false);
                 break;
 
-            case ID_SINGLETON_SET:
-            {
+            case ID_SINGLETON_SET: {
                 output.writeUInt32(id, 0, false);
 
                 final Object element;
-                try
-                {
+                try {
                     element = fSingletonSet_element.get(value);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -594,8 +521,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_SINGLETON_LIST:
-            {
+            case ID_SINGLETON_LIST: {
                 output.writeUInt32(id, 0, false);
 
                 // faster path (reflection not needed to get the single element).
@@ -607,15 +533,11 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_SET_FROM_MAP:
-            {
+            case ID_SET_FROM_MAP: {
                 final Object m;
-                try
-                {
+                try {
                     m = fSetFromMap_m.get(value);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -624,18 +546,14 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_COPIES_LIST:
-            {
+            case ID_COPIES_LIST: {
                 output.writeUInt32(id, 0, false);
 
                 final int n = ((List<?>) value).size();
                 final Object element;
-                try
-                {
+                try {
                     element = fCopiesList_element.get(value);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -710,16 +628,12 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     private static void writeUnmodifiableCollectionTo(Output output,
-            Object value, Schema<?> currentSchema, IdStrategy strategy, int id)
-            throws IOException
-    {
+                                                      Object value, Schema<?> currentSchema, IdStrategy strategy, int id)
+            throws IOException {
         final Object c;
-        try
-        {
+        try {
             c = fUnmodifiableCollection_c.get(value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -727,22 +641,17 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     private static void writeSynchronizedCollectionTo(Output output,
-            Object value, Schema<?> currentSchema, IdStrategy strategy, int id)
-            throws IOException
-    {
+                                                      Object value, Schema<?> currentSchema, IdStrategy strategy, int id)
+            throws IOException {
         final Object c, mutex;
-        try
-        {
+        try {
             c = fSynchronizedCollection_c.get(value);
             mutex = fSynchronizedCollection_mutex.get(value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-        if (mutex != value)
-        {
+        if (mutex != value) {
             // TODO for future release, introduce an interface(GraphOutput) so
             // we
             // can check whether the output can retain references.
@@ -756,17 +665,13 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     private static void writeCheckedCollectionTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy, int id)
-            throws IOException
-    {
+                                                 Schema<?> currentSchema, IdStrategy strategy, int id)
+            throws IOException {
         final Object c, type;
-        try
-        {
+        try {
             c = fCheckedCollection_c.get(value);
             type = fCheckedCollection_type.get(value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -776,20 +681,18 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
     @SuppressWarnings("unchecked")
     static Object readObjectFrom(Input input, Schema<?> schema, Object owner,
-            IdStrategy strategy) throws IOException // TODO pass in type
+                                 IdStrategy strategy) throws IOException // TODO pass in type
     // (Class<?>)
     {
         final boolean graph = input instanceof GraphInput;
         Object ret = null;
         final int number = input.readFieldNumber(schema);
-        switch (number)
-        {
+        switch (number) {
             case ID_EMPTY_SET:
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(Collections.EMPTY_SET, owner);
                 }
@@ -801,8 +704,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(Collections.EMPTY_LIST, owner);
                 }
@@ -810,21 +712,18 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 ret = Collections.EMPTY_LIST;
                 break;
 
-            case ID_SINGLETON_SET:
-            {
+            case ID_SINGLETON_SET: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
                 final Object collection = iSingletonSet.newInstance();
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
 
                 final int next = input.readFieldNumber(schema);
-                if (next == 0)
-                {
+                if (next == 0) {
                     // null element
                     return collection;
                 }
@@ -837,12 +736,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 if (!graph || !((GraphInput) input).isCurrentMessageReference())
                     element = wrapper.value;
 
-                try
-                {
+                try {
                     fSingletonSet_element.set(collection, element);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -850,21 +746,18 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_SINGLETON_LIST:
-            {
+            case ID_SINGLETON_LIST: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
                 final Object collection = iSingletonList.newInstance();
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
 
                 final int next = input.readFieldNumber(schema);
-                if (next == 0)
-                {
+                if (next == 0) {
                     // null element
                     return collection;
                 }
@@ -877,12 +770,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 if (!graph || !((GraphInput) input).isCurrentMessageReference())
                     element = wrapper.value;
 
-                try
-                {
+                try {
                     fSingletonList_element.set(collection, element);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -890,11 +780,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_SET_FROM_MAP:
-            {
+            case ID_SET_FROM_MAP: {
                 final Object collection = iSetFromMap.newInstance();
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
@@ -905,13 +793,10 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 if (!graph || !((GraphInput) input).isCurrentMessageReference())
                     m = wrapper.value;
 
-                try
-                {
+                try {
                     fSetFromMap_m.set(collection, m);
                     fSetFromMap_s.set(collection, ((Map<?, ?>) m).keySet());
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -919,14 +804,12 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_COPIES_LIST:
-            {
+            case ID_COPIES_LIST: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
                 final Object collection = iCopiesList.newInstance();
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
@@ -937,15 +820,11 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 final int n = input.readUInt32(), next = input
                         .readFieldNumber(schema);
 
-                if (next == 0)
-                {
+                if (next == 0) {
                     // null element
-                    try
-                    {
+                    try {
                         fCopiesList_n.setInt(collection, n);
-                    }
-                    catch (IllegalArgumentException | IllegalAccessException e)
-                    {
+                    } catch (IllegalArgumentException | IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
 
@@ -960,13 +839,10 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 if (!graph || !((GraphInput) input).isCurrentMessageReference())
                     element = wrapper.value;
 
-                try
-                {
+                try {
                     fCopiesList_n.setInt(collection, n);
                     fCopiesList_element.set(collection, element);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -1047,13 +923,11 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                         graph, iCheckedRandomAccessList.newInstance(), false, true);
                 break;
 
-            case ID_ENUM_SET:
-            {
+            case ID_ENUM_SET: {
                 final Collection<?> es = strategy.resolveEnumFrom(input)
                         .newEnumSet();
 
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(es, owner);
                 }
@@ -1064,13 +938,11 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 return es;
             }
 
-            case ID_COLLECTION:
-            {
+            case ID_COLLECTION: {
                 final Collection<Object> collection = strategy
                         .resolveCollectionFrom(input).newMessage();
 
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
@@ -1091,11 +963,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     private static Object readUnmodifiableCollectionFrom(Input input,
-            Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
-            Object collection, boolean ss, boolean list) throws IOException
-    {
-        if (graph)
-        {
+                                                         Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
+                                                         Object collection, boolean ss, boolean list) throws IOException {
+        if (graph) {
             // update the actual reference.
             ((GraphInput) input).updateLast(collection, owner);
         }
@@ -1105,8 +975,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 strategy.POLYMORPHIC_COLLECTION_SCHEMA);
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             c = wrapper.value;
-        try
-        {
+        try {
             fUnmodifiableCollection_c.set(collection, c);
 
             if (ss)
@@ -1114,9 +983,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
             if (list)
                 fUnmodifiableList_list.set(collection, c);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -1124,11 +991,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     private static Object readSynchronizedCollectionFrom(Input input,
-            Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
-            Object collection, boolean ss, boolean list) throws IOException
-    {
-        if (graph)
-        {
+                                                         Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
+                                                         Object collection, boolean ss, boolean list) throws IOException {
+        if (graph) {
             // update the actual reference.
             ((GraphInput) input).updateLast(collection, owner);
         }
@@ -1138,8 +1003,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 strategy.POLYMORPHIC_COLLECTION_SCHEMA);
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             c = wrapper.value;
-        try
-        {
+        try {
             fSynchronizedCollection_c.set(collection, c);
             // mutex is the object itself.
             fSynchronizedCollection_mutex.set(collection, collection);
@@ -1149,9 +1013,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
             if (list)
                 fSynchronizedList_list.set(collection, c);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -1159,11 +1021,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     private static Object readCheckedCollectionFrom(Input input,
-            Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
-            Object collection, boolean ss, boolean list) throws IOException
-    {
-        if (graph)
-        {
+                                                    Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
+                                                    Object collection, boolean ss, boolean list) throws IOException {
+        if (graph) {
             // update the actual reference.
             ((GraphInput) input).updateLast(collection, owner);
         }
@@ -1180,8 +1040,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
         Object type = input.mergeObject(wrapper, strategy.CLASS_SCHEMA);
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             type = wrapper.value;
-        try
-        {
+        try {
             fCheckedCollection_c.set(collection, c);
             fCheckedCollection_type.set(collection, type);
 
@@ -1190,9 +1049,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
             if (list)
                 fCheckedList_list.set(collection, c);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -1200,11 +1057,9 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
     }
 
     static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-            Input input, Output output, IdStrategy strategy) throws IOException
-    {
+                               Input input, Output output, IdStrategy strategy) throws IOException {
         final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        switch (number)
-        {
+        switch (number) {
             case ID_EMPTY_SET:
                 output.writeUInt32(number, input.readUInt32(), false);
                 break;
@@ -1214,13 +1069,11 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 break;
 
             case ID_SINGLETON_SET:
-            case ID_SINGLETON_LIST:
-            {
+            case ID_SINGLETON_LIST: {
                 output.writeUInt32(number, input.readUInt32(), false);
 
                 final int next = input.readFieldNumber(pipeSchema.wrappedSchema);
-                if (next == 0)
-                {
+                if (next == 0) {
                     // null element
                     return;
                 }
@@ -1236,8 +1089,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                         strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
                 break;
 
-            case ID_COPIES_LIST:
-            {
+            case ID_COPIES_LIST: {
                 output.writeUInt32(number, input.readUInt32(), false);
 
                 if (1 != input.readFieldNumber(pipeSchema.wrappedSchema))
@@ -1247,8 +1099,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
                 output.writeUInt32(1, input.readUInt32(), false);
 
                 final int next = input.readFieldNumber(pipeSchema.wrappedSchema);
-                if (next == 0)
-                {
+                if (next == 0) {
                     // null element
                     return;
                 }
@@ -1294,8 +1145,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
             case ID_ENUM_SET:
                 strategy.transferEnumId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             strategy.COLLECTION_PIPE_SCHEMA, pipeSchema);
@@ -1308,8 +1158,7 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
             case ID_COLLECTION:
                 strategy.transferCollectionId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             strategy.COLLECTION_PIPE_SCHEMA, pipeSchema);
@@ -1324,5 +1173,40 @@ public abstract class PolymorphicCollectionSchema extends PolymorphicSchema
 
         if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
             throw new ProtostuffException("Corrupt input.");
+    }
+
+    @Override
+    public Pipe.Schema<Object> getPipeSchema() {
+        return pipeSchema;
+    }
+
+    @Override
+    public String getFieldName(int number) {
+        return name(number);
+    }
+
+    @Override
+    public int getFieldNumber(String name) {
+        return number(name);
+    }
+
+    @Override
+    public String messageFullName() {
+        return Collection.class.getName();
+    }
+
+    @Override
+    public String messageName() {
+        return Collection.class.getSimpleName();
+    }
+
+    @Override
+    public void mergeFrom(Input input, Object owner) throws IOException {
+        setValue(readObjectFrom(input, this, owner, strategy), owner);
+    }
+
+    @Override
+    public void writeTo(Output output, Object value) throws IOException {
+        writeObjectTo(output, value, this, strategy);
     }
 }

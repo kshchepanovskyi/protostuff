@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -24,415 +21,18 @@ import java.util.HashMap;
 
 /**
  * Bar - for testing
- * 
+ *
  * @author David Yu
  */
-public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable
-{
+public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable {
 
     static final Bar DEFAULT_INSTANCE = new Bar();
-
-    public static Bar getSchema()
-    {
-        return DEFAULT_INSTANCE;
-    }
-
-    private static final HashMap<String, Integer> __fieldMap = new HashMap<>();
-
-    static
-    {
-        __fieldMap.put("someInt", 1);
-        __fieldMap.put("someString", 2);
-        __fieldMap.put("someBaz", 3);
-        __fieldMap.put("someEnum", 4);
-        __fieldMap.put("someBytes", 5);
-        __fieldMap.put("someBoolean", 6);
-        __fieldMap.put("someFloat", 7);
-        __fieldMap.put("someDouble", 8);
-        __fieldMap.put("someLong", 9);
-    }
-
-    public enum Status
-    {
-        PENDING(0), STARTED(1), COMPLETED(2);
-
-        public final int number;
-
-        Status(int number)
-        {
-            this.number = number;
-        }
-
-        public int getNumber()
-        {
-            return number;
-        }
-
-        public static Status valueOf(int number)
-        {
-            switch (number)
-            {
-                case 0:
-                    return PENDING;
-                case 1:
-                    return STARTED;
-                case 2:
-                    return COMPLETED;
-            }
-            return null;
-        }
-    }
-
-    private int someInt;
-    private String someString;
-    private Baz someBaz;
-    private Status someEnum;
-    private ByteString someBytes;
-    private boolean someBoolean;
-    private float someFloat;
-    private double someDouble;
-    private long someLong;
-
-    public Bar()
-    {
-
-    }
-
-    public Bar(
-            int someInt,
-            String someString,
-            Baz baz,
-            Status someEnum,
-            ByteString someBytes,
-            boolean someBoolean,
-            float someFloat,
-            double someDouble,
-            long someLong)
-    {
-        this.someInt = someInt;
-        this.someString = someString;
-        this.someBaz = baz;
-        this.someEnum = someEnum;
-        this.someBytes = someBytes;
-        this.someBoolean = someBoolean;
-        this.someFloat = someFloat;
-        this.someDouble = someDouble;
-        this.someLong = someLong;
-    }
-
-    /**
-     * @return the someInt
-     */
-    public int getSomeInt()
-    {
-        return someInt;
-    }
-
-    /**
-     * @param someInt
-     *            the someInt to set
-     */
-    public void setSomeInt(int someInt)
-    {
-        this.someInt = someInt;
-    }
-
-    /**
-     * @return the someString
-     */
-    public String getSomeString()
-    {
-        return someString;
-    }
-
-    /**
-     * @param someString
-     *            the someString to set
-     */
-    public void setSomeString(String someString)
-    {
-        this.someString = someString;
-    }
-
-    /**
-     * @return the someBaz
-     */
-    public Baz getSomeBaz()
-    {
-        return someBaz;
-    }
-
-    /**
-     * @param baz
-     *            the someBaz to set
-     */
-    public void setSomeBaz(Baz baz)
-    {
-        this.someBaz = baz;
-    }
-
-    /**
-     * @return the someEnum
-     */
-    public Status getSomeEnum()
-    {
-        return someEnum;
-    }
-
-    /**
-     * @param someEnum
-     *            the someEnum to set
-     */
-    public void setSomeEnum(Status someEnum)
-    {
-        this.someEnum = someEnum;
-    }
-
-    /**
-     * @return the someBytes
-     */
-    public ByteString getSomeBytes()
-    {
-        return someBytes;
-    }
-
-    /**
-     * @param someBytes
-     *            the someBytes to set
-     */
-    public void setSomeBytes(ByteString someBytes)
-    {
-        this.someBytes = someBytes;
-    }
-
-    /**
-     * @return the someBoolean
-     */
-    public boolean getSomeBoolean()
-    {
-        return someBoolean;
-    }
-
-    /**
-     * @param someBoolean
-     *            the someBoolean to set
-     */
-    public void setSomeBoolean(boolean someBoolean)
-    {
-        this.someBoolean = someBoolean;
-    }
-
-    /**
-     * @return the someFloat
-     */
-    public float getSomeFloat()
-    {
-        return someFloat;
-    }
-
-    /**
-     * @param someFloat
-     *            the someFloat to set
-     */
-    public void setSomeFloat(float someFloat)
-    {
-        this.someFloat = someFloat;
-    }
-
-    /**
-     * @return the someDouble
-     */
-    public double getSomeDouble()
-    {
-        return someDouble;
-    }
-
-    /**
-     * @param someDouble
-     *            the someDouble to set
-     */
-    public void setSomeDouble(double someDouble)
-    {
-        this.someDouble = someDouble;
-    }
-
-    /**
-     * @return the someLong
-     */
-    public long getSomeLong()
-    {
-        return someLong;
-    }
-
-    /**
-     * @param someLong
-     *            the someLong to set
-     */
-    public void setSomeLong(long someLong)
-    {
-        this.someLong = someLong;
-    }
-
-    @Override
-    public Schema<Bar> cachedSchema()
-    {
-        return this;
-    }
-
-    @Override
-    public Bar newMessage()
-    {
-        return new Bar();
-    }
-
-    @Override
-    public Class<Bar> typeClass()
-    {
-        return Bar.class;
-    }
-
-    @Override
-    public String messageName()
-    {
-        return getClass().getSimpleName();
-    }
-
-    @Override
-    public String messageFullName()
-    {
-        return getClass().getName();
-    }
-
-    @Override
-    public String getFieldName(int number)
-    {
-        switch (number)
-        {
-            case 1:
-                return "someInt";
-            case 2:
-                return "someString";
-            case 3:
-                return "someBaz";
-            case 4:
-                return "someEnum";
-            case 5:
-                return "someBytes";
-            case 6:
-                return "someBoolean";
-            case 7:
-                return "someFloat";
-            case 8:
-                return "someDouble";
-            case 9:
-                return "someLong";
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public int getFieldNumber(String name)
-    {
-        Integer number = __fieldMap.get(name);
-        return number == null ? 0 : number.intValue();
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException
-    {
-        GraphIOUtil.mergeDelimitedFrom(in, this, this);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        GraphIOUtil.writeDelimitedTo(out, this, this);
-    }
-
-    @Override
-    public void writeTo(Output output, Bar message) throws IOException
-    {
-        if (message.someInt != 0)
-            output.writeInt32(1, message.someInt, false);
-
-        if (message.someString != null)
-            output.writeString(2, message.someString, false);
-
-        if (message.someBaz != null)
-            output.writeObject(3, message.someBaz, Baz.getSchema(), false);
-
-        if (message.someEnum != null)
-            output.writeEnum(4, message.someEnum.number, false);
-
-        if (message.someBytes != null)
-            output.writeBytes(5, message.someBytes, false);
-
-        if (message.someBoolean)
-            output.writeBool(6, message.someBoolean, false);
-
-        if (message.someFloat != 0f)
-            output.writeFloat(7, message.someFloat, false);
-
-        if (message.someDouble != 0d)
-            output.writeDouble(8, message.someDouble, false);
-
-        if (message.someLong != 0l)
-            output.writeInt64(9, message.someLong, false);
-    }
-
-    @Override
-    public void mergeFrom(Input input, Bar message) throws IOException
-    {
-        for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))
-        {
-            switch (number)
-            {
-                case 0:
-                    return;
-                case 1:
-                    message.someInt = input.readInt32();
-                    break;
-                case 2:
-                    message.someString = input.readString();
-                    break;
-                case 3:
-                    message.someBaz = input.mergeObject(message.someBaz, Baz.getSchema());
-                    break;
-                case 4:
-                    message.someEnum = Status.valueOf(input.readEnum());
-                    break;
-                case 5:
-                    message.someBytes = input.readBytes();
-                    break;
-                case 6:
-                    message.someBoolean = input.readBool();
-                    break;
-                case 7:
-                    message.someFloat = input.readFloat();
-                    break;
-                case 8:
-                    message.someDouble = input.readDouble();
-                    break;
-                case 9:
-                    message.someLong = input.readInt64();
-                    break;
-                default:
-                    input.handleUnknownField(number, this);
-            }
-        }
-    }
-
-    static final Pipe.Schema<Bar> PIPE_SCHEMA = new Pipe.Schema<Bar>(DEFAULT_INSTANCE)
-    {
+    static final Pipe.Schema<Bar> PIPE_SCHEMA = new Pipe.Schema<Bar>(DEFAULT_INSTANCE) {
 
         @Override
-        protected void transfer(Pipe pipe, Input input, Output output) throws IOException
-        {
-            for (int number = input.readFieldNumber(wrappedSchema);; number = input.readFieldNumber(wrappedSchema))
-            {
-                switch (number)
-                {
+        protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
+            for (int number = input.readFieldNumber(wrappedSchema); ; number = input.readFieldNumber(wrappedSchema)) {
+                switch (number) {
                     case 0:
                         return;
                     case 1:
@@ -468,14 +68,334 @@ public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable
             }
         }
     };
+    private static final HashMap<String, Integer> __fieldMap = new HashMap<>();
 
-    public static Pipe.Schema<Bar> getPipeSchema()
-    {
+    static {
+        __fieldMap.put("someInt", 1);
+        __fieldMap.put("someString", 2);
+        __fieldMap.put("someBaz", 3);
+        __fieldMap.put("someEnum", 4);
+        __fieldMap.put("someBytes", 5);
+        __fieldMap.put("someBoolean", 6);
+        __fieldMap.put("someFloat", 7);
+        __fieldMap.put("someDouble", 8);
+        __fieldMap.put("someLong", 9);
+    }
+
+    private int someInt;
+    private String someString;
+    private Baz someBaz;
+    private Status someEnum;
+    private ByteString someBytes;
+    private boolean someBoolean;
+    private float someFloat;
+    private double someDouble;
+    private long someLong;
+    public Bar() {
+
+    }
+
+    public Bar(
+            int someInt,
+            String someString,
+            Baz baz,
+            Status someEnum,
+            ByteString someBytes,
+            boolean someBoolean,
+            float someFloat,
+            double someDouble,
+            long someLong) {
+        this.someInt = someInt;
+        this.someString = someString;
+        this.someBaz = baz;
+        this.someEnum = someEnum;
+        this.someBytes = someBytes;
+        this.someBoolean = someBoolean;
+        this.someFloat = someFloat;
+        this.someDouble = someDouble;
+        this.someLong = someLong;
+    }
+
+    public static Bar getSchema() {
+        return DEFAULT_INSTANCE;
+    }
+
+    public static Pipe.Schema<Bar> getPipeSchema() {
         return PIPE_SCHEMA;
     }
 
-    public int hashCode()
-    {
+    /**
+     * @return the someInt
+     */
+    public int getSomeInt() {
+        return someInt;
+    }
+
+    /**
+     * @param someInt
+     *            the someInt to set
+     */
+    public void setSomeInt(int someInt) {
+        this.someInt = someInt;
+    }
+
+    /**
+     * @return the someString
+     */
+    public String getSomeString() {
+        return someString;
+    }
+
+    /**
+     * @param someString
+     *            the someString to set
+     */
+    public void setSomeString(String someString) {
+        this.someString = someString;
+    }
+
+    /**
+     * @return the someBaz
+     */
+    public Baz getSomeBaz() {
+        return someBaz;
+    }
+
+    /**
+     * @param baz
+     *            the someBaz to set
+     */
+    public void setSomeBaz(Baz baz) {
+        this.someBaz = baz;
+    }
+
+    /**
+     * @return the someEnum
+     */
+    public Status getSomeEnum() {
+        return someEnum;
+    }
+
+    /**
+     * @param someEnum
+     *            the someEnum to set
+     */
+    public void setSomeEnum(Status someEnum) {
+        this.someEnum = someEnum;
+    }
+
+    /**
+     * @return the someBytes
+     */
+    public ByteString getSomeBytes() {
+        return someBytes;
+    }
+
+    /**
+     * @param someBytes
+     *            the someBytes to set
+     */
+    public void setSomeBytes(ByteString someBytes) {
+        this.someBytes = someBytes;
+    }
+
+    /**
+     * @return the someBoolean
+     */
+    public boolean getSomeBoolean() {
+        return someBoolean;
+    }
+
+    /**
+     * @param someBoolean
+     *            the someBoolean to set
+     */
+    public void setSomeBoolean(boolean someBoolean) {
+        this.someBoolean = someBoolean;
+    }
+
+    /**
+     * @return the someFloat
+     */
+    public float getSomeFloat() {
+        return someFloat;
+    }
+
+    /**
+     * @param someFloat
+     *            the someFloat to set
+     */
+    public void setSomeFloat(float someFloat) {
+        this.someFloat = someFloat;
+    }
+
+    /**
+     * @return the someDouble
+     */
+    public double getSomeDouble() {
+        return someDouble;
+    }
+
+    /**
+     * @param someDouble
+     *            the someDouble to set
+     */
+    public void setSomeDouble(double someDouble) {
+        this.someDouble = someDouble;
+    }
+
+    /**
+     * @return the someLong
+     */
+    public long getSomeLong() {
+        return someLong;
+    }
+
+    /**
+     * @param someLong
+     *            the someLong to set
+     */
+    public void setSomeLong(long someLong) {
+        this.someLong = someLong;
+    }
+
+    @Override
+    public Schema<Bar> cachedSchema() {
+        return this;
+    }
+
+    @Override
+    public Bar newMessage() {
+        return new Bar();
+    }
+
+    @Override
+    public Class<Bar> typeClass() {
+        return Bar.class;
+    }
+
+    @Override
+    public String messageName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public String messageFullName() {
+        return getClass().getName();
+    }
+
+    @Override
+    public String getFieldName(int number) {
+        switch (number) {
+            case 1:
+                return "someInt";
+            case 2:
+                return "someString";
+            case 3:
+                return "someBaz";
+            case 4:
+                return "someEnum";
+            case 5:
+                return "someBytes";
+            case 6:
+                return "someBoolean";
+            case 7:
+                return "someFloat";
+            case 8:
+                return "someDouble";
+            case 9:
+                return "someLong";
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public int getFieldNumber(String name) {
+        Integer number = __fieldMap.get(name);
+        return number == null ? 0 : number.intValue();
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException {
+        GraphIOUtil.mergeDelimitedFrom(in, this, this);
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        GraphIOUtil.writeDelimitedTo(out, this, this);
+    }
+
+    @Override
+    public void writeTo(Output output, Bar message) throws IOException {
+        if (message.someInt != 0)
+            output.writeInt32(1, message.someInt, false);
+
+        if (message.someString != null)
+            output.writeString(2, message.someString, false);
+
+        if (message.someBaz != null)
+            output.writeObject(3, message.someBaz, Baz.getSchema(), false);
+
+        if (message.someEnum != null)
+            output.writeEnum(4, message.someEnum.number, false);
+
+        if (message.someBytes != null)
+            output.writeBytes(5, message.someBytes, false);
+
+        if (message.someBoolean)
+            output.writeBool(6, message.someBoolean, false);
+
+        if (message.someFloat != 0f)
+            output.writeFloat(7, message.someFloat, false);
+
+        if (message.someDouble != 0d)
+            output.writeDouble(8, message.someDouble, false);
+
+        if (message.someLong != 0l)
+            output.writeInt64(9, message.someLong, false);
+    }
+
+    @Override
+    public void mergeFrom(Input input, Bar message) throws IOException {
+        for (int number = input.readFieldNumber(this); ; number = input.readFieldNumber(this)) {
+            switch (number) {
+                case 0:
+                    return;
+                case 1:
+                    message.someInt = input.readInt32();
+                    break;
+                case 2:
+                    message.someString = input.readString();
+                    break;
+                case 3:
+                    message.someBaz = input.mergeObject(message.someBaz, Baz.getSchema());
+                    break;
+                case 4:
+                    message.someEnum = Status.valueOf(input.readEnum());
+                    break;
+                case 5:
+                    message.someBytes = input.readBytes();
+                    break;
+                case 6:
+                    message.someBoolean = input.readBool();
+                    break;
+                case 7:
+                    message.someFloat = input.readFloat();
+                    break;
+                case 8:
+                    message.someDouble = input.readDouble();
+                    break;
+                case 9:
+                    message.someLong = input.readInt64();
+                    break;
+                default:
+                    input.handleUnknownField(number, this);
+            }
+        }
+    }
+
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((someBaz == null) ? 0 : someBaz.hashCode());
@@ -492,8 +412,7 @@ public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable
         return result;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -501,30 +420,24 @@ public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable
         if (getClass() != obj.getClass())
             return false;
         Bar other = (Bar) obj;
-        if (someBaz == null)
-        {
+        if (someBaz == null) {
             if (other.someBaz != null)
                 return false;
-        }
-        else if (!someBaz.equals(other.someBaz))
+        } else if (!someBaz.equals(other.someBaz))
             return false;
         if (someBoolean != other.someBoolean)
             return false;
-        if (someBytes == null)
-        {
+        if (someBytes == null) {
             if (other.someBytes != null)
                 return false;
-        }
-        else if (!someBytes.equals(other.someBytes))
+        } else if (!someBytes.equals(other.someBytes))
             return false;
         if (Double.doubleToLongBits(someDouble) != Double.doubleToLongBits(other.someDouble))
             return false;
-        if (someEnum == null)
-        {
+        if (someEnum == null) {
             if (other.someEnum != null)
                 return false;
-        }
-        else if (!someEnum.equals(other.someEnum))
+        } else if (!someEnum.equals(other.someEnum))
             return false;
         if (Float.floatToIntBits(someFloat) != Float.floatToIntBits(other.someFloat))
             return false;
@@ -532,23 +445,46 @@ public final class Bar implements Message<Bar>, Schema<Bar>, Externalizable
             return false;
         if (someLong != other.someLong)
             return false;
-        if (someString == null)
-        {
+        if (someString == null) {
             if (other.someString != null)
                 return false;
-        }
-        else if (!someString.equals(other.someString))
+        } else if (!someString.equals(other.someString))
             return false;
         return true;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Bar [someBaz=" + someBaz + ", someBoolean=" + someBoolean + ", someBytes=" + someBytes
                 + ", someDouble=" + someDouble + ", someEnum="
                 + someEnum + ", someFloat=" + someFloat + ", someInt=" + someInt + ", someLong=" + someLong
                 + ", someString=" + someString + "]";
+    }
+
+    public enum Status {
+        PENDING(0), STARTED(1), COMPLETED(2);
+
+        public final int number;
+
+        Status(int number) {
+            this.number = number;
+        }
+
+        public static Status valueOf(int number) {
+            switch (number) {
+                case 0:
+                    return PENDING;
+                case 1:
+                    return STARTED;
+                case 2:
+                    return COMPLETED;
+            }
+            return null;
+        }
+
+        public int getNumber() {
+            return number;
+        }
     }
 
 }

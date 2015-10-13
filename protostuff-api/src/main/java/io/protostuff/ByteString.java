@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
@@ -46,49 +43,59 @@
 
 package io.protostuff;
 
-import static io.protostuff.StringSerializer.STRING;
-
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
+import static io.protostuff.StringSerializer.STRING;
+
 /**
  * Immutable array of bytes.
- * 
+ *
  * @author crazybob@google.com Bob Lee
  * @author kenton@google.com Kenton Varda
  * @author David Yu
  */
-public final class ByteString
-{
-    // START EXTRA
-    // internal package access to avoid double memory allocation
-    static ByteString wrap(byte[] bytes)
-    {
-        return new ByteString(bytes);
+public final class ByteString {
+    /**
+     * Empty String.
+     */
+    public static final String EMPTY_STRING = "";
+    /**
+     * Empty byte array.
+     */
+    public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    /**
+     * Empty ByteString.
+     */
+    public static final ByteString EMPTY = new ByteString(EMPTY_BYTE_ARRAY);
+    // END EXTRA
+    private final byte[] bytes;
+    private volatile int hash = 0;
+
+    private ByteString(final byte[] bytes) {
+        this.bytes = bytes;
     }
 
+    // START EXTRA
     // internal package access to avoid double memory allocation
-    byte[] getBytes()
-    {
-        return bytes;
+    static ByteString wrap(byte[] bytes) {
+        return new ByteString(bytes);
     }
 
     /**
      * Writes the bytes to the {@link OutputStream}.
      */
-    public static void writeTo(OutputStream out, ByteString bs) throws IOException
-    {
+    public static void writeTo(OutputStream out, ByteString bs) throws IOException {
         out.write(bs.bytes);
     }
 
     /**
      * Writes the bytes to the {@link DataOutput}.
      */
-    public static void writeTo(DataOutput out, ByteString bs) throws IOException
-    {
+    public static void writeTo(DataOutput out, ByteString bs) throws IOException {
         out.write(bs.bytes);
     }
 
@@ -96,85 +103,27 @@ public final class ByteString
      * Writes the bytes to the {@link Output}.
      */
     public static void writeTo(Output output, ByteString bs, int fieldNumber,
-            boolean repeated) throws IOException
-    {
+                               boolean repeated) throws IOException {
         output.writeByteArray(fieldNumber, bs.bytes, repeated);
     }
 
-    public String toString()
-    {
-        return toStringUtf8();
-    }
-
-    // END EXTRA
-    private final byte[] bytes;
-
-    private ByteString(final byte[] bytes)
-    {
-        this.bytes = bytes;
-    }
-
     /**
-     * Gets the byte at the given index.
-     * 
-     * @throws ArrayIndexOutOfBoundsException
-     *             {@code index} is &lt; 0 or &gt;= size
+     * Copies the given bytes into a {@code ByteString}.
      */
-    public byte byteAt(final int index)
-    {
-        return bytes[index];
-    }
-
-    /**
-     * Gets the number of bytes.
-     */
-    public int size()
-    {
-        return bytes.length;
-    }
-
-    /**
-     * Returns {@code true} if the size is {@code 0}, {@code false} otherwise.
-     */
-    public boolean isEmpty()
-    {
-        return bytes.length == 0;
+    public static ByteString copyFrom(final byte[] bytes, final int offset,
+                                      final int size) {
+        final byte[] copy = new byte[size];
+        System.arraycopy(bytes, offset, copy, 0, size);
+        return new ByteString(copy);
     }
 
     // =================================================================
     // byte[] -> ByteString
 
     /**
-     * Empty String.
-     */
-    public static final String EMPTY_STRING = "";
-
-    /**
-     * Empty byte array.
-     */
-    public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
-    /**
-     * Empty ByteString.
-     */
-    public static final ByteString EMPTY = new ByteString(EMPTY_BYTE_ARRAY);
-
-    /**
      * Copies the given bytes into a {@code ByteString}.
      */
-    public static ByteString copyFrom(final byte[] bytes, final int offset,
-            final int size)
-    {
-        final byte[] copy = new byte[size];
-        System.arraycopy(bytes, offset, copy, 0, size);
-        return new ByteString(copy);
-    }
-
-    /**
-     * Copies the given bytes into a {@code ByteString}.
-     */
-    public static ByteString copyFrom(final byte[] bytes)
-    {
+    public static ByteString copyFrom(final byte[] bytes) {
         return copyFrom(bytes, 0, bytes.length);
     }
 
@@ -182,14 +131,10 @@ public final class ByteString
      * Encodes {@code text} into a sequence of bytes using the named charset and returns the result as a
      * {@code ByteString}.
      */
-    public static ByteString copyFrom(final String text, final String charsetName)
-    {
-        try
-        {
+    public static ByteString copyFrom(final String text, final String charsetName) {
+        try {
             return new ByteString(text.getBytes(charsetName));
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(charsetName + " not supported?", e);
         }
     }
@@ -197,8 +142,7 @@ public final class ByteString
     /**
      * Encodes {@code text} into a sequence of UTF-8 bytes and returns the result as a {@code ByteString}.
      */
-    public static ByteString copyFromUtf8(final String text)
-    {
+    public static ByteString copyFromUtf8(final String text) {
         return new ByteString(STRING.ser(text));
         /*
          * @try { return new ByteString(text.getBytes("UTF-8")); } catch (UnsupportedEncodingException e) { throw new
@@ -206,59 +150,119 @@ public final class ByteString
          */
     }
 
+    /**
+     * Returns true if the contents of both match.
+     */
+    public static boolean equals(ByteString bs, ByteString other, boolean checkHash) {
+        final int size = bs.bytes.length;
+        if (size != other.bytes.length) {
+            return false;
+        }
+
+        if (checkHash) {
+            // volatile reads
+            final int h1 = bs.hash, h2 = other.hash;
+            if (h1 != 0 && h2 != 0 && h1 != h2) {
+                return false;
+            }
+        }
+
+        final byte[] thisBytes = bs.bytes;
+        final byte[] otherBytes = other.bytes;
+        for (int i = 0; i < size; i++) {
+            if (thisBytes[i] != otherBytes[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Helper called by generated code to construct default values for string fields.
+     * <p>
+     * The protocol compiler does not actually contain a UTF-8 decoder -- it just pushes UTF-8-encoded text around
+     * without touching it. The one place where this presents a problem is when generating Java string literals. Unicode
+     * characters in the string literal would normally need to be encoded using a Unicode escape sequence, which would
+     * require decoding them. To get around this, protoc instead embeds the UTF-8 bytes into the generated code and
+     * leaves it to the runtime library to decode them.
+     * <p>
+     * It gets worse, though. If protoc just generated a byte array, like: new byte[] {0x12, 0x34, 0x56, 0x78} Java
+     * actually generates *code* which allocates an array and then fills in each value. This is much less efficient than
+     * just embedding the bytes directly into the bytecode. To get around this, we need another work-around. String
+     * literals are embedded directly, so protoc actually generates a string literal corresponding to the bytes. The
+     * easiest way to do this is to use the ISO-8859-1 character set, which corresponds to the first 256 characters of
+     * the Unicode range. Protoc can then use good old CEscape to generate the string.
+     * <p>
+     * So we have a string literal which represents a set of bytes which represents another string. This function --
+     * stringDefaultValue -- converts from the generated string to the string we actually want. The generated code calls
+     * this automatically.
+     */
+    public static String stringDefaultValue(String bytes) {
+        try {
+            return new String(bytes.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // This should never happen since all JVMs are required to implement
+            // both of the above character sets.
+            throw new IllegalStateException(
+                    "Java VM does not support a standard character set.", e);
+        }
+    }
+
+    /**
+     * Helper called by generated code to construct default values for bytes fields.
+     * <p>
+     * This is a lot like {@link #stringDefaultValue}, but for bytes fields. In this case we only need the second of the
+     * two hacks -- allowing us to embed raw bytes as a string literal with ISO-8859-1 encoding.
+     */
+    public static ByteString bytesDefaultValue(String bytes) {
+        return new ByteString(byteArrayDefaultValue(bytes));
+    }
+
+    /**
+     * Helper called by generated code to construct default values for byte array fields.
+     * <p>
+     * This is a lot like {@link #stringDefaultValue}, but for bytes fields. In this case we only need the second of the
+     * two hacks -- allowing us to embed raw bytes as a string literal with ISO-8859-1 encoding.
+     */
+    public static byte[] byteArrayDefaultValue(String bytes) {
+        try {
+            return bytes.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            // This should never happen since all JVMs are required to implement
+            // ISO-8859-1.
+            throw new IllegalStateException(
+                    "Java VM does not support a standard character set.", e);
+        }
+    }
+
     // =================================================================
     // ByteString -> byte[]
 
-    /**
-     * Copies bytes into a buffer at the given offset.
-     * 
-     * @param target
-     *            buffer to copy into
-     * @param offset
-     *            in the target buffer
-     */
-    public void copyTo(final byte[] target, final int offset)
-    {
-        System.arraycopy(bytes, 0, target, offset, bytes.length);
+    // internal package access to avoid double memory allocation
+    byte[] getBytes() {
+        return bytes;
+    }
+
+    public String toString() {
+        return toStringUtf8();
     }
 
     /**
-     * Copies bytes into a buffer.
-     * 
-     * @param target
-     *            buffer to copy into
-     * @param sourceOffset
-     *            offset within these bytes
-     * @param targetOffset
-     *            offset within the target buffer
-     * @param size
-     *            number of bytes to copy
+     * Gets the byte at the given index.
+     *
+     * @throws ArrayIndexOutOfBoundsException
+     *             {@code index} is &lt; 0 or &gt;= size
      */
-    public void copyTo(final byte[] target, final int sourceOffset,
-            final int targetOffset,
-            final int size)
-    {
-        System.arraycopy(bytes, sourceOffset, target, targetOffset, size);
+    public byte byteAt(final int index) {
+        return bytes[index];
     }
 
     /**
-     * Copies bytes to a {@code byte[]}.
+     * Gets the number of bytes.
      */
-    public byte[] toByteArray()
-    {
-        final int size = bytes.length;
-        final byte[] copy = new byte[size];
-        System.arraycopy(bytes, 0, copy, 0, size);
-        return copy;
-    }
-
-    /**
-     * Constructs a new read-only {@code java.nio.ByteBuffer} with the same backing byte array.
-     */
-    public ByteBuffer asReadOnlyByteBuffer()
-    {
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        return byteBuffer.asReadOnlyBuffer();
+    public int size() {
+        return bytes.length;
     }
 
     /*
@@ -270,10 +274,67 @@ public final class ByteString
      */
 
     /**
+     * Returns {@code true} if the size is {@code 0}, {@code false} otherwise.
+     */
+    public boolean isEmpty() {
+        return bytes.length == 0;
+    }
+
+    // =================================================================
+    // equals() and hashCode()
+
+    /**
+     * Copies bytes into a buffer at the given offset.
+     *
+     * @param target
+     *            buffer to copy into
+     * @param offset
+     *            in the target buffer
+     */
+    public void copyTo(final byte[] target, final int offset) {
+        System.arraycopy(bytes, 0, target, offset, bytes.length);
+    }
+
+    /**
+     * Copies bytes into a buffer.
+     *
+     * @param target
+     *            buffer to copy into
+     * @param sourceOffset
+     *            offset within these bytes
+     * @param targetOffset
+     *            offset within the target buffer
+     * @param size
+     *            number of bytes to copy
+     */
+    public void copyTo(final byte[] target, final int sourceOffset,
+                       final int targetOffset,
+                       final int size) {
+        System.arraycopy(bytes, sourceOffset, target, targetOffset, size);
+    }
+
+    /**
+     * Copies bytes to a {@code byte[]}.
+     */
+    public byte[] toByteArray() {
+        final int size = bytes.length;
+        final byte[] copy = new byte[size];
+        System.arraycopy(bytes, 0, copy, 0, size);
+        return copy;
+    }
+
+    /**
+     * Constructs a new read-only {@code java.nio.ByteBuffer} with the same backing byte array.
+     */
+    public ByteBuffer asReadOnlyByteBuffer() {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return byteBuffer.asReadOnlyBuffer();
+    }
+
+    /**
      * Constructs a new {@code String} by decoding the bytes as UTF-8.
      */
-    public String toStringUtf8()
-    {
+    public String toStringUtf8() {
         return STRING.deser(bytes);
         /*
          * @try { return new String(bytes, "UTF-8"); } catch (UnsupportedEncodingException e) { throw new
@@ -281,103 +342,9 @@ public final class ByteString
          */
     }
 
-    // =================================================================
-    // equals() and hashCode()
-
     @Override
-    public boolean equals(final Object o)
-    {
+    public boolean equals(final Object o) {
         return o == this || (o instanceof ByteString && equals(this, (ByteString) o, false));
-    }
-
-    /**
-     * Returns true if the contents of both match.
-     */
-    public static boolean equals(ByteString bs, ByteString other, boolean checkHash)
-    {
-        final int size = bs.bytes.length;
-        if (size != other.bytes.length)
-        {
-            return false;
-        }
-
-        if (checkHash)
-        {
-            // volatile reads
-            final int h1 = bs.hash, h2 = other.hash;
-            if (h1 != 0 && h2 != 0 && h1 != h2)
-            {
-                return false;
-            }
-        }
-
-        final byte[] thisBytes = bs.bytes;
-        final byte[] otherBytes = other.bytes;
-        for (int i = 0; i < size; i++)
-        {
-            if (thisBytes[i] != otherBytes[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns true if the contents of the internal array and the provided array match.
-     */
-    public boolean equals(final byte[] data)
-    {
-        return equals(data, 0, data.length);
-    }
-
-    /**
-     * Returns true if the contents of the internal array and the provided array match.
-     */
-    public boolean equals(final byte[] data, int offset, final int len)
-    {
-        final byte[] bytes = this.bytes;
-        if (len != bytes.length)
-            return false;
-
-        for (int i = 0; i < len;)
-        {
-            if (bytes[i++] != data[offset++])
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private volatile int hash = 0;
-
-    @Override
-    public int hashCode()
-    {
-        int h = hash;
-
-        if (h == 0)
-        {
-            final byte[] thisBytes = bytes;
-            final int size = bytes.length;
-
-            h = size;
-            for (int i = 0; i < size; i++)
-            {
-                h = h * 31 + thisBytes[i];
-            }
-            if (h == 0)
-            {
-                h = 1;
-            }
-
-            hash = h;
-        }
-
-        return h;
     }
 
     // =================================================================
@@ -461,69 +428,48 @@ public final class ByteString
     // moved from Internal.java
 
     /**
-     * Helper called by generated code to construct default values for string fields.
-     * <p>
-     * The protocol compiler does not actually contain a UTF-8 decoder -- it just pushes UTF-8-encoded text around
-     * without touching it. The one place where this presents a problem is when generating Java string literals. Unicode
-     * characters in the string literal would normally need to be encoded using a Unicode escape sequence, which would
-     * require decoding them. To get around this, protoc instead embeds the UTF-8 bytes into the generated code and
-     * leaves it to the runtime library to decode them.
-     * <p>
-     * It gets worse, though. If protoc just generated a byte array, like: new byte[] {0x12, 0x34, 0x56, 0x78} Java
-     * actually generates *code* which allocates an array and then fills in each value. This is much less efficient than
-     * just embedding the bytes directly into the bytecode. To get around this, we need another work-around. String
-     * literals are embedded directly, so protoc actually generates a string literal corresponding to the bytes. The
-     * easiest way to do this is to use the ISO-8859-1 character set, which corresponds to the first 256 characters of
-     * the Unicode range. Protoc can then use good old CEscape to generate the string.
-     * <p>
-     * So we have a string literal which represents a set of bytes which represents another string. This function --
-     * stringDefaultValue -- converts from the generated string to the string we actually want. The generated code calls
-     * this automatically.
+     * Returns true if the contents of the internal array and the provided array match.
      */
-    public static String stringDefaultValue(String bytes)
-    {
-        try
-        {
-            return new String(bytes.getBytes("ISO-8859-1"), "UTF-8");
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            // This should never happen since all JVMs are required to implement
-            // both of the above character sets.
-            throw new IllegalStateException(
-                    "Java VM does not support a standard character set.", e);
-        }
+    public boolean equals(final byte[] data) {
+        return equals(data, 0, data.length);
     }
 
     /**
-     * Helper called by generated code to construct default values for bytes fields.
-     * <p>
-     * This is a lot like {@link #stringDefaultValue}, but for bytes fields. In this case we only need the second of the
-     * two hacks -- allowing us to embed raw bytes as a string literal with ISO-8859-1 encoding.
+     * Returns true if the contents of the internal array and the provided array match.
      */
-    public static ByteString bytesDefaultValue(String bytes)
-    {
-        return new ByteString(byteArrayDefaultValue(bytes));
+    public boolean equals(final byte[] data, int offset, final int len) {
+        final byte[] bytes = this.bytes;
+        if (len != bytes.length)
+            return false;
+
+        for (int i = 0; i < len; ) {
+            if (bytes[i++] != data[offset++]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    /**
-     * Helper called by generated code to construct default values for byte array fields.
-     * <p>
-     * This is a lot like {@link #stringDefaultValue}, but for bytes fields. In this case we only need the second of the
-     * two hacks -- allowing us to embed raw bytes as a string literal with ISO-8859-1 encoding.
-     */
-    public static byte[] byteArrayDefaultValue(String bytes)
-    {
-        try
-        {
-            return bytes.getBytes("ISO-8859-1");
+    @Override
+    public int hashCode() {
+        int h = hash;
+
+        if (h == 0) {
+            final byte[] thisBytes = bytes;
+            final int size = bytes.length;
+
+            h = size;
+            for (int i = 0; i < size; i++) {
+                h = h * 31 + thisBytes[i];
+            }
+            if (h == 0) {
+                h = 1;
+            }
+
+            hash = h;
         }
-        catch (UnsupportedEncodingException e)
-        {
-            // This should never happen since all JVMs are required to implement
-            // ISO-8859-1.
-            throw new IllegalStateException(
-                    "Java VM does not support a standard character set.", e);
-        }
+
+        return h;
     }
 }

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -25,20 +22,14 @@ import java.io.UnsupportedEncodingException;
  *
  * @author David Yu
  */
-public final class StringSerializer
-{
-
-    private StringSerializer()
-    {
-    }
+public final class StringSerializer {
 
     /**
      * From {@link java.lang.Integer#toString(int)}
      */
-    static final int[] sizeTable = new int[] {
+    static final int[] sizeTable = new int[]{
             9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE
     };
-
     static final char[] DigitTens = {
             '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
             '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
@@ -51,7 +42,6 @@ public final class StringSerializer
             '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
             '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
     };
-
     static final char[] DigitOnes = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -64,7 +54,6 @@ public final class StringSerializer
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     };
-
     static final char[] digits = {
             '0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'a', 'b',
@@ -73,16 +62,14 @@ public final class StringSerializer
             'o', 'p', 'q', 'r', 's', 't',
             'u', 'v', 'w', 'x', 'y', 'z'
     };
-
-    static final byte[] INT_MIN_VALUE = new byte[] {
+    static final byte[] INT_MIN_VALUE = new byte[]{
             (byte) '-',
             (byte) '2',
             (byte) '1', (byte) '4', (byte) '7',
             (byte) '4', (byte) '8', (byte) '3',
             (byte) '6', (byte) '4', (byte) '8'
     };
-
-    static final byte[] LONG_MIN_VALUE = new byte[] {
+    static final byte[] LONG_MIN_VALUE = new byte[]{
             (byte) '-',
             (byte) '9',
             (byte) '2', (byte) '2', (byte) '3',
@@ -92,38 +79,30 @@ public final class StringSerializer
             (byte) '7', (byte) '7', (byte) '5',
             (byte) '8', (byte) '0', (byte) '8'
     };
-
     static final int TWO_BYTE_LOWER_LIMIT = 1 << 7;
-
     static final int ONE_BYTE_EXCLUSIVE = TWO_BYTE_LOWER_LIMIT / 3 + 1;
-
     static final int THREE_BYTE_LOWER_LIMIT = 1 << 14;
-
     static final int TWO_BYTE_EXCLUSIVE = THREE_BYTE_LOWER_LIMIT / 3 + 1;
-
     static final int FOUR_BYTE_LOWER_LIMIT = 1 << 21;
-
     static final int THREE_BYTE_EXCLUSIVE = FOUR_BYTE_LOWER_LIMIT / 3 + 1;
-
     static final int FIVE_BYTE_LOWER_LIMIT = 1 << 28;
-
     static final int FOUR_BYTE_EXCLUSIVE = FIVE_BYTE_LOWER_LIMIT / 3 + 1;
 
-    static void putBytesFromInt(int i, final int offset, final int size, final byte[] buf)
-    {
+    private StringSerializer() {
+    }
+
+    static void putBytesFromInt(int i, final int offset, final int size, final byte[] buf) {
         int q, r;
         int charPos = offset + size;
         char sign = 0;
 
-        if (i < 0)
-        {
+        if (i < 0) {
             sign = '-';
             i = -i;
         }
 
         // Generate two digits per iteration
-        while (i >= 65536)
-        {
+        while (i >= 65536) {
             q = i / 100;
             // really: r = i - (q * 100);
             r = i - ((q << 6) + (q << 5) + (q << 2));
@@ -134,8 +113,7 @@ public final class StringSerializer
 
         // Fall thru to fast mode for smaller numbers
         // assert(i <= 65536, i);
-        for (;;)
-        {
+        for (; ; ) {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
             buf[--charPos] = (byte) digits[r];
@@ -143,28 +121,24 @@ public final class StringSerializer
             if (i == 0)
                 break;
         }
-        if (sign != 0)
-        {
+        if (sign != 0) {
             buf[--charPos] = (byte) sign;
         }
     }
 
-    static void putBytesFromLong(long i, final int offset, int size, final byte[] buf)
-    {
+    static void putBytesFromLong(long i, final int offset, int size, final byte[] buf) {
         long q;
         int r;
         int charPos = offset + size;
         char sign = 0;
 
-        if (i < 0)
-        {
+        if (i < 0) {
             sign = '-';
             i = -i;
         }
 
         // Get 2 digits/iteration using longs until quotient fits into an int
-        while (i > Integer.MAX_VALUE)
-        {
+        while (i > Integer.MAX_VALUE) {
             q = i / 100;
             // really: r = i - (q * 100);
             r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
@@ -176,8 +150,7 @@ public final class StringSerializer
         // Get 2 digits/iteration using ints
         int q2;
         int i2 = (int) i;
-        while (i2 >= 65536)
-        {
+        while (i2 >= 65536) {
             q2 = i2 / 100;
             // really: r = i2 - (q * 100);
             r = i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2));
@@ -188,8 +161,7 @@ public final class StringSerializer
 
         // Fall thru to fast mode for smaller numbers
         // assert(i2 <= 65536, i2);
-        for (;;)
-        {
+        for (; ; ) {
             q2 = (i2 * 52429) >>> (16 + 3);
             r = i2 - ((q2 << 3) + (q2 << 1)); // r = i2-(q2*10) ...
             buf[--charPos] = (byte) digits[r];
@@ -197,28 +169,23 @@ public final class StringSerializer
             if (i2 == 0)
                 break;
         }
-        if (sign != 0)
-        {
+        if (sign != 0) {
             buf[--charPos] = (byte) sign;
         }
     }
 
     // Requires positive x
-    static int stringSize(int x)
-    {
-        for (int i = 0;; i++)
-        {
+    static int stringSize(int x) {
+        for (int i = 0; ; i++) {
             if (x <= sizeTable[i])
                 return i + 1;
         }
     }
 
     // Requires positive x
-    static int stringSize(long x)
-    {
+    static int stringSize(long x) {
         long p = 10;
-        for (int i = 1; i < 19; i++)
-        {
+        for (int i = 1; i < 19; i++) {
             if (x < p)
                 return i;
             p = 10 * p;
@@ -230,13 +197,10 @@ public final class StringSerializer
      * Writes the stringified int into the {@link LinkedBuffer}.
      */
     public static LinkedBuffer writeInt(final int value, final WriteSession session,
-            LinkedBuffer lb)
-    {
-        if (value == Integer.MIN_VALUE)
-        {
+                                        LinkedBuffer lb) {
+        if (value == Integer.MIN_VALUE) {
             final int valueLen = INT_MIN_VALUE.length;
-            if (lb.offset + valueLen > lb.buffer.length)
-            {
+            if (lb.offset + valueLen > lb.buffer.length) {
                 // not enough size
                 lb = new LinkedBuffer(session.nextBufferSize, lb);
             }
@@ -251,8 +215,7 @@ public final class StringSerializer
 
         final int size = (value < 0) ? stringSize(-value) + 1 : stringSize(value);
 
-        if (lb.offset + size > lb.buffer.length)
-        {
+        if (lb.offset + size > lb.buffer.length) {
             // not enough size
             lb = new LinkedBuffer(session.nextBufferSize, lb);
         }
@@ -269,13 +232,10 @@ public final class StringSerializer
      * Writes the stringified long into the {@link LinkedBuffer}.
      */
     public static LinkedBuffer writeLong(final long value, final WriteSession session,
-            LinkedBuffer lb)
-    {
-        if (value == Long.MIN_VALUE)
-        {
+                                         LinkedBuffer lb) {
+        if (value == Long.MIN_VALUE) {
             final int valueLen = LONG_MIN_VALUE.length;
-            if (lb.offset + valueLen > lb.buffer.length)
-            {
+            if (lb.offset + valueLen > lb.buffer.length) {
                 // TODO space efficiency (slower path)
                 // not enough size
                 lb = new LinkedBuffer(session.nextBufferSize, lb);
@@ -291,8 +251,7 @@ public final class StringSerializer
 
         final int size = (value < 0) ? stringSize(-value) + 1 : stringSize(value);
 
-        if (lb.offset + size > lb.buffer.length)
-        {
+        if (lb.offset + size > lb.buffer.length) {
             // TODO space efficiency (slower path)
             // not enough size
             lb = new LinkedBuffer(session.nextBufferSize, lb);
@@ -311,8 +270,7 @@ public final class StringSerializer
      * buffer
      */
     public static LinkedBuffer writeFloat(final float value, final WriteSession session,
-            final LinkedBuffer lb)
-    {
+                                          final LinkedBuffer lb) {
         return writeAscii(Float.toString(value), session, lb);
     }
 
@@ -321,19 +279,16 @@ public final class StringSerializer
      * buffer
      */
     public static LinkedBuffer writeDouble(final double value, final WriteSession session,
-            final LinkedBuffer lb)
-    {
+                                           final LinkedBuffer lb) {
         return writeAscii(Double.toString(value), session, lb);
     }
 
     /**
      * Computes the size of the utf8 string beginning at the specified {@code index} with the specified {@code length}.
      */
-    public static int computeUTF8Size(final String str, final int index, final int len)
-    {
+    public static int computeUTF8Size(final String str, final int index, final int len) {
         int size = len;
-        for (int i = index; i < len; i++)
-        {
+        for (int i = index; i < len; i++) {
             final char c = str.charAt(i);
             if (c < 0x0080)
                 continue;
@@ -350,38 +305,31 @@ public final class StringSerializer
      * Slow path. It checks the limit before every write. Shared with StreamedStringSerializer.
      */
     static LinkedBuffer writeUTF8(final String str, int i, final int len,
-            byte[] buffer, int offset, int limit,
-            final WriteSession session, LinkedBuffer lb)
-    {
-        for (char c = 0;; c = 0)
-        {
+                                  byte[] buffer, int offset, int limit,
+                                  final WriteSession session, LinkedBuffer lb) {
+        for (char c = 0; ; c = 0) {
             while (i != len && offset != limit && (c = str.charAt(i++)) < 0x0080)
                 buffer[offset++] = (byte) c;
 
-            if (i == len && c < 0x0080)
-            {
+            if (i == len && c < 0x0080) {
                 session.size += (offset - lb.offset);
                 lb.offset = offset;
                 return lb;
             }
 
-            if (offset == limit)
-            {
+            if (offset == limit) {
                 // we are done with this LinkedBuffer
                 session.size += (offset - lb.offset);
                 lb.offset = offset;
 
-                if (lb.next == null)
-                {
+                if (lb.next == null) {
                     // reset
                     offset = 0;
                     limit = session.nextBufferSize;
                     buffer = new byte[limit];
                     // grow
                     lb = new LinkedBuffer(buffer, 0, lb);
-                }
-                else
-                {
+                } else {
                     // use the existing buffer from previous utf8 write.
                     // this condition happens only on streaming mode
                     lb = lb.next;
@@ -394,25 +342,20 @@ public final class StringSerializer
                 continue;
             }
 
-            if (c < 0x0800)
-            {
-                if (offset == limit)
-                {
+            if (c < 0x0800) {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -425,23 +368,19 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
 
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -453,27 +392,21 @@ public final class StringSerializer
                 }
 
                 buffer[offset++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-            }
-            else if (Character.isHighSurrogate(c) && i < len && Character.isLowSurrogate(str.charAt(i)))
-            {
+            } else if (Character.isHighSurrogate(c) && i < len && Character.isLowSurrogate(str.charAt(i))) {
                 // We have a surrogate pair, so use the 4-byte encoding.
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -488,23 +421,19 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0xF0 | ((codePoint >> 18) & 0x07));
 
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -517,23 +446,19 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 12) & 0x3F));
 
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -546,23 +471,19 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 6) & 0x3F));
 
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -576,26 +497,20 @@ public final class StringSerializer
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 0) & 0x3F));
 
                 i++;
-            }
-            else
-            {
-                if (offset == limit)
-                {
+            } else {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -608,23 +523,19 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
 
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -637,23 +548,19 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0x80 | ((c >> 6) & 0x3F));
 
-                if (offset == limit)
-                {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
 
-                    if (lb.next == null)
-                    {
+                    if (lb.next == null) {
                         // reset
                         offset = 0;
                         limit = session.nextBufferSize;
                         buffer = new byte[limit];
                         // grow
                         lb = new LinkedBuffer(buffer, 0, lb);
-                    }
-                    else
-                    {
+                    } else {
                         // use the existing buffer from previous utf8 write.
                         // this condition happens only on streaming mode
                         lb = lb.next;
@@ -673,25 +580,20 @@ public final class StringSerializer
      * Fast path. The {@link LinkedBuffer}'s capacity is >= string length.
      */
     static LinkedBuffer writeUTF8(final String str, int i, final int len,
-            final WriteSession session, final LinkedBuffer lb)
-    {
+                                  final WriteSession session, final LinkedBuffer lb) {
         final byte[] buffer = lb.buffer;
-        for (int c = 0, offset = lb.offset, adjustableLimit = offset + len;; c = 0)
-        {
+        for (int c = 0, offset = lb.offset, adjustableLimit = offset + len; ; c = 0) {
             while (i != len && (c = str.charAt(i++)) < 0x0080)
                 buffer[offset++] = (byte) c;
 
-            if (i == len && c < 0x0080)
-            {
+            if (i == len && c < 0x0080) {
                 session.size += (offset - lb.offset);
                 lb.offset = offset;
                 return lb;
             }
 
-            if (c < 0x0800)
-            {
-                if (++adjustableLimit > buffer.length)
-                {
+            if (c < 0x0800) {
+                if (++adjustableLimit > buffer.length) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
                     return writeUTF8(str, i - 1, len, buffer, offset, buffer.length, session, lb);
@@ -699,13 +601,10 @@ public final class StringSerializer
 
                 buffer[offset++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
                 buffer[offset++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-            }
-            else if (Character.isHighSurrogate((char) c) && i < len && Character.isLowSurrogate(str.charAt(i)))
-            {
+            } else if (Character.isHighSurrogate((char) c) && i < len && Character.isLowSurrogate(str.charAt(i))) {
                 // We have a surrogate pair, so use the 4-byte encoding.
                 adjustableLimit += 3;
-                if (adjustableLimit > buffer.length)
-                {
+                if (adjustableLimit > buffer.length) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
                     return writeUTF8(str, i - 1, len, buffer, offset, buffer.length, session, lb);
@@ -718,12 +617,9 @@ public final class StringSerializer
                 buffer[offset++] = (byte) (0x80 | ((codePoint >> 0) & 0x3F));
 
                 i++;
-            }
-            else
-            {
+            } else {
                 adjustableLimit += 2;
-                if (adjustableLimit > buffer.length)
-                {
+                if (adjustableLimit > buffer.length) {
                     session.size += (offset - lb.offset);
                     lb.offset = offset;
                     return writeUTF8(str, i - 1, len, buffer, offset, buffer.length, session, lb);
@@ -740,8 +636,7 @@ public final class StringSerializer
      * Writes the utf8-encoded bytes from the string into the {@link LinkedBuffer}.
      */
     public static LinkedBuffer writeUTF8(final String str, final WriteSession session,
-            final LinkedBuffer lb)
-    {
+                                         final LinkedBuffer lb) {
         final int len = str.length();
         if (len == 0)
             return lb;
@@ -756,8 +651,7 @@ public final class StringSerializer
      * only contains ascii chars.
      */
     public static LinkedBuffer writeAscii(final String str, final WriteSession session,
-            LinkedBuffer lb)
-    {
+                                          LinkedBuffer lb) {
         final int len = str.length();
         if (len == 0)
             return lb;
@@ -768,13 +662,10 @@ public final class StringSerializer
         // actual size
         session.size += len;
 
-        if (offset + len > limit)
-        {
+        if (offset + len > limit) {
             // slow path
-            for (int i = 0; i < len; i++)
-            {
-                if (offset == limit)
-                {
+            for (int i = 0; i < len; i++) {
+                if (offset == limit) {
                     // we are done with this LinkedBuffer
                     lb.offset = offset;
                     // reset
@@ -786,9 +677,7 @@ public final class StringSerializer
                 }
                 buffer[offset++] = (byte) str.charAt(i);
             }
-        }
-        else
-        {
+        } else {
             // fast path
             for (int i = 0; i < len; i++)
                 buffer[offset++] = (byte) str.charAt(i);
@@ -800,15 +689,11 @@ public final class StringSerializer
     }
 
     static void writeFixed2ByteInt(final int value, final byte[] buffer, int offset,
-            final boolean littleEndian)
-    {
-        if (littleEndian)
-        {
+                                   final boolean littleEndian) {
+        if (littleEndian) {
             buffer[offset++] = (byte) value;
             buffer[offset] = (byte) ((value >>> 8) & 0xFF);
-        }
-        else
-        {
+        } else {
             buffer[offset++] = (byte) ((value >>> 8) & 0xFF);
             buffer[offset] = (byte) value;
         }
@@ -819,8 +704,7 @@ public final class StringSerializer
      * behavior as {@link java.io.DataOutputStream#writeUTF(String)}.
      */
     public static LinkedBuffer writeUTF8FixedDelimited(final String str,
-            final WriteSession session, LinkedBuffer lb)
-    {
+                                                       final WriteSession session, LinkedBuffer lb) {
         return writeUTF8FixedDelimited(str, false, session, lb);
     }
 
@@ -828,12 +712,10 @@ public final class StringSerializer
      * The length of the utf8 bytes is written first before the string - which is fixed 2-bytes.
      */
     public static LinkedBuffer writeUTF8FixedDelimited(final String str,
-            final boolean littleEndian, final WriteSession session, LinkedBuffer lb)
-    {
+                                                       final boolean littleEndian, final WriteSession session, LinkedBuffer lb) {
         final int lastSize = session.size, len = str.length(), withIntOffset = lb.offset + 2;
 
-        if (withIntOffset > lb.buffer.length)
-        {
+        if (withIntOffset > lb.buffer.length) {
             // not enough space for int (2 bytes).
             // create a new buffer.
             lb = new LinkedBuffer(len + 2 > session.nextBufferSize ? len + 2 : session.nextBufferSize,
@@ -841,8 +723,7 @@ public final class StringSerializer
 
             lb.offset = 2;
 
-            if (len == 0)
-            {
+            if (len == 0) {
                 writeFixed2ByteInt(0, lb.buffer, 0, littleEndian);
                 // update size
                 session.size += 2;
@@ -860,8 +741,7 @@ public final class StringSerializer
             return rb;
         }
 
-        if (len == 0)
-        {
+        if (len == 0) {
             writeFixed2ByteInt(0, lb.buffer, lb.offset, littleEndian);
             lb.offset = withIntOffset;
             // update size
@@ -869,8 +749,7 @@ public final class StringSerializer
             return lb;
         }
 
-        if (withIntOffset + len > lb.buffer.length)
-        {
+        if (withIntOffset + len > lb.buffer.length) {
             // not enough space for the string.
             lb.offset = withIntOffset;
 
@@ -902,12 +781,10 @@ public final class StringSerializer
     }
 
     private static LinkedBuffer writeUTF8OneByteDelimited(final String str, final int index,
-            final int len, final WriteSession session, LinkedBuffer lb)
-    {
+                                                          final int len, final WriteSession session, LinkedBuffer lb) {
         final int lastSize = session.size;
 
-        if (lb.offset == lb.buffer.length)
-        {
+        if (lb.offset == lb.buffer.length) {
             // create a new buffer.
             lb = new LinkedBuffer(len + 1 > session.nextBufferSize ? len + 1 : session.nextBufferSize,
                     lb);
@@ -926,8 +803,7 @@ public final class StringSerializer
         }
 
         final int withIntOffset = lb.offset + 1;
-        if (withIntOffset + len > lb.buffer.length)
-        {
+        if (withIntOffset + len > lb.buffer.length) {
             // not enough space for the string.
             lb.offset = withIntOffset;
 
@@ -959,13 +835,11 @@ public final class StringSerializer
     }
 
     private static LinkedBuffer writeUTF8VarDelimited(final String str, final int index,
-            final int len, final int lowerLimit, int expectedSize,
-            final WriteSession session, LinkedBuffer lb)
-    {
+                                                      final int len, final int lowerLimit, int expectedSize,
+                                                      final WriteSession session, LinkedBuffer lb) {
         int lastSize = session.size, offset = lb.offset, withIntOffset = offset + expectedSize;
 
-        if (withIntOffset > lb.buffer.length)
-        {
+        if (withIntOffset > lb.buffer.length) {
             // not enough space for the varint.
             // create a new buffer.
             lb = new LinkedBuffer(len + expectedSize > session.nextBufferSize ? len + expectedSize
@@ -979,8 +853,7 @@ public final class StringSerializer
 
             int size = session.size - lastSize;
 
-            if (size < lowerLimit)
-            {
+            if (size < lowerLimit) {
                 // move one space to the left since the varint is 1-byte smaller
                 System.arraycopy(lb.buffer, withIntOffset, lb.buffer, withIntOffset - 1,
                         lb.offset - withIntOffset);
@@ -1000,8 +873,7 @@ public final class StringSerializer
             return rb;
         }
 
-        if (withIntOffset + len > lb.buffer.length)
-        {
+        if (withIntOffset + len > lb.buffer.length) {
             // not enough space for the string.
             lb.offset = withIntOffset;
 
@@ -1011,8 +883,7 @@ public final class StringSerializer
 
             int size = session.size - lastSize;
 
-            if (size < lowerLimit)
-            {
+            if (size < lowerLimit) {
                 // move one space to the left since the varint is 1-byte smaller
                 System.arraycopy(lb.buffer, withIntOffset, lb.buffer, withIntOffset - 1,
                         lb.offset - withIntOffset);
@@ -1039,8 +910,7 @@ public final class StringSerializer
 
         int size = session.size - lastSize;
 
-        if (size < lowerLimit)
-        {
+        if (size < lowerLimit) {
             // move one space to the left since the varint is 1-byte smaller
             System.arraycopy(lb.buffer, withIntOffset, lb.buffer, withIntOffset - 1,
                     lb.offset - withIntOffset);
@@ -1064,13 +934,10 @@ public final class StringSerializer
      * The length of the utf8 bytes is written first before the string - which is a variable int (1 to 5 bytes).
      */
     public static LinkedBuffer writeUTF8VarDelimited(final String str, final WriteSession session,
-            LinkedBuffer lb)
-    {
+                                                     LinkedBuffer lb) {
         final int len = str.length();
-        if (len == 0)
-        {
-            if (lb.offset == lb.buffer.length)
-            {
+        if (len == 0) {
+            if (lb.offset == lb.buffer.length) {
                 // buffer full
                 lb = new LinkedBuffer(session.nextBufferSize, lb);
             }
@@ -1082,28 +949,24 @@ public final class StringSerializer
             return lb;
         }
 
-        if (len < ONE_BYTE_EXCLUSIVE)
-        {
+        if (len < ONE_BYTE_EXCLUSIVE) {
             // the varint will be max 1-byte. (even if all chars are non-ascii)
             return writeUTF8OneByteDelimited(str, 0, len, session, lb);
         }
 
-        if (len < TWO_BYTE_EXCLUSIVE)
-        {
+        if (len < TWO_BYTE_EXCLUSIVE) {
             // the varint will be max 2-bytes and could be 1-byte. (even if all non-ascii)
             return writeUTF8VarDelimited(str, 0, len, TWO_BYTE_LOWER_LIMIT, 2,
                     session, lb);
         }
 
-        if (len < THREE_BYTE_EXCLUSIVE)
-        {
+        if (len < THREE_BYTE_EXCLUSIVE) {
             // the varint will be max 3-bytes and could be 2-bytes. (even if all non-ascii)
             return writeUTF8VarDelimited(str, 0, len, THREE_BYTE_LOWER_LIMIT, 3,
                     session, lb);
         }
 
-        if (len < FOUR_BYTE_EXCLUSIVE)
-        {
+        if (len < FOUR_BYTE_EXCLUSIVE) {
             // the varint will be max 4-bytes and could be 3-bytes. (even if all non-ascii)
             return writeUTF8VarDelimited(str, 0, len, FOUR_BYTE_LOWER_LIMIT, 4,
                     session, lb);
@@ -1113,24 +976,19 @@ public final class StringSerializer
         return writeUTF8VarDelimited(str, 0, len, FIVE_BYTE_LOWER_LIMIT, 5, session, lb);
     }
 
-    public static final class STRING
-    {
+    public static final class STRING {
         static final boolean CESU8_COMPAT = Boolean.getBoolean("io.protostuff.cesu8_compat");
 
-        private STRING()
-        {
+        private STRING() {
         }
 
-        public static String deser(byte[] nonNullValue)
-        {
+        public static String deser(byte[] nonNullValue) {
             return deser(nonNullValue, 0, nonNullValue.length);
         }
 
-        public static String deser(byte[] nonNullValue, int offset, int len)
-        {
+        public static String deser(byte[] nonNullValue, int offset, int len) {
             final String result;
-            try
-            {
+            try {
                 // Try to use the built in deserialization first, since we expect
                 // that the most likely case is a valid UTF-8 encoded byte array.
                 // Additionally, the built in serialization method has one less
@@ -1164,19 +1022,14 @@ public final class StringSerializer
                 // In general, this *should* only be required for systems reading
                 // data stored using legacy protostuff. Moving forward, the data
                 // should be readable by new String("UTF-8"), so the scan is unnecessary.
-                if (CESU8_COMPAT)
-                {
+                if (CESU8_COMPAT) {
                     // If it contains the REPLACEMENT character, then there's a strong
                     // possibility of it containing 3-byte surrogates / 6-byte surrogate
                     // pairs, and we should try decoding using readUTF to handle it.
-                    if (result.indexOf(0xfffd) != -1)
-                    {
-                        try
-                        {
+                    if (result.indexOf(0xfffd) != -1) {
+                        try {
                             return readUTF(nonNullValue, offset, len);
-                        }
-                        catch (UTFDataFormatException e)
-                        {
+                        } catch (UTFDataFormatException e) {
                             // Unexpected, but most systems previously using
                             // Protostuff don't expect error to occur from
                             // String deserialization, so we use this just in case.
@@ -1184,9 +1037,7 @@ public final class StringSerializer
                         }
                     }
                 }
-            }
-            catch (UnsupportedEncodingException e)
-            {
+            } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
 
@@ -1195,32 +1046,24 @@ public final class StringSerializer
 
         /**
          * Deserialize using readUTF only.
-         * 
+         *
          * @param nonNullValue
          * @return
          */
-        static String deserCustomOnly(byte[] nonNullValue)
-        {
-            try
-            {
+        static String deserCustomOnly(byte[] nonNullValue) {
+            try {
                 // Same behaviour as deser(), but does NOT
                 // fall back to old implementation.
                 return readUTF(nonNullValue, 0, nonNullValue.length);
-            }
-            catch (UTFDataFormatException e)
-            {
+            } catch (UTFDataFormatException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public static byte[] ser(String nonNullValue)
-        {
-            try
-            {
+        public static byte[] ser(String nonNullValue) {
+            try {
                 return nonNullValue.getBytes("UTF-8");
-            }
-            catch (UnsupportedEncodingException e)
-            {
+            } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -1235,8 +1078,7 @@ public final class StringSerializer
          * @return
          * @throws IOException
          */
-        private static String readUTF(byte[] buffer, int offset, int len) throws UTFDataFormatException
-        {
+        private static String readUTF(byte[] buffer, int offset, int len) throws UTFDataFormatException {
             char[] charArray = new char[len];
 
             int i = 0;
@@ -1245,8 +1087,7 @@ public final class StringSerializer
             // Optimizaiton: Assume that the characters are all 7-bits encodable
             // (which is most likely the standard case).
             // If they're not, break out and take the 'slow' path.
-            for (; i < len; i++)
-            {
+            for (; i < len; i++) {
                 int ch = (int) buffer[offset + i] & 0xff;
 
                 // If it's not 7-bit character, break out
@@ -1257,22 +1098,18 @@ public final class StringSerializer
             }
 
             // 'Slow' path
-            while (i < len)
-            {
+            while (i < len) {
                 int ch = (int) buffer[offset + i] & 0xff;
 
                 // Determine how to decode based on 'bits of code point'
                 // See: http://en.wikipedia.org/wiki/UTF-8#Description
                 int upperBits = ch >> 4;
 
-                if (upperBits <= 7)
-                {
+                if (upperBits <= 7) {
                     // 1-byte: 0xxxxxxx
                     charArray[c++] = (char) ch;
                     i++;
-                }
-                else if (upperBits == 0x0C || upperBits == 0x0D)
-                {
+                } else if (upperBits == 0x0C || upperBits == 0x0D) {
                     // 2-byte: 110xxxxx 10xxxxxx
                     i += 2;
 
@@ -1286,9 +1123,7 @@ public final class StringSerializer
                         throw new UTFDataFormatException("Malformed input around byte " + i);
 
                     charArray[c++] = (char) (((ch & 0x1F) << 6) | (ch2 & 0x3F));
-                }
-                else if (upperBits == 0xE)
-                {
+                } else if (upperBits == 0xE) {
                     // 3-byte: 1110xxxx 10xxxxxx 10xxxxxx
                     i += 3;
 
@@ -1303,13 +1138,10 @@ public final class StringSerializer
                         throw new UTFDataFormatException("Malformed input around byte " + (i - 1));
 
                     charArray[c++] = (char) (((ch & 0x0F) << 12) | ((ch2 & 0x3F) << 6) | (ch3 & 0x3F));
-                }
-                else
-                {
+                } else {
                     // 4-byte: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
                     upperBits = ch >> 3;
-                    if (upperBits == 0x1E)
-                    {
+                    if (upperBits == 0x1E) {
                         // Because we're now in the UTF-32 bit range, we must
                         // break it down into the UTF-16 surrogate pairs for
                         // Java's String class (which is UTF-16).
@@ -1330,9 +1162,7 @@ public final class StringSerializer
 
                         charArray[c++] = Character.highSurrogate(value);
                         charArray[c++] = Character.lowSurrogate(value);
-                    }
-                    else
-                    {
+                    } else {
                         // Anything above
                         throw new UTFDataFormatException("Malformed input at byte " + i);
                     }

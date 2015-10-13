@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -39,321 +36,20 @@ import io.protostuff.Schema;
  * via {@link Registry}. To minimize overhead, {@link ArrayList}s are used for the id mapping rather than
  * {@link ConcurrentHashMap}. This optimization has a disadvantage though. Ids will not be unlimited. You'll have to
  * specificy a max id for the 4 types (pojo, enum, collection, map)
- * 
+ *
  * @author David Yu
  */
-public final class IncrementalIdStrategy extends NumericIdStrategy
-{
-    /**
-     * To use {@link IncrementalIdStrategy} without registering anything, set the system property:
-     * "-Dprotostuff.runtime.id_strategy_factory=io.protostuff.runtime.IncrementalIdStrategy$Factory"
-     * <p>
-     * Note that the pojos will be limited to 63 and the enums to 15.
-     * <p>
-     * It is best that you use the {@link Registry} to configure the strategy and set the max limits for each type.
-     */
-    public static class Factory implements IdStrategy.Factory
-    {
-        @Override
-        public IdStrategy create()
-        {
-            return new IncrementalIdStrategy(
-                    CollectionSchema.MessageFactories.values().length, 1,
-                    MapSchema.MessageFactories.values().length, 1,
-                    16, 1, // enums
-                    64, 1); // pojos
-        }
-
-        @Override
-        public void postCreate()
-        {
-
-        }
-    }
-
-    /**
-     * This Registry is only way to register your pojos/enums/collections/maps/delegates.
-     */
-    public static class Registry implements NumericIdStrategy.Registry
-    {
-
-        public final IncrementalIdStrategy strategy;
-
-        public Registry(
-                int collectionIdMax, int collectionIdStart,
-                int mapIdMax, int mapIdStart,
-                int enumIdMax, int enumIdStart,
-                int pojoIdMax, int pojoIdStart)
-        {
-            this(null, 0,
-                    collectionIdMax, collectionIdStart,
-                    mapIdMax, mapIdStart,
-                    enumIdMax, enumIdStart,
-                    pojoIdMax, pojoIdStart);
-        }
-
-        public Registry(
-                IdStrategy primaryGroup, int groupId,
-                int collectionIdMax, int collectionIdStart,
-                int mapIdMax, int mapIdStart,
-                int enumIdMax, int enumIdStart,
-                int pojoIdMax, int pojoIdStart)
-        {
-            strategy = new IncrementalIdStrategy(
-                    primaryGroup, groupId,
-                    collectionIdMax, collectionIdStart,
-                    mapIdMax, mapIdStart,
-                    enumIdMax, enumIdStart,
-                    pojoIdMax, pojoIdStart);
-        }
-
-        /**
-         * Collection ids start at 1.
-         */
-        @Override
-        public <T extends Collection<?>> Registry registerCollection(
-                CollectionSchema.MessageFactory factory, int id)
-        {
-            if (id < 1)
-                throw new IllegalArgumentException("collection ids start at 1.");
-
-            if (id >= strategy.collectionIdStart)
-                throw new IllegalArgumentException("collection ids must be lesser than " + strategy.collectionIdStart);
-            else if (strategy.collections.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + factory.typeClass() + ")");
-            }
-
-            RuntimeCollectionFactory rf = new RuntimeCollectionFactory();
-            rf.id = id;
-            rf.factory = factory;
-            strategy.collections.set(id, rf);
-            // just in case
-            if (strategy.collectionMapping.put(factory.typeClass(), rf) != null)
-                throw new IllegalArgumentException("Duplicate registration for: " + factory.typeClass());
-
-            return this;
-        }
-
-        /**
-         * Map ids start at 1.
-         */
-        @Override
-        public <T extends Map<?, ?>> Registry registerMap(
-                MapSchema.MessageFactory factory, int id)
-        {
-            if (id < 1)
-                throw new IllegalArgumentException("map ids start at 1.");
-
-            if (id >= strategy.mapIdStart)
-                throw new IllegalArgumentException("map ids must be lesser than " + strategy.mapIdStart);
-            else if (strategy.maps.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + factory.typeClass() + ")");
-            }
-
-            RuntimeMapFactory rf = new RuntimeMapFactory();
-            rf.id = id;
-            rf.factory = factory;
-            strategy.maps.set(id, rf);
-            // just in case
-            if (strategy.mapMapping.put(factory.typeClass(), rf) != null)
-                throw new IllegalArgumentException("Duplicate registration for: " + factory.typeClass());
-
-            return this;
-        }
-
-        /**
-         * Enum ids start at 1.
-         */
-        @Override
-        public <T extends Enum<T>> Registry registerEnum(Class<T> clazz, int id)
-        {
-            if (id < 1)
-                throw new IllegalArgumentException("enum ids start at 1.");
-
-            if (id >= strategy.enumIdStart)
-                throw new IllegalArgumentException("enum ids must be lesser than " + strategy.enumIdStart);
-            else if (strategy.enums.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + clazz.getName() + ")");
-            }
-
-            EnumIO<?> eio = EnumIO.newEnumIO(clazz);
-            RuntimeEnumIO reio = new RuntimeEnumIO();
-            reio.id = id;
-            reio.eio = eio;
-            strategy.enums.set(id, reio);
-
-            // just in case
-            if (strategy.enumMapping.put(clazz, reio) != null)
-                throw new IllegalArgumentException("Duplicate registration for: " + clazz);
-
-            return this;
-        }
-
-        /**
-         * Enum ids start at 1.
-         */
-        @Override
-        public Registry registerEnum(EnumIO<?> eio, int id)
-        {
-            if (id < 1)
-                throw new IllegalArgumentException("enum ids start at 1.");
-
-            if (id >= strategy.enumIdStart)
-                throw new IllegalArgumentException("enum ids must be lesser than " + strategy.enumIdStart);
-            else if (strategy.enums.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + eio.enumClass.getName() + ")");
-            }
-
-            RuntimeEnumIO reio = new RuntimeEnumIO();
-            reio.id = id;
-            reio.eio = eio;
-            strategy.enums.set(id, reio);
-
-            // just in case
-            if (strategy.enumMapping.put(eio.enumClass, reio) != null)
-                throw new IllegalArgumentException("Duplicate registration for: " + eio.enumClass);
-
-            return this;
-        }
-
-        /**
-         * Pojo ids start at 1.
-         */
-        @Override
-        public <T> Registry registerPojo(Class<T> clazz, int id)
-        {
-            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))
-                throw new IllegalArgumentException("Not a concrete class: " + clazz);
-
-            if (id < 1)
-                throw new IllegalArgumentException("pojo ids start at 1.");
-
-            if (id >= strategy.pojoIdStart)
-                throw new IllegalArgumentException("pojo ids must be lesser than " + strategy.pojoIdStart);
-            else if (strategy.pojos.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + clazz.getName() + ")");
-            }
-
-            if (strategy.pojoMapping.containsKey(clazz))
-                throw new IllegalArgumentException("Duplicate registration for: " + clazz);
-
-            BaseHS<T> wrapper = new Lazy<>(clazz, strategy);
-            wrapper.id = id;
-            strategy.pojos.set(id, wrapper);
-
-            strategy.pojoMapping.put(clazz, wrapper);
-
-            return this;
-        }
-
-        /**
-         * Pojo ids start at 1.
-         */
-        @Override
-        public <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
-                int id)
-        {
-            if (id >= strategy.pojoIdStart)
-                throw new IllegalArgumentException("pojo ids must be lesser than " + strategy.pojoIdStart);
-            else if (strategy.pojos.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + schema.typeClass().getName() + ")");
-            }
-
-            if (strategy.pojoMapping.containsKey(schema.typeClass()))
-                throw new IllegalArgumentException("Duplicate registration for: " + schema.typeClass());
-
-            Registered<T> wrapper = new Registered<>(id, schema, pipeSchema);
-            strategy.pojos.set(id, wrapper);
-
-            strategy.pojoMapping.put(schema.typeClass(), wrapper);
-
-            return this;
-        }
-
-        /**
-         * If you are sure that you are only using a single implementation of your interface/abstract class, then it
-         * makes sense to map it directly to its impl class to avoid writing the type.
-         * <p>
-         * Note that the type is always written when your field is {@link java.lang.Object}.
-         * <p>
-         * Pojo ids start at 1.
-         */
-        @Override
-        public <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass)
-        {
-            if (strategy.pojoMapping.containsKey(baseClass))
-                throw new IllegalArgumentException("Duplicate registration for: " + baseClass);
-
-            BaseHS<?> wrapper = strategy.pojoMapping.get(implClass);
-            if (wrapper == null)
-                throw new IllegalArgumentException("Must register the impl class first. " + implClass);
-
-            strategy.pojoMapping.put(baseClass, wrapper);
-
-            return this;
-        }
-
-        /**
-         * Register a {@link Delegate} and assign an id.
-         * <p>
-         * Delegate ids start at 1.
-         */
-        @Override
-        public <T> Registry registerDelegate(Delegate<T> delegate, int id)
-        {
-            if (id < 1)
-                throw new IllegalArgumentException("delegate ids start at 1.");
-
-            if (id >= strategy.delegates.size())
-                grow(strategy.delegates, id + 1);
-            else if (strategy.delegates.get(id) != null)
-            {
-                throw new IllegalArgumentException("Duplicate id registration: " + id +
-                        " (" + delegate.typeClass() + ")");
-            }
-
-            RegisteredDelegate<T> rd = new RegisteredDelegate<>(id, delegate);
-            strategy.delegates.set(id, rd);
-            // just in case
-            if (strategy.delegateMapping.put(delegate.typeClass(), rd) != null)
-                throw new IllegalArgumentException("Duplicate registration for: " + delegate.typeClass());
-
-            return this;
-        }
-    }
-
+public final class IncrementalIdStrategy extends NumericIdStrategy {
     final ConcurrentHashMap<Class<?>, RuntimeCollectionFactory> collectionMapping;
-
     final ArrayList<RuntimeCollectionFactory> collections;
-
     final ConcurrentHashMap<Class<?>, RuntimeMapFactory> mapMapping;
-
     final ArrayList<RuntimeMapFactory> maps;
-
     final ConcurrentHashMap<Class<?>, RuntimeEnumIO> enumMapping;
-
     final ArrayList<RuntimeEnumIO> enums;
-
     final ConcurrentHashMap<Class<?>, BaseHS<?>> pojoMapping;
-
     final ArrayList<BaseHS<?>> pojos;
-
     final IdentityHashMap<Class<?>, RegisteredDelegate<?>> delegateMapping;
-
     final ArrayList<RegisteredDelegate<?>> delegates;
-
     final AtomicInteger pojoId, enumId, collectionId, mapId;
     final int pojoIdStart, enumIdStart, collectionIdStart, mapIdStart;
 
@@ -361,15 +57,13 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
             int collectionIdMax, int collectionIdStart,
             int mapIdMax, int mapIdStart,
             int enumIdMax, int enumIdStart,
-            int pojoIdMax, int pojoIdStart)
-    {
+            int pojoIdMax, int pojoIdStart) {
         this(null, 0,
                 collectionIdMax, collectionIdStart,
                 mapIdMax, mapIdStart,
                 enumIdMax, enumIdStart,
                 pojoIdMax, pojoIdStart);
     }
-
     public IncrementalIdStrategy(
             IdStrategy primaryGroup, int groupId,
             int collectionIdMax, int collectionIdStart,
@@ -414,24 +108,20 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    public boolean isRegistered(Class<?> typeClass)
-    {
+    public boolean isRegistered(Class<?> typeClass) {
         return pojoMapping.get(typeClass) instanceof Registered;
     }
 
     @SuppressWarnings("unchecked")
-    private <T> BaseHS<T> getBaseHS(Class<T> typeClass, boolean create)
-    {
+    private <T> BaseHS<T> getBaseHS(Class<T> typeClass, boolean create) {
         BaseHS<T> hs = (BaseHS<T>) pojoMapping.get(typeClass);
-        if (hs == null && create)
-        {
+        if (hs == null && create) {
             hs = new Lazy<>(typeClass, this);
             final BaseHS<T> last = (BaseHS<T>) pojoMapping.putIfAbsent(
                     typeClass, hs);
             if (last != null)
                 hs = last;
-            else
-            {
+            else {
                 int id = pojoId.getAndIncrement();
                 pojos.set(id, hs);
 
@@ -444,23 +134,19 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    public <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass, boolean create)
-    {
+    public <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass, boolean create) {
         return getBaseHS(typeClass, create);
     }
 
-    private RuntimeEnumIO getRuntimeEnumIO(Class<?> enumClass)
-    {
+    private RuntimeEnumIO getRuntimeEnumIO(Class<?> enumClass) {
         RuntimeEnumIO reio = enumMapping.get(enumClass);
-        if (reio == null)
-        {
+        if (reio == null) {
             reio = new RuntimeEnumIO();
 
             final RuntimeEnumIO existing = enumMapping.putIfAbsent(enumClass, reio);
             if (existing != null)
                 reio = existing;
-            else
-            {
+            else {
                 reio.eio = EnumIO.newEnumIO(enumClass);
                 int id = enumId.getAndIncrement();
                 enums.set(id, reio);
@@ -474,30 +160,23 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected EnumIO<? extends Enum<?>> getEnumIO(Class<?> enumClass)
-    {
+    protected EnumIO<? extends Enum<?>> getEnumIO(Class<?> enumClass) {
         return getRuntimeEnumIO(enumClass).eio;
     }
 
-    private RuntimeCollectionFactory getRuntimeCollectionFactory(Class<?> clazz)
-    {
+    private RuntimeCollectionFactory getRuntimeCollectionFactory(Class<?> clazz) {
         RuntimeCollectionFactory rfactory = collectionMapping.get(clazz);
-        if (rfactory == null)
-        {
+        if (rfactory == null) {
             rfactory = new RuntimeCollectionFactory();
             RuntimeCollectionFactory f = collectionMapping.putIfAbsent(
                     clazz, rfactory);
             if (f != null)
                 rfactory = f;
-            else
-            {
-                if (clazz.getName().startsWith("java.util"))
-                {
+            else {
+                if (clazz.getName().startsWith("java.util")) {
                     rfactory.factory = CollectionSchema.MessageFactories.valueOf(
                             clazz.getSimpleName());
-                }
-                else
-                {
+                } else {
                     rfactory.instantiator = RuntimeEnv.newInstantiator(clazz);
                     rfactory.collectionClass = clazz;
                 }
@@ -514,30 +193,23 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected CollectionSchema.MessageFactory getCollectionFactory(Class<?> clazz)
-    {
+    protected CollectionSchema.MessageFactory getCollectionFactory(Class<?> clazz) {
         return getRuntimeCollectionFactory(clazz);
     }
 
-    private RuntimeMapFactory getRuntimeMapFactory(Class<?> clazz)
-    {
+    private RuntimeMapFactory getRuntimeMapFactory(Class<?> clazz) {
         RuntimeMapFactory rfactory = mapMapping.get(clazz);
-        if (rfactory == null)
-        {
+        if (rfactory == null) {
             rfactory = new RuntimeMapFactory();
             RuntimeMapFactory f = mapMapping.putIfAbsent(
                     clazz, rfactory);
             if (f != null)
                 rfactory = f;
-            else
-            {
-                if (clazz.getName().startsWith("java.util"))
-                {
+            else {
+                if (clazz.getName().startsWith("java.util")) {
                     rfactory.factory = MapSchema.MessageFactories.valueOf(
                             clazz.getSimpleName());
-                }
-                else
-                {
+                } else {
                     rfactory.instantiator = RuntimeEnv.newInstantiator(clazz);
                     rfactory.mapClass = clazz;
                 }
@@ -554,15 +226,13 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected MapSchema.MessageFactory getMapFactory(Class<?> clazz)
-    {
+    protected MapSchema.MessageFactory getMapFactory(Class<?> clazz) {
         return getRuntimeMapFactory(clazz);
     }
 
     @Override
     protected void writeCollectionIdTo(Output output, int fieldNumber, Class<?> clazz)
-            throws IOException
-    {
+            throws IOException {
         int id;
         RuntimeCollectionFactory factory = getRuntimeCollectionFactory(clazz);
 
@@ -575,15 +245,13 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     protected void transferCollectionId(Input input, Output output, int fieldNumber)
-            throws IOException
-    {
+            throws IOException {
         output.writeUInt32(fieldNumber, input.readUInt32(), false);
     }
 
     @Override
     protected CollectionSchema.MessageFactory resolveCollectionFrom(Input input)
-            throws IOException
-    {
+            throws IOException {
         final int id = input.readUInt32();
 
         final RuntimeCollectionFactory factory = id < collections.size() ?
@@ -596,8 +264,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     protected void writeMapIdTo(Output output, int fieldNumber, Class<?> clazz)
-            throws IOException
-    {
+            throws IOException {
         int id;
         RuntimeMapFactory factory = getRuntimeMapFactory(clazz);
 
@@ -610,15 +277,13 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     protected void transferMapId(Input input, Output output, int fieldNumber)
-            throws IOException
-    {
+            throws IOException {
         output.writeUInt32(fieldNumber, input.readUInt32(), false);
     }
 
     @Override
     protected MapSchema.MessageFactory resolveMapFrom(Input input)
-            throws IOException
-    {
+            throws IOException {
         final int id = input.readUInt32();
 
         final RuntimeMapFactory factory = id < maps.size() ? maps.get(id) : null;
@@ -630,8 +295,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     protected void writeEnumIdTo(Output output, int fieldNumber, Class<?> clazz)
-            throws IOException
-    {
+            throws IOException {
         int id;
         RuntimeEnumIO reio = getRuntimeEnumIO(clazz);
 
@@ -644,14 +308,12 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     protected void transferEnumId(Input input, Output output, int fieldNumber)
-            throws IOException
-    {
+            throws IOException {
         output.writeUInt32(fieldNumber, input.readUInt32(), false);
     }
 
     @Override
-    protected EnumIO<?> resolveEnumFrom(Input input) throws IOException
-    {
+    protected EnumIO<?> resolveEnumFrom(Input input) throws IOException {
         final int id = input.readUInt32();
 
         final RuntimeEnumIO reio = id < enums.size() ? enums.get(id) : null;
@@ -662,15 +324,13 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    public boolean isDelegateRegistered(Class<?> typeClass)
-    {
+    public boolean isDelegateRegistered(Class<?> typeClass) {
         return delegateMapping.containsKey(typeClass);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Delegate<T> getDelegate(Class<? super T> typeClass)
-    {
+    public <T> Delegate<T> getDelegate(Class<? super T> typeClass) {
         final RegisteredDelegate<T> rd = (RegisteredDelegate<T>) delegateMapping.get(
                 typeClass);
 
@@ -679,16 +339,14 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> HasDelegate<T> getDelegateWrapper(Class<? super T> typeClass)
-    {
+    public <T> HasDelegate<T> getDelegateWrapper(Class<? super T> typeClass) {
         return (HasDelegate<T>) delegateMapping.get(typeClass);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected <T> HasDelegate<T> tryWriteDelegateIdTo(Output output, int fieldNumber,
-            Class<T> clazz) throws IOException
-    {
+                                                      Class<T> clazz) throws IOException {
         final RegisteredDelegate<T> rd = (RegisteredDelegate<T>) delegateMapping.get(
                 clazz);
 
@@ -703,8 +361,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     @Override
     @SuppressWarnings("unchecked")
     protected <T> HasDelegate<T> transferDelegateId(Input input, Output output, int fieldNumber)
-            throws IOException
-    {
+            throws IOException {
         final int id = input.readUInt32();
 
         final RegisteredDelegate<T> rd = id < delegates.size() ?
@@ -719,8 +376,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     @SuppressWarnings("unchecked")
-    protected <T> HasDelegate<T> resolveDelegateFrom(Input input) throws IOException
-    {
+    protected <T> HasDelegate<T> resolveDelegateFrom(Input input) throws IOException {
         final int id = input.readUInt32();
 
         final RegisteredDelegate<T> rd = id < delegates.size() ?
@@ -733,8 +389,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     protected <T> HasSchema<T> writePojoIdTo(Output output, int fieldNumber, Class<T> clazz)
-            throws IOException
-    {
+            throws IOException {
         int id;
         BaseHS<T> wrapper = getBaseHS(clazz, true);
 
@@ -750,8 +405,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     @Override
     @SuppressWarnings("unchecked")
     protected <T> HasSchema<T> transferPojoId(Input input, Output output, int fieldNumber)
-            throws IOException
-    {
+            throws IOException {
         final int id = input.readUInt32();
 
         final BaseHS<T> wrapper = id < pojos.size() ? (BaseHS<T>) pojos.get(id) : null;
@@ -765,8 +419,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
     @Override
     @SuppressWarnings("unchecked")
-    protected <T> HasSchema<T> resolvePojoFrom(Input input, int fieldNumber) throws IOException
-    {
+    protected <T> HasSchema<T> resolvePojoFrom(Input input, int fieldNumber) throws IOException {
         final int id = input.readUInt32();
 
         final BaseHS<T> wrapper = id < pojos.size() ? (BaseHS<T>) pojos.get(id) : null;
@@ -779,8 +432,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     @Override
     @SuppressWarnings("unchecked")
     protected <T> Schema<T> writeMessageIdTo(Output output, int fieldNumber,
-            Message<T> message) throws IOException
-    {
+                                             Message<T> message) throws IOException {
         int id;
         BaseHS<T> wrapper = (BaseHS<T>) getSchemaWrapper(message.getClass(), true);
 
@@ -795,8 +447,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected Class<?> collectionClass(int id)
-    {
+    protected Class<?> collectionClass(int id) {
         final RuntimeCollectionFactory factory = id < collections.size() ?
                 collections.get(id) : null;
         if (factory == null)
@@ -806,8 +457,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected Class<?> mapClass(int id)
-    {
+    protected Class<?> mapClass(int id) {
         final RuntimeMapFactory factory = id < maps.size() ? maps.get(id) : null;
         if (factory == null)
             throw new UnknownTypeException("Unknown map id: " + id);
@@ -816,8 +466,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected Class<?> enumClass(int id)
-    {
+    protected Class<?> enumClass(int id) {
         final RuntimeEnumIO reio = id < enums.size() ? enums.get(id) : null;
         if (reio == null)
             throw new UnknownTypeException("Unknown enum id: " + id);
@@ -826,15 +475,13 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected Class<?> delegateClass(int id)
-    {
+    protected Class<?> delegateClass(int id) {
         final RegisteredDelegate<?> rd = id < delegates.size() ? delegates.get(id) : null;
         return rd == null ? null : rd.delegate.typeClass();
     }
 
     @Override
-    protected Class<?> pojoClass(int id)
-    {
+    protected Class<?> pojoClass(int id) {
         final BaseHS<?> wrapper = id < pojos.size() ? pojos.get(id) : null;
         if (wrapper == null)
             throw new UnknownTypeException("Unknown pojo id: " + id);
@@ -843,14 +490,12 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected RegisteredDelegate<?> getRegisteredDelegate(Class<?> clazz)
-    {
+    protected RegisteredDelegate<?> getRegisteredDelegate(Class<?> clazz) {
         return delegateMapping.get(clazz);
     }
 
     @Override
-    protected int getEnumId(Class<?> clazz)
-    {
+    protected int getEnumId(Class<?> clazz) {
         final RuntimeEnumIO reio = getRuntimeEnumIO(clazz);
 
         // wait till everything is completely set
@@ -862,11 +507,9 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
     }
 
     @Override
-    protected int getId(Class<?> clazz)
-    {
+    protected int getId(Class<?> clazz) {
         int id;
-        if (Message.class.isAssignableFrom(clazz))
-        {
+        if (Message.class.isAssignableFrom(clazz)) {
             final BaseHS<?> wrapper = getBaseHS(clazz, true);
 
             // wait till everything is completely set
@@ -876,8 +519,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
             return (id << 5) | CID_POJO;
         }
 
-        if (Map.class.isAssignableFrom(clazz))
-        {
+        if (Map.class.isAssignableFrom(clazz)) {
             if (EnumMap.class.isAssignableFrom(clazz))
                 return CID_ENUM_MAP;
 
@@ -890,8 +532,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
             return (id << 5) | CID_MAP;
         }
 
-        if (Collection.class.isAssignableFrom(clazz))
-        {
+        if (Collection.class.isAssignableFrom(clazz)) {
             if (EnumSet.class.isAssignableFrom(clazz))
                 return CID_ENUM_SET;
 
@@ -913,8 +554,276 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
         return (id << 5) | CID_POJO;
     }
 
-    static final class RuntimeCollectionFactory implements CollectionSchema.MessageFactory
-    {
+    /**
+     * To use {@link IncrementalIdStrategy} without registering anything, set the system property:
+     * "-Dprotostuff.runtime.id_strategy_factory=io.protostuff.runtime.IncrementalIdStrategy$Factory"
+     * <p>
+     * Note that the pojos will be limited to 63 and the enums to 15.
+     * <p>
+     * It is best that you use the {@link Registry} to configure the strategy and set the max limits for each type.
+     */
+    public static class Factory implements IdStrategy.Factory {
+        @Override
+        public IdStrategy create() {
+            return new IncrementalIdStrategy(
+                    CollectionSchema.MessageFactories.values().length, 1,
+                    MapSchema.MessageFactories.values().length, 1,
+                    16, 1, // enums
+                    64, 1); // pojos
+        }
+
+        @Override
+        public void postCreate() {
+
+        }
+    }
+
+    /**
+     * This Registry is only way to register your pojos/enums/collections/maps/delegates.
+     */
+    public static class Registry implements NumericIdStrategy.Registry {
+
+        public final IncrementalIdStrategy strategy;
+
+        public Registry(
+                int collectionIdMax, int collectionIdStart,
+                int mapIdMax, int mapIdStart,
+                int enumIdMax, int enumIdStart,
+                int pojoIdMax, int pojoIdStart) {
+            this(null, 0,
+                    collectionIdMax, collectionIdStart,
+                    mapIdMax, mapIdStart,
+                    enumIdMax, enumIdStart,
+                    pojoIdMax, pojoIdStart);
+        }
+
+        public Registry(
+                IdStrategy primaryGroup, int groupId,
+                int collectionIdMax, int collectionIdStart,
+                int mapIdMax, int mapIdStart,
+                int enumIdMax, int enumIdStart,
+                int pojoIdMax, int pojoIdStart) {
+            strategy = new IncrementalIdStrategy(
+                    primaryGroup, groupId,
+                    collectionIdMax, collectionIdStart,
+                    mapIdMax, mapIdStart,
+                    enumIdMax, enumIdStart,
+                    pojoIdMax, pojoIdStart);
+        }
+
+        /**
+         * Collection ids start at 1.
+         */
+        @Override
+        public <T extends Collection<?>> Registry registerCollection(
+                CollectionSchema.MessageFactory factory, int id) {
+            if (id < 1)
+                throw new IllegalArgumentException("collection ids start at 1.");
+
+            if (id >= strategy.collectionIdStart)
+                throw new IllegalArgumentException("collection ids must be lesser than " + strategy.collectionIdStart);
+            else if (strategy.collections.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + factory.typeClass() + ")");
+            }
+
+            RuntimeCollectionFactory rf = new RuntimeCollectionFactory();
+            rf.id = id;
+            rf.factory = factory;
+            strategy.collections.set(id, rf);
+            // just in case
+            if (strategy.collectionMapping.put(factory.typeClass(), rf) != null)
+                throw new IllegalArgumentException("Duplicate registration for: " + factory.typeClass());
+
+            return this;
+        }
+
+        /**
+         * Map ids start at 1.
+         */
+        @Override
+        public <T extends Map<?, ?>> Registry registerMap(
+                MapSchema.MessageFactory factory, int id) {
+            if (id < 1)
+                throw new IllegalArgumentException("map ids start at 1.");
+
+            if (id >= strategy.mapIdStart)
+                throw new IllegalArgumentException("map ids must be lesser than " + strategy.mapIdStart);
+            else if (strategy.maps.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + factory.typeClass() + ")");
+            }
+
+            RuntimeMapFactory rf = new RuntimeMapFactory();
+            rf.id = id;
+            rf.factory = factory;
+            strategy.maps.set(id, rf);
+            // just in case
+            if (strategy.mapMapping.put(factory.typeClass(), rf) != null)
+                throw new IllegalArgumentException("Duplicate registration for: " + factory.typeClass());
+
+            return this;
+        }
+
+        /**
+         * Enum ids start at 1.
+         */
+        @Override
+        public <T extends Enum<T>> Registry registerEnum(Class<T> clazz, int id) {
+            if (id < 1)
+                throw new IllegalArgumentException("enum ids start at 1.");
+
+            if (id >= strategy.enumIdStart)
+                throw new IllegalArgumentException("enum ids must be lesser than " + strategy.enumIdStart);
+            else if (strategy.enums.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + clazz.getName() + ")");
+            }
+
+            EnumIO<?> eio = EnumIO.newEnumIO(clazz);
+            RuntimeEnumIO reio = new RuntimeEnumIO();
+            reio.id = id;
+            reio.eio = eio;
+            strategy.enums.set(id, reio);
+
+            // just in case
+            if (strategy.enumMapping.put(clazz, reio) != null)
+                throw new IllegalArgumentException("Duplicate registration for: " + clazz);
+
+            return this;
+        }
+
+        /**
+         * Enum ids start at 1.
+         */
+        @Override
+        public Registry registerEnum(EnumIO<?> eio, int id) {
+            if (id < 1)
+                throw new IllegalArgumentException("enum ids start at 1.");
+
+            if (id >= strategy.enumIdStart)
+                throw new IllegalArgumentException("enum ids must be lesser than " + strategy.enumIdStart);
+            else if (strategy.enums.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + eio.enumClass.getName() + ")");
+            }
+
+            RuntimeEnumIO reio = new RuntimeEnumIO();
+            reio.id = id;
+            reio.eio = eio;
+            strategy.enums.set(id, reio);
+
+            // just in case
+            if (strategy.enumMapping.put(eio.enumClass, reio) != null)
+                throw new IllegalArgumentException("Duplicate registration for: " + eio.enumClass);
+
+            return this;
+        }
+
+        /**
+         * Pojo ids start at 1.
+         */
+        @Override
+        public <T> Registry registerPojo(Class<T> clazz, int id) {
+            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))
+                throw new IllegalArgumentException("Not a concrete class: " + clazz);
+
+            if (id < 1)
+                throw new IllegalArgumentException("pojo ids start at 1.");
+
+            if (id >= strategy.pojoIdStart)
+                throw new IllegalArgumentException("pojo ids must be lesser than " + strategy.pojoIdStart);
+            else if (strategy.pojos.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + clazz.getName() + ")");
+            }
+
+            if (strategy.pojoMapping.containsKey(clazz))
+                throw new IllegalArgumentException("Duplicate registration for: " + clazz);
+
+            BaseHS<T> wrapper = new Lazy<>(clazz, strategy);
+            wrapper.id = id;
+            strategy.pojos.set(id, wrapper);
+
+            strategy.pojoMapping.put(clazz, wrapper);
+
+            return this;
+        }
+
+        /**
+         * Pojo ids start at 1.
+         */
+        @Override
+        public <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
+                                         int id) {
+            if (id >= strategy.pojoIdStart)
+                throw new IllegalArgumentException("pojo ids must be lesser than " + strategy.pojoIdStart);
+            else if (strategy.pojos.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + schema.typeClass().getName() + ")");
+            }
+
+            if (strategy.pojoMapping.containsKey(schema.typeClass()))
+                throw new IllegalArgumentException("Duplicate registration for: " + schema.typeClass());
+
+            Registered<T> wrapper = new Registered<>(id, schema, pipeSchema);
+            strategy.pojos.set(id, wrapper);
+
+            strategy.pojoMapping.put(schema.typeClass(), wrapper);
+
+            return this;
+        }
+
+        /**
+         * If you are sure that you are only using a single implementation of your interface/abstract class, then it
+         * makes sense to map it directly to its impl class to avoid writing the type.
+         * <p>
+         * Note that the type is always written when your field is {@link java.lang.Object}.
+         * <p>
+         * Pojo ids start at 1.
+         */
+        @Override
+        public <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass) {
+            if (strategy.pojoMapping.containsKey(baseClass))
+                throw new IllegalArgumentException("Duplicate registration for: " + baseClass);
+
+            BaseHS<?> wrapper = strategy.pojoMapping.get(implClass);
+            if (wrapper == null)
+                throw new IllegalArgumentException("Must register the impl class first. " + implClass);
+
+            strategy.pojoMapping.put(baseClass, wrapper);
+
+            return this;
+        }
+
+        /**
+         * Register a {@link Delegate} and assign an id.
+         * <p>
+         * Delegate ids start at 1.
+         */
+        @Override
+        public <T> Registry registerDelegate(Delegate<T> delegate, int id) {
+            if (id < 1)
+                throw new IllegalArgumentException("delegate ids start at 1.");
+
+            if (id >= strategy.delegates.size())
+                grow(strategy.delegates, id + 1);
+            else if (strategy.delegates.get(id) != null) {
+                throw new IllegalArgumentException("Duplicate id registration: " + id +
+                        " (" + delegate.typeClass() + ")");
+            }
+
+            RegisteredDelegate<T> rd = new RegisteredDelegate<>(id, delegate);
+            strategy.delegates.set(id, rd);
+            // just in case
+            if (strategy.delegateMapping.put(delegate.typeClass(), rd) != null)
+                throw new IllegalArgumentException("Duplicate registration for: " + delegate.typeClass());
+
+            return this;
+        }
+    }
+
+    static final class RuntimeCollectionFactory implements CollectionSchema.MessageFactory {
         volatile int id;
         CollectionSchema.MessageFactory factory;
 
@@ -923,8 +832,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
         @Override
         @SuppressWarnings("unchecked")
-        public <V> Collection<V> newMessage()
-        {
+        public <V> Collection<V> newMessage() {
             if (factory == null)
                 return (Collection<V>) instantiator.newInstance();
 
@@ -932,14 +840,12 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
         }
 
         @Override
-        public Class<?> typeClass()
-        {
+        public Class<?> typeClass() {
             return factory == null ? collectionClass : factory.typeClass();
         }
     }
 
-    static final class RuntimeMapFactory implements MapSchema.MessageFactory
-    {
+    static final class RuntimeMapFactory implements MapSchema.MessageFactory {
         volatile int id;
         MapSchema.MessageFactory factory;
 
@@ -948,8 +854,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
 
         @Override
         @SuppressWarnings("unchecked")
-        public <K, V> Map<K, V> newMessage()
-        {
+        public <K, V> Map<K, V> newMessage() {
             if (factory == null)
                 return (Map<K, V>) instantiator.newInstance();
 
@@ -957,31 +862,26 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
         }
 
         @Override
-        public Class<?> typeClass()
-        {
+        public Class<?> typeClass() {
             return factory == null ? mapClass : factory.typeClass();
         }
     }
 
-    static final class RuntimeEnumIO
-    {
+    static final class RuntimeEnumIO {
         volatile int id;
         EnumIO<?> eio;
     }
 
-    static abstract class BaseHS<T> extends HasSchema<T>
-    {
+    static abstract class BaseHS<T> extends HasSchema<T> {
         volatile int id;
     }
 
-    static final class Registered<T> extends BaseHS<T>
-    {
+    static final class Registered<T> extends BaseHS<T> {
 
         final Schema<T> schema;
         final Pipe.Schema<T> pipeSchema;
 
-        Registered(int id, Schema<T> schema, Pipe.Schema<T> pipeSchema)
-        {
+        Registered(int id, Schema<T> schema, Pipe.Schema<T> pipeSchema) {
             this.id = id;
 
             this.schema = schema;
@@ -989,57 +889,43 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
         }
 
         @Override
-        public Schema<T> getSchema()
-        {
+        public Schema<T> getSchema() {
             return schema;
         }
 
         @Override
-        public io.protostuff.Pipe.Schema<T> getPipeSchema()
-        {
+        public io.protostuff.Pipe.Schema<T> getPipeSchema() {
             return pipeSchema;
         }
     }
 
-    static final class Lazy<T> extends BaseHS<T>
-    {
+    static final class Lazy<T> extends BaseHS<T> {
         final IdStrategy strategy;
         final Class<T> typeClass;
         private volatile Schema<T> schema;
         private volatile Pipe.Schema<T> pipeSchema;
 
-        Lazy(Class<T> typeClass, IdStrategy strategy)
-        {
+        Lazy(Class<T> typeClass, IdStrategy strategy) {
             this.typeClass = typeClass;
             this.strategy = strategy;
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public Schema<T> getSchema()
-        {
+        public Schema<T> getSchema() {
             Schema<T> schema = this.schema;
-            if (schema == null)
-            {
-                synchronized (this)
-                {
-                    if ((schema = this.schema) == null)
-                    {
-                        if (Message.class.isAssignableFrom(typeClass))
-                        {
+            if (schema == null) {
+                synchronized (this) {
+                    if ((schema = this.schema) == null) {
+                        if (Message.class.isAssignableFrom(typeClass)) {
                             // use the message's schema.
-                            try
-                            {
+                            try {
                                 final Message<T> m = (Message<T>) typeClass.newInstance();
                                 this.schema = schema = m.cachedSchema();
-                            }
-                            catch (InstantiationException | IllegalAccessException e)
-                            {
+                            } catch (InstantiationException | IllegalAccessException e) {
                                 throw new RuntimeException(e);
                             }
-                        }
-                        else
-                        {
+                        } else {
                             // create new
                             this.schema = schema = strategy.newSchema(typeClass);
                         }
@@ -1051,15 +937,11 @@ public final class IncrementalIdStrategy extends NumericIdStrategy
         }
 
         @Override
-        public Pipe.Schema<T> getPipeSchema()
-        {
+        public Pipe.Schema<T> getPipeSchema() {
             Pipe.Schema<T> pipeSchema = this.pipeSchema;
-            if (pipeSchema == null)
-            {
-                synchronized (this)
-                {
-                    if ((pipeSchema = this.pipeSchema) == null)
-                    {
+            if (pipeSchema == null) {
+                synchronized (this) {
+                    if ((pipeSchema = this.pipeSchema) == null) {
                         this.pipeSchema = pipeSchema = RuntimeSchema.resolvePipeSchema(
                                 getSchema(), typeClass, true);
                     }

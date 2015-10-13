@@ -1,33 +1,30 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
+import junit.framework.Assert;
+
 import java.util.Arrays;
 
-import junit.framework.Assert;
 import io.protostuff.Foo.EnumSample;
 
 /**
  * The objects to be tested.
- * 
+ *
  * @author David Yu
  */
-public final class SerializableObjects
-{
+public final class SerializableObjects {
 
     public static final Baz negativeBaz = new Baz(-567, "negativeBaz", -202020202);
     public static final Bar negativeBar = new Bar(-12, "negativeBar", negativeBaz, Bar.Status.STARTED,
@@ -38,15 +35,15 @@ public final class SerializableObjects
             ByteString.copyFromUtf8("b2"), true, 150.051f, 2000.0002d, 303030303);
 
     public static final Foo foo = newFoo(
-            new Integer[] { 90210, -90210, 0 },
-            new String[] { "ab", "cd" },
-            new Bar[] { bar, negativeBar },
-            new EnumSample[] { EnumSample.TYPE0, EnumSample.TYPE2 },
-            new ByteString[] { ByteString.copyFromUtf8("ef"), ByteString.copyFromUtf8("gh") },
-            new Boolean[] { true, false },
-            new Float[] { 1234.4321f, -1234.4321f, 0f },
-            new Double[] { 12345678.87654321d, -12345678.87654321d, 0d },
-            new Long[] { 7060504030201l, -7060504030201l, 0l });
+            new Integer[]{90210, -90210, 0},
+            new String[]{"ab", "cd"},
+            new Bar[]{bar, negativeBar},
+            new EnumSample[]{EnumSample.TYPE0, EnumSample.TYPE2},
+            new ByteString[]{ByteString.copyFromUtf8("ef"), ByteString.copyFromUtf8("gh")},
+            new Boolean[]{true, false},
+            new Float[]{1234.4321f, -1234.4321f, 0f},
+            new Double[]{12345678.87654321d, -12345678.87654321d, 0d},
+            new Long[]{7060504030201l, -7060504030201l, 0l});
 
     public static Foo newFoo(
             Integer[] someInt,
@@ -57,8 +54,7 @@ public final class SerializableObjects
             Boolean[] someBoolean,
             Float[] someFloat,
             Double[] someDouble,
-            Long[] someLong)
-    {
+            Long[] someLong) {
 
         return new Foo(
                 someInt == null ? null : Arrays.asList(someInt),
@@ -72,8 +68,7 @@ public final class SerializableObjects
                 someLong == null ? null : Arrays.asList(someLong));
     }
 
-    public static <T> void assertEquals(T m1, T m2)
-    {
+    public static <T> void assertEquals(T m1, T m2) {
         Assert.assertEquals(m1, m2);
     }
 

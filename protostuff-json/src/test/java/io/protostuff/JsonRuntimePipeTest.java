@@ -1,43 +1,37 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.JsonPipeTest.protobufRoundTrip;
-import static io.protostuff.JsonPipeTest.protostuffRoundTrip;
 
 import io.protostuff.runtime.Bar;
 import io.protostuff.runtime.Baz;
 import io.protostuff.runtime.Foo;
-import io.protostuff.runtime.RuntimeSchema;
 import io.protostuff.runtime.PolymorphicSerializationTest;
 import io.protostuff.runtime.PolymorphicSerializationTest.Zoo;
 import io.protostuff.runtime.RuntimeSchema;
 import io.protostuff.runtime.SerializableObjects;
 
+import static io.protostuff.JsonPipeTest.protobufRoundTrip;
+import static io.protostuff.JsonPipeTest.protostuffRoundTrip;
+
 /**
  * Test case for json runtime pipes.
- * 
+ *
  * @author David Yu
  */
-public class JsonRuntimePipeTest extends AbstractTest
-{
+public class JsonRuntimePipeTest extends AbstractTest {
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Schema<Foo> schema = RuntimeSchema.getSchema(Foo.class);
         Pipe.Schema<Foo> pipeSchema = ((RuntimeSchema<Foo>) schema).getPipeSchema();
 
@@ -51,8 +45,7 @@ public class JsonRuntimePipeTest extends AbstractTest
         protostuffRoundTrip(foo, schema, pipeSchema, true);
     }
 
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         Schema<Bar> schema = RuntimeSchema.getSchema(Bar.class);
         Pipe.Schema<Bar> pipeSchema = ((RuntimeSchema<Bar>) schema).getPipeSchema();
 
@@ -66,8 +59,7 @@ public class JsonRuntimePipeTest extends AbstractTest
         protostuffRoundTrip(bar, schema, pipeSchema, true);
     }
 
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         Schema<Baz> schema = RuntimeSchema.getSchema(Baz.class);
         Pipe.Schema<Baz> pipeSchema = ((RuntimeSchema<Baz>) schema).getPipeSchema();
 
@@ -81,8 +73,7 @@ public class JsonRuntimePipeTest extends AbstractTest
         protostuffRoundTrip(baz, schema, pipeSchema, true);
     }
 
-    public void testPolymorphic() throws Exception
-    {
+    public void testPolymorphic() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
         Pipe.Schema<Zoo> pipeSchema = ((RuntimeSchema<Zoo>) schema).getPipeSchema();
 

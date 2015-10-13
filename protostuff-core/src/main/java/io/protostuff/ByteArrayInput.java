@@ -1,20 +1,22 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import io.protostuff.StringSerializer.STRING;
 
 import static io.protostuff.WireFormat.TAG_TYPE_BITS;
 import static io.protostuff.WireFormat.TAG_TYPE_MASK;
@@ -29,37 +31,29 @@ import static io.protostuff.WireFormat.getTagFieldNumber;
 import static io.protostuff.WireFormat.getTagWireType;
 import static io.protostuff.WireFormat.makeTag;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import io.protostuff.StringSerializer.STRING;
-
 /**
- * Reads and decodes protocol buffer message fields from an internal byte array buffer. This object is re-usable via
- * doing a reset on the byte array position and length. This is used internally by {@link IOUtil} where it catches
- * {@link ArrayIndexOutOfBoundsException} when a message is truncated.
- * 
+ * Reads and decodes protocol buffer message fields from an internal byte array buffer. This object
+ * is re-usable via doing a reset on the byte array position and length. This is used internally by
+ * {@link IOUtil} where it catches {@link ArrayIndexOutOfBoundsException} when a message is
+ * truncated.
+ *
  * @author David Yu
  */
-public final class ByteArrayInput implements Input
-{
-
-    private final byte[] buffer;
-    private int offset, limit, lastTag = 0;
-    private int packedLimit = 0;
+public final class ByteArrayInput implements Input {
 
     /**
      * If true, the nested messages are group-encoded
      */
     public final boolean decodeNestedMessageAsGroup;
+    private final byte[] buffer;
+    private int offset, limit, lastTag = 0;
+    private int packedLimit = 0;
 
-    public ByteArrayInput(byte[] buffer, boolean decodeNestedMessageAsGroup)
-    {
+    public ByteArrayInput(byte[] buffer, boolean decodeNestedMessageAsGroup) {
         this(buffer, 0, buffer.length, decodeNestedMessageAsGroup);
     }
 
-    public ByteArrayInput(byte[] buffer, int offset, int len, boolean decodeNestedMessageAsGroup)
-    {
+    public ByteArrayInput(byte[] buffer, int offset, int len, boolean decodeNestedMessageAsGroup) {
         this.buffer = buffer;
         this.offset = offset;
         this.limit = offset + len;
@@ -69,8 +63,7 @@ public final class ByteArrayInput implements Input
     /**
      * Resets the offset and the limit of the internal buffer.
      */
-    public ByteArrayInput reset(int offset, int len)
-    {
+    public ByteArrayInput reset(int offset, int len) {
         if (len < 0)
             throw new IllegalArgumentException("length cannot be negative.");
 
@@ -83,8 +76,7 @@ public final class ByteArrayInput implements Input
     /**
      * Sets the offset and limit (which effectively re-uses this input).
      */
-    public ByteArrayInput setBounds(int offset, int limit)
-    {
+    public ByteArrayInput setBounds(int offset, int limit) {
         this.offset = offset;
         this.limit = limit;
         this.packedLimit = 0;
@@ -94,50 +86,44 @@ public final class ByteArrayInput implements Input
     /**
      * Returns the current offset (the position).
      */
-    public int currentOffset()
-    {
+    public int currentOffset() {
         return offset;
     }
 
     /**
      * Returns the current limit (the end index).
      */
-    public int currentLimit()
-    {
+    public int currentLimit() {
         return limit;
     }
 
     /**
      * Return true if currently reading packed field
      */
-    public boolean isCurrentFieldPacked()
-    {
+    public boolean isCurrentFieldPacked() {
         return packedLimit != 0 && packedLimit != offset;
     }
 
     /**
      * Returns the last tag.
      */
-    public int getLastTag()
-    {
+    public int getLastTag() {
         return lastTag;
     }
 
     /**
-     * Attempt to read a field tag, returning zero if we have reached EOF. Protocol message parsers use this to read
-     * tags, since a protocol message may legally end wherever a tag occurs, and zero is not a valid tag number.
+     * Attempt to read a field tag, returning zero if we have reached EOF. Protocol message parsers
+     * use this to read tags, since a protocol message may legally end wherever a tag occurs, and
+     * zero is not a valid tag number.
      */
-    public int readTag() throws IOException
-    {
-        if (offset == limit)
-        {
+    public int readTag() throws IOException {
+        if (offset == limit) {
             lastTag = 0;
             return 0;
         }
 
         final int tag = readRawVarint32();
-        if (tag >>> TAG_TYPE_BITS == 0)
-        {
+        if (tag >>> TAG_TYPE_BITS == 0) {
             // If we actually read zero, that's not a valid tag.
             throw ProtobufException.invalidTag();
         }
@@ -146,30 +132,25 @@ public final class ByteArrayInput implements Input
     }
 
     /**
-     * Verifies that the last call to readTag() returned the given tag value. This is used to verify that a nested group
-     * ended with the correct end tag.
-     * 
-     * @throws ProtobufException
-     *             {@code value} does not match the last tag.
+     * Verifies that the last call to readTag() returned the given tag value. This is used to verify
+     * that a nested group ended with the correct end tag.
+     *
+     * @throws ProtobufException {@code value} does not match the last tag.
      */
-    public void checkLastTagWas(final int value) throws ProtobufException
-    {
-        if (lastTag != value)
-        {
+    public void checkLastTagWas(final int value) throws ProtobufException {
+        if (lastTag != value) {
             throw ProtobufException.invalidEndTag();
         }
     }
 
     /**
      * Reads and discards a single field, given its tag value.
-     * 
-     * @return {@code false} if the tag is an endgroup tag, in which case nothing is skipped. Otherwise, returns
-     *         {@code true}.
+     *
+     * @return {@code false} if the tag is an endgroup tag, in which case nothing is skipped.
+     * Otherwise, returns {@code true}.
      */
-    public boolean skipField(final int tag) throws IOException
-    {
-        switch (getTagWireType(tag))
-        {
+    public boolean skipField(final int tag) throws IOException {
+        switch (getTagWireType(tag)) {
             case WIRETYPE_VARINT:
                 readInt32();
                 return true;
@@ -197,39 +178,32 @@ public final class ByteArrayInput implements Input
     }
 
     /**
-     * Reads and discards an entire message. This will read either until EOF or until an endgroup tag, whichever comes
-     * first.
+     * Reads and discards an entire message. This will read either until EOF or until an endgroup
+     * tag, whichever comes first.
      */
-    public void skipMessage() throws IOException
-    {
-        while (true)
-        {
+    public void skipMessage() throws IOException {
+        while (true) {
             final int tag = readTag();
-            if (tag == 0 || !skipField(tag))
-            {
+            if (tag == 0 || !skipField(tag)) {
                 return;
             }
         }
     }
 
     @Override
-    public <T> void handleUnknownField(int fieldNumber, Schema<T> schema) throws IOException
-    {
+    public <T> void handleUnknownField(int fieldNumber, Schema<T> schema) throws IOException {
         skipField(lastTag);
     }
 
     @Override
-    public <T> int readFieldNumber(Schema<T> schema) throws IOException
-    {
-        if (offset == limit)
-        {
+    public <T> int readFieldNumber(Schema<T> schema) throws IOException {
+        if (offset == limit) {
             lastTag = 0;
             return 0;
         }
 
         // are we reading packed field?
-        if (isCurrentFieldPacked())
-        {
+        if (isCurrentFieldPacked()) {
             if (packedLimit < offset)
                 throw ProtobufException.misreportedSize();
 
@@ -240,11 +214,9 @@ public final class ByteArrayInput implements Input
         packedLimit = 0;
         final int tag = readRawVarint32();
         final int fieldNumber = tag >>> TAG_TYPE_BITS;
-        if (fieldNumber == 0)
-        {
+        if (fieldNumber == 0) {
             if (decodeNestedMessageAsGroup &&
-                    WIRETYPE_TAIL_DELIMITER == (tag & TAG_TYPE_MASK))
-            {
+                    WIRETYPE_TAIL_DELIMITER == (tag & TAG_TYPE_MASK)) {
                 // protostuff's tail delimiter for streaming
                 // 2 options: length-delimited or tail-delimited.
                 lastTag = 0;
@@ -253,8 +225,7 @@ public final class ByteArrayInput implements Input
             // If we actually read zero, that's not a valid tag.
             throw ProtobufException.invalidTag();
         }
-        if (decodeNestedMessageAsGroup && WIRETYPE_END_GROUP == (tag & TAG_TYPE_MASK))
-        {
+        if (decodeNestedMessageAsGroup && WIRETYPE_END_GROUP == (tag & TAG_TYPE_MASK)) {
             lastTag = 0;
             return 0;
         }
@@ -264,16 +235,12 @@ public final class ByteArrayInput implements Input
     }
 
     /**
-     * Check if this field have been packed into a length-delimited field. If so, update internal state to reflect that
-     * packed fields are being read.
-     * 
-     * @throws IOException
+     * Check if this field have been packed into a length-delimited field. If so, update internal
+     * state to reflect that packed fields are being read.
      */
-    private void checkIfPackedField() throws IOException
-    {
+    private void checkIfPackedField() throws IOException {
         // Do we have the start of a packed field?
-        if (packedLimit == 0 && getTagWireType(lastTag) == WIRETYPE_LENGTH_DELIMITED)
-        {
+        if (packedLimit == 0 && getTagWireType(lastTag) == WIRETYPE_LENGTH_DELIMITED) {
             final int length = readRawVarint32();
             if (length < 0)
                 throw ProtobufException.negativeSize();
@@ -289,8 +256,7 @@ public final class ByteArrayInput implements Input
      * Read a {@code double} field value from the internal buffer.
      */
     @Override
-    public double readDouble() throws IOException
-    {
+    public double readDouble() throws IOException {
         checkIfPackedField();
         return Double.longBitsToDouble(readRawLittleEndian64());
     }
@@ -299,8 +265,7 @@ public final class ByteArrayInput implements Input
      * Read a {@code float} field value from the internal buffer.
      */
     @Override
-    public float readFloat() throws IOException
-    {
+    public float readFloat() throws IOException {
         checkIfPackedField();
         return Float.intBitsToFloat(readRawLittleEndian32());
     }
@@ -309,8 +274,7 @@ public final class ByteArrayInput implements Input
      * Read a {@code uint64} field value from the internal buffer.
      */
     @Override
-    public long readUInt64() throws IOException
-    {
+    public long readUInt64() throws IOException {
         checkIfPackedField();
         return readRawVarint64();
     }
@@ -319,8 +283,7 @@ public final class ByteArrayInput implements Input
      * Read an {@code int64} field value from the internal buffer.
      */
     @Override
-    public long readInt64() throws IOException
-    {
+    public long readInt64() throws IOException {
         checkIfPackedField();
         return readRawVarint64();
     }
@@ -329,8 +292,7 @@ public final class ByteArrayInput implements Input
      * Read an {@code int32} field value from the internal buffer.
      */
     @Override
-    public int readInt32() throws IOException
-    {
+    public int readInt32() throws IOException {
         checkIfPackedField();
         return readRawVarint32();
     }
@@ -339,8 +301,7 @@ public final class ByteArrayInput implements Input
      * Read a {@code fixed64} field value from the internal buffer.
      */
     @Override
-    public long readFixed64() throws IOException
-    {
+    public long readFixed64() throws IOException {
         checkIfPackedField();
         return readRawLittleEndian64();
     }
@@ -349,8 +310,7 @@ public final class ByteArrayInput implements Input
      * Read a {@code fixed32} field value from the internal buffer.
      */
     @Override
-    public int readFixed32() throws IOException
-    {
+    public int readFixed32() throws IOException {
         checkIfPackedField();
         return readRawLittleEndian32();
     }
@@ -359,8 +319,7 @@ public final class ByteArrayInput implements Input
      * Read a {@code bool} field value from the internal buffer.
      */
     @Override
-    public boolean readBool() throws IOException
-    {
+    public boolean readBool() throws IOException {
         checkIfPackedField();
         return buffer[offset++] != 0;
     }
@@ -369,19 +328,17 @@ public final class ByteArrayInput implements Input
      * Read a {@code uint32} field value from the internal buffer.
      */
     @Override
-    public int readUInt32() throws IOException
-    {
+    public int readUInt32() throws IOException {
         checkIfPackedField();
         return readRawVarint32();
     }
 
     /**
-     * Read an enum field value from the internal buffer. Caller is responsible for converting the numeric value to an
-     * actual enum.
+     * Read an enum field value from the internal buffer. Caller is responsible for converting the
+     * numeric value to an actual enum.
      */
     @Override
-    public int readEnum() throws IOException
-    {
+    public int readEnum() throws IOException {
         checkIfPackedField();
         return readRawVarint32();
     }
@@ -390,8 +347,7 @@ public final class ByteArrayInput implements Input
      * Read an {@code sfixed32} field value from the internal buffer.
      */
     @Override
-    public int readSFixed32() throws IOException
-    {
+    public int readSFixed32() throws IOException {
         checkIfPackedField();
         return readRawLittleEndian32();
     }
@@ -400,8 +356,7 @@ public final class ByteArrayInput implements Input
      * Read an {@code sfixed64} field value from the internal buffer.
      */
     @Override
-    public long readSFixed64() throws IOException
-    {
+    public long readSFixed64() throws IOException {
         checkIfPackedField();
         return readRawLittleEndian64();
     }
@@ -410,8 +365,7 @@ public final class ByteArrayInput implements Input
      * Read an {@code sint32} field value from the internal buffer.
      */
     @Override
-    public int readSInt32() throws IOException
-    {
+    public int readSInt32() throws IOException {
         checkIfPackedField();
         final int n = readRawVarint32();
         return (n >>> 1) ^ -(n & 1);
@@ -421,16 +375,14 @@ public final class ByteArrayInput implements Input
      * Read an {@code sint64} field value from the internal buffer.
      */
     @Override
-    public long readSInt64() throws IOException
-    {
+    public long readSInt64() throws IOException {
         checkIfPackedField();
         final long n = readRawVarint64();
         return (n >>> 1) ^ -(n & 1);
     }
 
     @Override
-    public String readString() throws IOException
-    {
+    public String readString() throws IOException {
         final int length = readRawVarint32();
         if (length < 0)
             throw ProtobufException.negativeSize();
@@ -446,14 +398,12 @@ public final class ByteArrayInput implements Input
     }
 
     @Override
-    public ByteString readBytes() throws IOException
-    {
+    public ByteString readBytes() throws IOException {
         return ByteString.wrap(readByteArray());
     }
 
     @Override
-    public byte[] readByteArray() throws IOException
-    {
+    public byte[] readByteArray() throws IOException {
         final int length = readRawVarint32();
         if (length < 0)
             throw ProtobufException.negativeSize();
@@ -470,8 +420,7 @@ public final class ByteArrayInput implements Input
     }
 
     @Override
-    public <T> T mergeObject(T value, final Schema<T> schema) throws IOException
-    {
+    public <T> T mergeObject(T value, final Schema<T> schema) throws IOException {
         if (decodeNestedMessageAsGroup)
             return mergeObjectEncodedAsGroup(value, schema);
 
@@ -495,8 +444,7 @@ public final class ByteArrayInput implements Input
         return value;
     }
 
-    private <T> T mergeObjectEncodedAsGroup(T value, final Schema<T> schema) throws IOException
-    {
+    private <T> T mergeObjectEncodedAsGroup(T value, final Schema<T> schema) throws IOException {
         if (value == null)
             value = schema.newMessage();
         schema.mergeFrom(this, value);
@@ -508,43 +456,29 @@ public final class ByteArrayInput implements Input
     /**
      * Reads a var int 32 from the internal byte buffer.
      */
-    public int readRawVarint32() throws IOException
-    {
+    public int readRawVarint32() throws IOException {
         byte tmp = buffer[offset++];
-        if (tmp >= 0)
-        {
+        if (tmp >= 0) {
             return tmp;
         }
         int result = tmp & 0x7f;
-        if ((tmp = buffer[offset++]) >= 0)
-        {
+        if ((tmp = buffer[offset++]) >= 0) {
             result |= tmp << 7;
-        }
-        else
-        {
+        } else {
             result |= (tmp & 0x7f) << 7;
-            if ((tmp = buffer[offset++]) >= 0)
-            {
+            if ((tmp = buffer[offset++]) >= 0) {
                 result |= tmp << 14;
-            }
-            else
-            {
+            } else {
                 result |= (tmp & 0x7f) << 14;
-                if ((tmp = buffer[offset++]) >= 0)
-                {
+                if ((tmp = buffer[offset++]) >= 0) {
                     result |= tmp << 21;
-                }
-                else
-                {
+                } else {
                     result |= (tmp & 0x7f) << 21;
                     result |= (tmp = buffer[offset++]) << 28;
-                    if (tmp < 0)
-                    {
+                    if (tmp < 0) {
                         // Discard upper 32 bits.
-                        for (int i = 0; i < 5; i++)
-                        {
-                            if (buffer[offset++] >= 0)
-                            {
+                        for (int i = 0; i < 5; i++) {
+                            if (buffer[offset++] >= 0) {
                                 return result;
                             }
                         }
@@ -559,19 +493,16 @@ public final class ByteArrayInput implements Input
     /**
      * Reads a var int 64 from the internal byte buffer.
      */
-    public long readRawVarint64() throws IOException
-    {
+    public long readRawVarint64() throws IOException {
         final byte[] buffer = this.buffer;
         int offset = this.offset;
 
         int shift = 0;
         long result = 0;
-        while (shift < 64)
-        {
+        while (shift < 64) {
             final byte b = buffer[offset++];
             result |= (long) (b & 0x7F) << shift;
-            if ((b & 0x80) == 0)
-            {
+            if ((b & 0x80) == 0) {
                 this.offset = offset;
                 return result;
             }
@@ -583,8 +514,7 @@ public final class ByteArrayInput implements Input
     /**
      * Read a 32-bit little-endian integer from the internal buffer.
      */
-    public int readRawLittleEndian32() throws IOException
-    {
+    public int readRawLittleEndian32() throws IOException {
         final byte[] buffer = this.buffer;
         int offset = this.offset;
 
@@ -604,8 +534,7 @@ public final class ByteArrayInput implements Input
     /**
      * Read a 64-bit little-endian integer from the internal byte buffer.
      */
-    public long readRawLittleEndian64() throws IOException
-    {
+    public long readRawLittleEndian64() throws IOException {
         final byte[] buffer = this.buffer;
         int offset = this.offset;
 
@@ -632,8 +561,7 @@ public final class ByteArrayInput implements Input
 
     @Override
     public void transferByteRangeTo(Output output, boolean utf8String, int fieldNumber,
-            boolean repeated) throws IOException
-    {
+                                    boolean repeated) throws IOException {
         final int length = readRawVarint32();
         if (length < 0)
             throw ProtobufException.negativeSize();
@@ -647,8 +575,7 @@ public final class ByteArrayInput implements Input
      * Reads a byte array/ByteBuffer value.
      */
     @Override
-    public ByteBuffer readByteBuffer() throws IOException
-    {
+    public ByteBuffer readByteBuffer() throws IOException {
         return ByteBuffer.wrap(readByteArray());
     }
 }

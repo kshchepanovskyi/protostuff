@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -27,46 +24,10 @@ import io.protostuff.ProtostuffIOUtil;
 
 /**
  * Foo - for testing
- * 
+ *
  * @author David Yu
  */
-public final class Foo implements Externalizable
-{
-
-    public enum EnumSample
-    {
-        TYPE0(0), TYPE1(1), TYPE2(2), TYPE3(3), TYPE4(4);
-
-        public final int number;
-
-        EnumSample(int number)
-        {
-            this.number = number;
-        }
-
-        public int getNumber()
-        {
-            return number;
-        }
-
-        public static EnumSample valueOf(int number)
-        {
-            switch (number)
-            {
-                case 0:
-                    return TYPE0;
-                case 1:
-                    return TYPE1;
-                case 2:
-                    return TYPE2;
-                case 3:
-                    return TYPE3;
-                case 4:
-                    return TYPE4;
-            }
-            return null;
-        }
-    }
+public final class Foo implements Externalizable {
 
     private List<Integer> someInt;
     private List<String> someString;
@@ -77,17 +38,14 @@ public final class Foo implements Externalizable
     private List<Float> someFloat;
     private List<Double> someDouble;
     private List<Long> someLong;
-
-    public Foo()
-    {
+    public Foo() {
 
     }
 
     public Foo(List<Integer> someInt, List<String> someString,
-            List<Bar> someBar, List<EnumSample> someEnum,
-            List<ByteString> someBytes, List<Boolean> someBoolean,
-            List<Float> someFloat, List<Double> someDouble, List<Long> someLong)
-    {
+               List<Bar> someBar, List<EnumSample> someEnum,
+               List<ByteString> someBytes, List<Boolean> someBoolean,
+               List<Float> someFloat, List<Double> someDouble, List<Long> someLong) {
         this.someInt = someInt;
         this.someString = someString;
         this.someBar = someBar;
@@ -102,8 +60,7 @@ public final class Foo implements Externalizable
     /**
      * @return the someInt
      */
-    public List<Integer> getSomeInt()
-    {
+    public List<Integer> getSomeInt() {
         return someInt;
     }
 
@@ -111,16 +68,14 @@ public final class Foo implements Externalizable
      * @param someInt
      *            the someInt to set
      */
-    public void setSomeInt(List<Integer> someInt)
-    {
+    public void setSomeInt(List<Integer> someInt) {
         this.someInt = someInt;
     }
 
     /**
      * @return the someString
      */
-    public List<String> getSomeString()
-    {
+    public List<String> getSomeString() {
         return someString;
     }
 
@@ -128,16 +83,14 @@ public final class Foo implements Externalizable
      * @param someString
      *            the someString to set
      */
-    public void setSomeString(List<String> someString)
-    {
+    public void setSomeString(List<String> someString) {
         this.someString = someString;
     }
 
     /**
      * @return the someBar
      */
-    public List<Bar> getSomeBar()
-    {
+    public List<Bar> getSomeBar() {
         return someBar;
     }
 
@@ -145,16 +98,14 @@ public final class Foo implements Externalizable
      * @param someBar
      *            the someBar to set
      */
-    public void setSomeBar(List<Bar> someBar)
-    {
+    public void setSomeBar(List<Bar> someBar) {
         this.someBar = someBar;
     }
 
     /**
      * @return the someEnum
      */
-    public List<EnumSample> getSomeEnum()
-    {
+    public List<EnumSample> getSomeEnum() {
         return someEnum;
     }
 
@@ -162,16 +113,14 @@ public final class Foo implements Externalizable
      * @param someEnum
      *            the someEnum to set
      */
-    public void setSomeEnum(List<EnumSample> someEnum)
-    {
+    public void setSomeEnum(List<EnumSample> someEnum) {
         this.someEnum = someEnum;
     }
 
     /**
      * @return the someBytes
      */
-    public List<ByteString> getSomeBytes()
-    {
+    public List<ByteString> getSomeBytes() {
         return someBytes;
     }
 
@@ -179,16 +128,14 @@ public final class Foo implements Externalizable
      * @param someBytes
      *            the someBytes to set
      */
-    public void setSomeBytes(List<ByteString> someBytes)
-    {
+    public void setSomeBytes(List<ByteString> someBytes) {
         this.someBytes = someBytes;
     }
 
     /**
      * @return the someBoolean
      */
-    public List<Boolean> getSomeBoolean()
-    {
+    public List<Boolean> getSomeBoolean() {
         return someBoolean;
     }
 
@@ -196,16 +143,14 @@ public final class Foo implements Externalizable
      * @param someBoolean
      *            the someBoolean to set
      */
-    public void setSomeBoolean(List<Boolean> someBoolean)
-    {
+    public void setSomeBoolean(List<Boolean> someBoolean) {
         this.someBoolean = someBoolean;
     }
 
     /**
      * @return the someFloat
      */
-    public List<Float> getSomeFloat()
-    {
+    public List<Float> getSomeFloat() {
         return someFloat;
     }
 
@@ -213,16 +158,14 @@ public final class Foo implements Externalizable
      * @param someFloat
      *            the someFloat to set
      */
-    public void setSomeFloat(List<Float> someFloat)
-    {
+    public void setSomeFloat(List<Float> someFloat) {
         this.someFloat = someFloat;
     }
 
     /**
      * @return the someDouble
      */
-    public List<Double> getSomeDouble()
-    {
+    public List<Double> getSomeDouble() {
         return someDouble;
     }
 
@@ -230,16 +173,14 @@ public final class Foo implements Externalizable
      * @param someDouble
      *            the someDouble to set
      */
-    public void setSomeDouble(List<Double> someDouble)
-    {
+    public void setSomeDouble(List<Double> someDouble) {
         this.someDouble = someDouble;
     }
 
     /**
      * @return the someLong
      */
-    public List<Long> getSomeLong()
-    {
+    public List<Long> getSomeLong() {
         return someLong;
     }
 
@@ -247,27 +188,23 @@ public final class Foo implements Externalizable
      * @param someLong
      *            the someLong to set
      */
-    public void setSomeLong(List<Long> someLong)
-    {
+    public void setSomeLong(List<Long> someLong) {
         this.someLong = someLong;
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException
-    {
+    public void readExternal(ObjectInput in) throws IOException {
         ProtostuffIOUtil.mergeDelimitedFrom(in, this,
                 RuntimeSchema.getSchema(Foo.class));
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
+    public void writeExternal(ObjectOutput out) throws IOException {
         ProtostuffIOUtil.writeDelimitedTo(out, this,
                 RuntimeSchema.getSchema(Foo.class));
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((someBar == null) ? 0 : someBar.hashCode());
@@ -289,8 +226,7 @@ public final class Foo implements Externalizable
         return result;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -298,70 +234,82 @@ public final class Foo implements Externalizable
         if (getClass() != obj.getClass())
             return false;
         Foo other = (Foo) obj;
-        if (someBar == null)
-        {
+        if (someBar == null) {
             if (other.someBar != null)
                 return false;
-        }
-        else if (!someBar.equals(other.someBar))
+        } else if (!someBar.equals(other.someBar))
             return false;
-        if (someBoolean == null)
-        {
+        if (someBoolean == null) {
             if (other.someBoolean != null)
                 return false;
-        }
-        else if (!someBoolean.equals(other.someBoolean))
+        } else if (!someBoolean.equals(other.someBoolean))
             return false;
-        if (someBytes == null)
-        {
+        if (someBytes == null) {
             if (other.someBytes != null)
                 return false;
-        }
-        else if (!someBytes.equals(other.someBytes))
+        } else if (!someBytes.equals(other.someBytes))
             return false;
-        if (someDouble == null)
-        {
+        if (someDouble == null) {
             if (other.someDouble != null)
                 return false;
-        }
-        else if (!someDouble.equals(other.someDouble))
+        } else if (!someDouble.equals(other.someDouble))
             return false;
-        if (someEnum == null)
-        {
+        if (someEnum == null) {
             if (other.someEnum != null)
                 return false;
-        }
-        else if (!someEnum.equals(other.someEnum))
+        } else if (!someEnum.equals(other.someEnum))
             return false;
-        if (someFloat == null)
-        {
+        if (someFloat == null) {
             if (other.someFloat != null)
                 return false;
-        }
-        else if (!someFloat.equals(other.someFloat))
+        } else if (!someFloat.equals(other.someFloat))
             return false;
-        if (someInt == null)
-        {
+        if (someInt == null) {
             if (other.someInt != null)
                 return false;
-        }
-        else if (!someInt.equals(other.someInt))
+        } else if (!someInt.equals(other.someInt))
             return false;
-        if (someLong == null)
-        {
+        if (someLong == null) {
             if (other.someLong != null)
                 return false;
-        }
-        else if (!someLong.equals(other.someLong))
+        } else if (!someLong.equals(other.someLong))
             return false;
-        if (someString == null)
-        {
+        if (someString == null) {
             if (other.someString != null)
                 return false;
-        }
-        else if (!someString.equals(other.someString))
+        } else if (!someString.equals(other.someString))
             return false;
         return true;
+    }
+
+    public enum EnumSample {
+        TYPE0(0), TYPE1(1), TYPE2(2), TYPE3(3), TYPE4(4);
+
+        public final int number;
+
+        EnumSample(int number) {
+            this.number = number;
+        }
+
+        public static EnumSample valueOf(int number) {
+            switch (number) {
+                case 0:
+                    return TYPE0;
+                case 1:
+                    return TYPE1;
+                case 2:
+                    return TYPE2;
+                case 3:
+                    return TYPE3;
+                case 4:
+                    return TYPE4;
+            }
+            return null;
+        }
+
+        public int getNumber() {
+            return number;
+        }
     }
 
 }

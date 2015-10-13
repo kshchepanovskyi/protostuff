@@ -1,22 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.RuntimeEnv.ID_STRATEGY;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -40,26 +35,37 @@ import io.protostuff.Tag;
 import io.protostuff.runtime.RuntimeEnv.DefaultInstantiator;
 import io.protostuff.runtime.RuntimeEnv.Instantiator;
 
+import static io.protostuff.runtime.RuntimeEnv.ID_STRATEGY;
+
 /**
  * A schema that can be generated and cached at runtime for objects that have no schema. This is particularly useful for
  * pojos from 3rd party libraries.
- * 
+ *
  * @author David Yu
  */
-public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
-{
+public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
 
     public static final int MIN_TAG_VALUE = 1;
     public static final int MAX_TAG_VALUE = 536_870_911; // 2^29 - 1
     public static final String ERROR_TAG_VALUE = "Invalid tag number (value must be in range [1, 2^29-1])";
-
+    public static final int MIN_TAG_FOR_HASH_FIELD_MAP = 100;
     private static final Set<String> NO_EXCLUSIONS = Collections.emptySet();
-
-	public static final int MIN_TAG_FOR_HASH_FIELD_MAP = 100;
-
-	private final Pipe.Schema<T> pipeSchema;
-	private final FieldMap<T> fieldMap;
+    public final Instantiator<T> instantiator;
+    private final Pipe.Schema<T> pipeSchema;
+    private final FieldMap<T> fieldMap;
     private final Class<T> typeClass;
+
+    public RuntimeSchema(Class<T> typeClass, Collection<Field<T>> fields, Constructor<T> constructor) {
+        this(typeClass, fields, new DefaultInstantiator<>(
+                constructor));
+    }
+
+    public RuntimeSchema(Class<T> typeClass, Collection<Field<T>> fields, Instantiator<T> instantiator) {
+        this.fieldMap = createFieldMap(fields);
+        this.pipeSchema = new RuntimePipeSchema<>(this, fieldMap);
+        this.instantiator = instantiator;
+        this.typeClass = typeClass;
+    }
 
     /**
      * Maps the {@code baseClass} to a specific non-interface/non-abstract {@code typeClass} and registers it (this must
@@ -70,12 +76,11 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * Returns true if the baseClass does not exist.
      * <p>
      * NOTE: This is only supported when {@link RuntimeEnv#ID_STRATEGY} is {@link DefaultIdStrategy}.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the {@code typeClass} is an interface or an abstract class.
      */
-    public static <T> boolean map(Class<? super T> baseClass, Class<T> typeClass)
-    {
+    public static <T> boolean map(Class<? super T> baseClass, Class<T> typeClass) {
         if (ID_STRATEGY instanceof DefaultIdStrategy)
             return ((DefaultIdStrategy) ID_STRATEGY).map(baseClass, typeClass);
 
@@ -89,8 +94,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * <p>
      * NOTE: This is only supported when {@link RuntimeEnv#ID_STRATEGY} is {@link DefaultIdStrategy}.
      */
-    public static <T> boolean register(Class<T> typeClass, Schema<T> schema)
-    {
+    public static <T> boolean register(Class<T> typeClass, Schema<T> schema) {
         if (ID_STRATEGY instanceof DefaultIdStrategy)
             return ((DefaultIdStrategy) ID_STRATEGY).registerPojo(typeClass,
                     schema);
@@ -104,16 +108,14 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * <p>
      * Method overload for backwards compatibility.
      */
-    public static boolean isRegistered(Class<?> typeClass)
-    {
+    public static boolean isRegistered(Class<?> typeClass) {
         return isRegistered(typeClass, ID_STRATEGY);
     }
 
     /**
      * Returns true if the {@code typeClass} was not lazily created.
      */
-    public static boolean isRegistered(Class<?> typeClass, IdStrategy strategy)
-    {
+    public static boolean isRegistered(Class<?> typeClass, IdStrategy strategy) {
         return strategy.isRegistered(typeClass);
     }
 
@@ -122,8 +124,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * <p>
      * Method overload for backwards compatibility.
      */
-    public static <T> Schema<T> getSchema(Class<T> typeClass)
-    {
+    public static <T> Schema<T> getSchema(Class<T> typeClass) {
         return getSchema(typeClass, ID_STRATEGY);
     }
 
@@ -131,8 +132,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * Gets the schema that was either registered or lazily initialized at runtime.
      */
     public static <T> Schema<T> getSchema(Class<T> typeClass,
-            IdStrategy strategy)
-    {
+                                          IdStrategy strategy) {
         return strategy.getSchemaWrapper(typeClass, true).getSchema();
     }
 
@@ -141,8 +141,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * <p>
      * Method overload for backwards compatibility.
      */
-    static <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass)
-    {
+    static <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass) {
         return getSchemaWrapper(typeClass, ID_STRATEGY);
     }
 
@@ -150,8 +149,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * Returns the schema wrapper.
      */
     static <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass,
-            IdStrategy strategy)
-    {
+                                             IdStrategy strategy) {
         return strategy.getSchemaWrapper(typeClass, true);
     }
 
@@ -160,8 +158,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * <p>
      * Method overload for backwards compatibility.
      */
-    public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass)
-    {
+    public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass) {
         return createFrom(typeClass, NO_EXCLUSIONS, ID_STRATEGY);
     }
 
@@ -169,8 +166,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * Generates a schema from the given class.
      */
     public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass,
-            IdStrategy strategy)
-    {
+                                                  IdStrategy strategy) {
         return createFrom(typeClass, NO_EXCLUSIONS, strategy);
     }
 
@@ -178,10 +174,9 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * Generates a schema from the given class with the exclusion of certain fields.
      */
     public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass,
-            String[] exclusions, IdStrategy strategy)
-    {
+                                                  String[] exclusions, IdStrategy strategy) {
         HashSet<String> set = new HashSet<>();
-		Collections.addAll(set, exclusions);
+        Collections.addAll(set, exclusions);
         return createFrom(typeClass, set, strategy);
     }
 
@@ -189,11 +184,9 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * Generates a schema from the given class with the exclusion of certain fields.
      */
     public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass,
-            Set<String> exclusions, IdStrategy strategy)
-    {
+                                                  Set<String> exclusions, IdStrategy strategy) {
         if (typeClass.isInterface()
-                || Modifier.isAbstract(typeClass.getModifiers()))
-        {
+                || Modifier.isAbstract(typeClass.getModifiers())) {
             throw new RuntimeException(
                     "The root object can neither be an abstract "
                             + "class nor interface: \"" + typeClass.getName());
@@ -204,12 +197,9 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
                 fieldMap.size());
         int i = 0;
         boolean annotated = false;
-        for (java.lang.reflect.Field f : fieldMap.values())
-        {
-            if (!exclusions.contains(f.getName()))
-            {
-                if (f.getAnnotation(Deprecated.class) != null)
-                {
+        for (java.lang.reflect.Field f : fieldMap.values()) {
+            if (!exclusions.contains(f.getName())) {
+                if (f.getAnnotation(Deprecated.class) != null) {
                     // this field should be ignored by ProtoStuff.
                     // preserve its field number for backward-forward compat
                     i++;
@@ -219,12 +209,10 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
                 final Tag tag = f.getAnnotation(Tag.class);
                 final int fieldMapping;
                 final String name;
-                if (tag == null)
-                {
+                if (tag == null) {
                     // Fields gets assigned mapping tags according to their
                     // definition order
-                    if (annotated)
-                    {
+                    if (annotated) {
                         throw new RuntimeException(
                                 "When using annotation-based mapping, "
                                         + "all fields must be annotated with @"
@@ -233,13 +221,10 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
                     fieldMapping = ++i;
 
                     name = f.getName();
-                }
-                else
-                {
+                } else {
                     // Fields gets assigned mapping tags according to their
                     // annotation
-                    if (!annotated && !fields.isEmpty())
-                    {
+                    if (!annotated && !fields.isEmpty()) {
                         throw new RuntimeException(
                                 "When using annotation-based mapping, "
                                         + "all fields must be annotated with @"
@@ -248,8 +233,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
                     annotated = true;
                     fieldMapping = tag.value();
 
-                    if (fieldMapping < MIN_TAG_VALUE || fieldMapping > MAX_TAG_VALUE)
-                    {
+                    if (fieldMapping < MIN_TAG_VALUE || fieldMapping > MAX_TAG_VALUE) {
                         throw new IllegalArgumentException(ERROR_TAG_VALUE + ": " + fieldMapping + " on " + typeClass);
                     }
 
@@ -271,11 +255,9 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      * of a the Map's entry will be the name used for the field (which enables aliasing).
      */
     public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass,
-            Map<String, String> declaredFields, IdStrategy strategy)
-    {
+                                                  Map<String, String> declaredFields, IdStrategy strategy) {
         if (typeClass.isInterface()
-                || Modifier.isAbstract(typeClass.getModifiers()))
-        {
+                || Modifier.isAbstract(typeClass.getModifiers())) {
             throw new RuntimeException(
                     "The root object can neither be an abstract "
                             + "class nor interface: \"" + typeClass.getName());
@@ -284,22 +266,17 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
         final ArrayList<Field<T>> fields = new ArrayList<>(
                 declaredFields.size());
         int i = 0;
-        for (Map.Entry<String, String> entry : declaredFields.entrySet())
-        {
+        for (Map.Entry<String, String> entry : declaredFields.entrySet()) {
             final java.lang.reflect.Field f;
-            try
-            {
+            try {
                 f = typeClass.getDeclaredField(entry.getKey());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Exception on field: "
                         + entry.getKey(), e);
             }
 
             final int mod = f.getModifiers();
-            if (!Modifier.isStatic(mod) && !Modifier.isTransient(mod) && f.getAnnotation(Exclude.class) == null)
-            {
+            if (!Modifier.isStatic(mod) && !Modifier.isTransient(mod) && f.getAnnotation(Exclude.class) == null) {
                 final Field<T> field = RuntimeFieldFactory.getFieldFactory(
                         f.getType(), strategy).create(++i, entry.getValue(), f,
                         strategy);
@@ -310,159 +287,22 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
     }
 
     static Map<String, java.lang.reflect.Field> findInstanceFields(
-            Class<?> typeClass)
-    {
+            Class<?> typeClass) {
         LinkedHashMap<String, java.lang.reflect.Field> fieldMap = new LinkedHashMap<>();
         fill(fieldMap, typeClass);
         return fieldMap;
     }
 
     static void fill(Map<String, java.lang.reflect.Field> fieldMap,
-            Class<?> typeClass)
-    {
+                     Class<?> typeClass) {
         if (Object.class != typeClass.getSuperclass())
             fill(fieldMap, typeClass.getSuperclass());
 
-        for (java.lang.reflect.Field f : typeClass.getDeclaredFields())
-        {
+        for (java.lang.reflect.Field f : typeClass.getDeclaredFields()) {
             int mod = f.getModifiers();
             if (!Modifier.isStatic(mod) && !Modifier.isTransient(mod) && f.getAnnotation(Exclude.class) == null)
                 fieldMap.put(f.getName(), f);
         }
-    }
-
-    public final Instantiator<T> instantiator;
-
-    public RuntimeSchema(Class<T> typeClass, Collection<Field<T>> fields, Constructor<T> constructor)
-    {
-        this(typeClass, fields, new DefaultInstantiator<>(
-                constructor));
-    }
-
-    public RuntimeSchema(Class<T> typeClass, Collection<Field<T>> fields, Instantiator<T> instantiator)
-    {
-		this.fieldMap = createFieldMap(fields);
-		this.pipeSchema = new RuntimePipeSchema<>(this, fieldMap);
-        this.instantiator = instantiator;
-        this.typeClass = typeClass;
-    }
-
-	private FieldMap<T> createFieldMap(Collection<Field<T>> fields)
-	{
-		int lastFieldNumber = 0;
-		for (Field<T> field : fields)
-		{
-			if (field.number > lastFieldNumber)
-			{
-				lastFieldNumber = field.number;
-			}
-		}
-		if (preferHashFieldMap(fields, lastFieldNumber))
-		{
-			return new HashFieldMap<>(fields);
-		}
-		// array field map should be more efficient
-		return new ArrayFieldMap<>(fields, lastFieldNumber);
-	}
-
-	private boolean preferHashFieldMap(Collection<Field<T>> fields, int lastFieldNumber)
-	{
-		return lastFieldNumber > MIN_TAG_FOR_HASH_FIELD_MAP && lastFieldNumber >= 2 * fields.size();
-	}
-
-	/**
-	 * Returns the pipe schema linked to this.
-	 */
-	public Pipe.Schema<T> getPipeSchema()
-	{
-		return pipeSchema;
-	}
-
-	@Override
-	public Field<T> getFieldByNumber(int n)
-	{
-		return fieldMap.getFieldByNumber(n);
-	}
-
-	@Override
-	public Field<T> getFieldByName(String fieldName)
-	{
-		return fieldMap.getFieldByName(fieldName);
-	}
-
-	@Override
-	public int getFieldCount()
-	{
-		return fieldMap.getFieldCount();
-	}
-
-	@Override
-	public List<Field<T>> getFields()
-	{
-		return fieldMap.getFields();
-	}
-
-    @Override
-    public Class<T> typeClass()
-    {
-        return typeClass;
-    }
-
-    @Override
-    public String messageName()
-    {
-        return typeClass.getSimpleName();
-    }
-
-    @Override
-    public String messageFullName()
-    {
-        return typeClass.getName();
-    }
-
-    @Override
-    public String getFieldName(int number)
-    {
-        // only called on writes
-        final Field<T> field = getFieldByNumber(number);
-        return field == null ? null : field.name;
-    }
-
-    @Override
-    public int getFieldNumber(String name)
-    {
-        final Field<T> field = getFieldByName(name);
-        return field == null ? 0 : field.number;
-    }
-
-    @Override
-    public final void mergeFrom(Input input, T message) throws IOException
-    {
-        for (int n = input.readFieldNumber(this); n != 0; n = input.readFieldNumber(this))
-        {
-            final Field<T> field = getFieldByNumber(n);
-            if (field == null)
-            {
-                input.handleUnknownField(n, this);
-            }
-            else
-            {
-                field.mergeFrom(input, message);
-            }
-        }
-    }
-
-    @Override
-    public final void writeTo(Output output, T message) throws IOException
-    {
-        for (Field<T> f : getFields())
-            f.writeTo(output, message);
-    }
-
-    @Override
-    public T newMessage()
-    {
-        return instantiator.newInstance();
     }
 
     /**
@@ -470,18 +310,13 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
      */
     @SuppressWarnings("unchecked")
     static <T> Pipe.Schema<T> resolvePipeSchema(Schema<T> schema,
-            Class<? super T> clazz, boolean throwIfNone)
-    {
-        if (Message.class.isAssignableFrom(clazz))
-        {
-            try
-            {
+                                                Class<? super T> clazz, boolean throwIfNone) {
+        if (Message.class.isAssignableFrom(clazz)) {
+            try {
                 // use the pipe schema of code-generated messages if available.
                 java.lang.reflect.Method m = clazz.getDeclaredMethod("getPipeSchema");
                 return (Pipe.Schema<T>) m.invoke(null);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 // ignore
             }
         }
@@ -493,5 +328,101 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T>
             throw new RuntimeException("No pipe schema for: " + clazz);
 
         return null;
+    }
+
+    private FieldMap<T> createFieldMap(Collection<Field<T>> fields) {
+        int lastFieldNumber = 0;
+        for (Field<T> field : fields) {
+            if (field.number > lastFieldNumber) {
+                lastFieldNumber = field.number;
+            }
+        }
+        if (preferHashFieldMap(fields, lastFieldNumber)) {
+            return new HashFieldMap<>(fields);
+        }
+        // array field map should be more efficient
+        return new ArrayFieldMap<>(fields, lastFieldNumber);
+    }
+
+    private boolean preferHashFieldMap(Collection<Field<T>> fields, int lastFieldNumber) {
+        return lastFieldNumber > MIN_TAG_FOR_HASH_FIELD_MAP && lastFieldNumber >= 2 * fields.size();
+    }
+
+    /**
+     * Returns the pipe schema linked to this.
+     */
+    public Pipe.Schema<T> getPipeSchema() {
+        return pipeSchema;
+    }
+
+    @Override
+    public Field<T> getFieldByNumber(int n) {
+        return fieldMap.getFieldByNumber(n);
+    }
+
+    @Override
+    public Field<T> getFieldByName(String fieldName) {
+        return fieldMap.getFieldByName(fieldName);
+    }
+
+    @Override
+    public int getFieldCount() {
+        return fieldMap.getFieldCount();
+    }
+
+    @Override
+    public List<Field<T>> getFields() {
+        return fieldMap.getFields();
+    }
+
+    @Override
+    public Class<T> typeClass() {
+        return typeClass;
+    }
+
+    @Override
+    public String messageName() {
+        return typeClass.getSimpleName();
+    }
+
+    @Override
+    public String messageFullName() {
+        return typeClass.getName();
+    }
+
+    @Override
+    public String getFieldName(int number) {
+        // only called on writes
+        final Field<T> field = getFieldByNumber(number);
+        return field == null ? null : field.name;
+    }
+
+    @Override
+    public int getFieldNumber(String name) {
+        final Field<T> field = getFieldByName(name);
+        return field == null ? 0 : field.number;
+    }
+
+    @Override
+    public final void mergeFrom(Input input, T message) throws IOException {
+        for (int n = input.readFieldNumber(this); n != 0; n = input.readFieldNumber(this)) {
+            final Field<T> field = getFieldByNumber(n);
+            if (field == null) {
+                input.handleUnknownField(n, this);
+            } else {
+                field.mergeFrom(input, message);
+            }
+        }
+    }
+
+    @Override
+    public final void writeTo(Output output, T message) throws IOException {
+        for (Field<T> f : getFields())
+            f.writeTo(output, message);
+    }
+
+    @Override
+    public T newMessage() {
+        return instantiator.newInstance();
     }
 }

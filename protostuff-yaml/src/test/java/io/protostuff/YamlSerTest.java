@@ -1,26 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.SerializableObjects.bar;
-import static io.protostuff.SerializableObjects.baz;
-import static io.protostuff.SerializableObjects.foo;
-import static io.protostuff.SerializableObjects.negativeBar;
-import static io.protostuff.SerializableObjects.negativeBaz;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,38 +21,42 @@ import java.util.List;
 
 import io.protostuff.StringSerializer.STRING;
 
+import static io.protostuff.SerializableObjects.bar;
+import static io.protostuff.SerializableObjects.baz;
+import static io.protostuff.SerializableObjects.foo;
+import static io.protostuff.SerializableObjects.negativeBar;
+import static io.protostuff.SerializableObjects.negativeBaz;
+
 /**
  * Serialization tests for yaml.
- * 
+ *
  * @author David Yu
  */
-public class YamlSerTest extends AbstractTest
-{
+public class YamlSerTest extends AbstractTest {
 
-    public <T> byte[] toByteArray(T message, Schema<T> schema)
-    {
+    static void print(String str) {
+        // System.err.println(str);
+    }
+
+    public <T> byte[] toByteArray(T message, Schema<T> schema) {
         return YamlIOUtil.toByteArray(message, schema, buf());
     }
 
-    public <T> int writeTo(OutputStream out, T message, Schema<T> schema) throws IOException
-    {
+    public <T> int writeTo(OutputStream out, T message, Schema<T> schema) throws IOException {
         return YamlIOUtil.writeTo(out, message, schema, buf());
     }
 
     public <T> int writeListTo(OutputStream out, List<T> messages, Schema<T> schema)
-            throws IOException
-    {
+            throws IOException {
         return YamlIOUtil.writeListTo(out, messages, schema, buf());
     }
 
     public <T> int writeListTo(LinkedBuffer buffer, List<T> messages, Schema<T> schema)
-            throws IOException
-    {
+            throws IOException {
         return YamlIOUtil.writeListTo(buffer, messages, schema);
     }
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Foo fooCompare = foo;
 
         byte[] data = toByteArray(fooCompare, fooCompare.cachedSchema());
@@ -82,8 +77,7 @@ public class YamlSerTest extends AbstractTest
         print(text);
     }
 
-    public void testFooEmpty() throws Exception
-    {
+    public void testFooEmpty() throws Exception {
         Foo fooCompare = new Foo();
 
         byte[] data = toByteArray(fooCompare, fooCompare.cachedSchema());
@@ -104,8 +98,7 @@ public class YamlSerTest extends AbstractTest
         print(text);
     }
 
-    public void testFooList() throws Exception
-    {
+    public void testFooList() throws Exception {
         Foo fooCompare = foo;
         ArrayList<Foo> list = new ArrayList<>();
         list.add(fooCompare);
@@ -134,10 +127,8 @@ public class YamlSerTest extends AbstractTest
         // System.err.println(text);
     }
 
-    public void testBar() throws Exception
-    {
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+    public void testBar() throws Exception {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             byte[] data = toByteArray(barCompare, barCompare.cachedSchema());
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -156,8 +147,7 @@ public class YamlSerTest extends AbstractTest
         }
     }
 
-    public void testBarEmpty() throws Exception
-    {
+    public void testBarEmpty() throws Exception {
         Bar barCompare = new Bar();
 
         byte[] data = toByteArray(barCompare, barCompare.cachedSchema());
@@ -177,8 +167,7 @@ public class YamlSerTest extends AbstractTest
         assertEquals(text, text2);
     }
 
-    public void testBarList() throws Exception
-    {
+    public void testBarList() throws Exception {
         Bar barCompare = bar;
         ArrayList<Bar> list = new ArrayList<>();
         list.add(bar);
@@ -206,10 +195,8 @@ public class YamlSerTest extends AbstractTest
         print(text);
     }
 
-    public void testBaz() throws Exception
-    {
-        for (Baz bazCompare : new Baz[] { baz, negativeBaz })
-        {
+    public void testBaz() throws Exception {
+        for (Baz bazCompare : new Baz[]{baz, negativeBaz}) {
             byte[] data = toByteArray(bazCompare, bazCompare.cachedSchema());
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -228,8 +215,7 @@ public class YamlSerTest extends AbstractTest
         }
     }
 
-    public void testBazEmpty() throws Exception
-    {
+    public void testBazEmpty() throws Exception {
         Baz bazCompare = new Baz();
 
         byte[] data = toByteArray(bazCompare, bazCompare.cachedSchema());
@@ -249,8 +235,7 @@ public class YamlSerTest extends AbstractTest
         assertEquals(text, text2);
     }
 
-    public void testBazList() throws Exception
-    {
+    public void testBazList() throws Exception {
         Baz bazCompare = baz;
         ArrayList<Baz> list = new ArrayList<>();
         list.add(baz);
@@ -278,8 +263,7 @@ public class YamlSerTest extends AbstractTest
         print(text);
     }
 
-    public void testEmptyInnerBar() throws Exception
-    {
+    public void testEmptyInnerBar() throws Exception {
         Bar barCompare = new Bar();
         Baz baz = new Baz();
         barCompare.setSomeBaz(baz);
@@ -297,8 +281,7 @@ public class YamlSerTest extends AbstractTest
         print(text);
     }
 
-    public void testEmptyInnerFoo() throws Exception
-    {
+    public void testEmptyInnerFoo() throws Exception {
         Foo fooCompare = new Foo();
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(new Bar());
@@ -317,8 +300,7 @@ public class YamlSerTest extends AbstractTest
         print(text);
     }
 
-    public void testEmptyDeeperFoo() throws Exception
-    {
+    public void testEmptyDeeperFoo() throws Exception {
         Bar bar = new Bar();
         Baz baz = new Baz();
         bar.setSomeBaz(baz);
@@ -338,10 +320,5 @@ public class YamlSerTest extends AbstractTest
 
         assertEquals(text, text2);
         print(text);
-    }
-
-    static void print(String str)
-    {
-        // System.err.println(str);
     }
 }

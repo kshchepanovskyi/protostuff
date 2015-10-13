@@ -1,26 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.runtime.SerializableObjects.bar;
-import static io.protostuff.runtime.SerializableObjects.baz;
-import static io.protostuff.runtime.SerializableObjects.foo;
-import static io.protostuff.runtime.SerializableObjects.negativeBar;
-import static io.protostuff.runtime.SerializableObjects.negativeBaz;
 
 import java.io.ByteArrayOutputStream;
 
@@ -32,16 +23,20 @@ import io.protostuff.runtime.PolymorphicSerializationTest.Zoo;
 import io.protostuff.runtime.RuntimeSchema;
 import io.protostuff.runtime.SerializableObjects;
 
+import static io.protostuff.runtime.SerializableObjects.bar;
+import static io.protostuff.runtime.SerializableObjects.baz;
+import static io.protostuff.runtime.SerializableObjects.foo;
+import static io.protostuff.runtime.SerializableObjects.negativeBar;
+import static io.protostuff.runtime.SerializableObjects.negativeBaz;
+
 /**
  * Test for JsonXOutput on runtime pojos (polymorphic too).
- * 
+ *
  * @author David Yu
  */
-public class JsonXNumericRuntimeTest extends AbstractTest
-{
+public class JsonXNumericRuntimeTest extends AbstractTest {
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Schema<Foo> schema = RuntimeSchema.getSchema(Foo.class);
 
         Foo fooCompare = foo;
@@ -52,8 +47,7 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         SerializableObjects.assertEquals(fooCompare, dfoo);
     }
 
-    public void testFooStreamed() throws Exception
-    {
+    public void testFooStreamed() throws Exception {
         Schema<Foo> schema = RuntimeSchema.getSchema(Foo.class);
 
         Foo fooCompare = foo;
@@ -61,12 +55,9 @@ public class JsonXNumericRuntimeTest extends AbstractTest
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         LinkedBuffer buffer = buf();
-        try
-        {
+        try {
             JsonXIOUtil.writeTo(out, fooCompare, schema, true, buffer);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
         byte[] data = out.toByteArray();
@@ -75,12 +66,10 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         SerializableObjects.assertEquals(fooCompare, dfoo);
     }
 
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         Schema<Bar> schema = RuntimeSchema.getSchema(Bar.class);
 
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             Bar dbar = new Bar();
 
             byte[] data = JsonXIOUtil.toByteArray(barCompare, schema, true, buf());
@@ -89,22 +78,17 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         }
     }
 
-    public void testBarStreamed() throws Exception
-    {
+    public void testBarStreamed() throws Exception {
         Schema<Bar> schema = RuntimeSchema.getSchema(Bar.class);
 
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             Bar dbar = new Bar();
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             LinkedBuffer buffer = buf();
-            try
-            {
+            try {
                 JsonXIOUtil.writeTo(out, barCompare, schema, true, buffer);
-            }
-            finally
-            {
+            } finally {
                 buffer.clear();
             }
             byte[] data = out.toByteArray();
@@ -114,12 +98,10 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         }
     }
 
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         Schema<Baz> schema = RuntimeSchema.getSchema(Baz.class);
 
-        for (Baz bazCompare : new Baz[] { baz, negativeBaz })
-        {
+        for (Baz bazCompare : new Baz[]{baz, negativeBaz}) {
             Baz dbaz = new Baz();
 
             byte[] data = JsonXIOUtil.toByteArray(bazCompare, schema, true, buf());
@@ -128,22 +110,17 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         }
     }
 
-    public void testBazStreamed() throws Exception
-    {
+    public void testBazStreamed() throws Exception {
         Schema<Baz> schema = RuntimeSchema.getSchema(Baz.class);
 
-        for (Baz bazCompare : new Baz[] { baz, negativeBaz })
-        {
+        for (Baz bazCompare : new Baz[]{baz, negativeBaz}) {
             Baz dbaz = new Baz();
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             LinkedBuffer buffer = buf();
-            try
-            {
+            try {
                 JsonXIOUtil.writeTo(out, bazCompare, schema, true, buffer);
-            }
-            finally
-            {
+            } finally {
                 buffer.clear();
             }
             byte[] data = out.toByteArray();
@@ -153,8 +130,7 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         }
     }
 
-    public void testPolymorphic() throws Exception
-    {
+    public void testPolymorphic() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
         Zoo zooCompare = PolymorphicSerializationTest.filledZoo();
 
@@ -166,8 +142,7 @@ public class JsonXNumericRuntimeTest extends AbstractTest
         SerializableObjects.assertEquals(zooCompare, dzoo);
     }
 
-    public void testPolymorphicStreamed() throws Exception
-    {
+    public void testPolymorphicStreamed() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
         Zoo zooCompare = PolymorphicSerializationTest.filledZoo();
 
@@ -175,12 +150,9 @@ public class JsonXNumericRuntimeTest extends AbstractTest
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         LinkedBuffer buffer = buf();
-        try
-        {
+        try {
             JsonXIOUtil.writeTo(out, zooCompare, schema, true, buffer);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
         byte[] data = out.toByteArray();

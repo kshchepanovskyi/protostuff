@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -22,26 +19,23 @@ import java.util.List;
 
 /**
  * Json serialization via {@link JsonXOutput}.
- * 
+ *
  * @author David Yu
  */
-public final class JsonXIOUtil
-{
+public final class JsonXIOUtil {
 
-    private static final byte[] EMPTY_ARRAY = new byte[] {
+    private static final byte[] EMPTY_ARRAY = new byte[]{
             (byte) '[', (byte) ']'
     };
 
     public static <T> byte[] toByteArray(T message, Schema<T> schema, boolean numeric,
-            LinkedBuffer buffer)
-    {
+                                         LinkedBuffer buffer) {
         if (buffer.start != buffer.offset)
             throw new IllegalArgumentException("Buffer previously used and had not been reset.");
 
         final JsonXOutput output = new JsonXOutput(buffer, numeric, schema);
 
-        try
-        {
+        try {
             output.writeStartObject();
 
             schema.writeTo(output, message);
@@ -50,9 +44,7 @@ public final class JsonXIOUtil
                 output.writeEndArray();
 
             output.writeEndObject();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException("Serializing to a byte array threw an IOException " +
                     "(should never happen).", e);
         }
@@ -65,15 +57,13 @@ public final class JsonXIOUtil
      * with the supplied buffer.
      */
     public static <T> void writeTo(LinkedBuffer buffer, T message, Schema<T> schema,
-            boolean numeric)
-    {
+                                   boolean numeric) {
         if (buffer.start != buffer.offset)
             throw new IllegalArgumentException("Buffer previously used and had not been reset.");
 
         final JsonXOutput output = new JsonXOutput(buffer, numeric, schema);
 
-        try
-        {
+        try {
             output.writeStartObject();
 
             schema.writeTo(output, message);
@@ -82,9 +72,7 @@ public final class JsonXIOUtil
                 output.writeEndArray();
 
             output.writeEndObject();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException("Serializing to a byte array threw an IOException " +
                     "(should never happen).", e);
         }
@@ -94,9 +82,8 @@ public final class JsonXIOUtil
      * Serializes the {@code message} into an {@link OutputStream} via {@link JsonXOutput} with the supplied buffer.
      */
     public static <T extends Message<T>> void writeTo(OutputStream out, T message, boolean numeric,
-            LinkedBuffer buffer)
-            throws IOException
-    {
+                                                      LinkedBuffer buffer)
+            throws IOException {
         writeTo(out, message, message.cachedSchema(), numeric, buffer);
     }
 
@@ -105,8 +92,7 @@ public final class JsonXIOUtil
      * {@code schema}.
      */
     public static <T> void writeTo(OutputStream out, T message, Schema<T> schema, boolean numeric,
-            LinkedBuffer buffer) throws IOException
-    {
+                                   LinkedBuffer buffer) throws IOException {
         if (buffer.start != buffer.offset)
             throw new IllegalArgumentException("Buffer previously used and had not been reset.");
 
@@ -128,13 +114,11 @@ public final class JsonXIOUtil
      * Serializes the {@code messages} into the {@link LinkedBuffer} using the given schema.
      */
     public static <T> void writeListTo(LinkedBuffer buffer,
-            List<T> messages, Schema<T> schema, boolean numeric)
-    {
+                                       List<T> messages, Schema<T> schema, boolean numeric) {
         if (buffer.start != buffer.offset)
             throw new IllegalArgumentException("Buffer previously used and had not been reset.");
 
-        if (messages.isEmpty())
-        {
+        if (messages.isEmpty()) {
             System.arraycopy(EMPTY_ARRAY, 0, buffer.buffer, buffer.offset, EMPTY_ARRAY.length);
             buffer.offset += EMPTY_ARRAY.length;
             return;
@@ -142,19 +126,15 @@ public final class JsonXIOUtil
 
         final JsonXOutput output = new JsonXOutput(buffer, numeric, schema);
 
-        try
-        {
+        try {
             output.writeStartArray();
 
             boolean first = true;
-            for (T m : messages)
-            {
-                if (first)
-                {
+            for (T m : messages) {
+                if (first) {
                     first = false;
                     output.writeStartObject();
-                }
-                else
+                } else
                     output.writeCommaAndStartObject();
 
                 schema.writeTo(output, m);
@@ -165,9 +145,7 @@ public final class JsonXIOUtil
             }
 
             output.writeEndArray();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException("Serializing to a byte array threw an IOException " +
                     "(should never happen).", e);
         }
@@ -177,13 +155,11 @@ public final class JsonXIOUtil
      * Serializes the {@code messages} into the stream using the given schema with the supplied buffer.
      */
     public static <T> void writeListTo(OutputStream out, List<T> messages, Schema<T> schema,
-            boolean numeric, LinkedBuffer buffer) throws IOException
-    {
+                                       boolean numeric, LinkedBuffer buffer) throws IOException {
         if (buffer.start != buffer.offset)
             throw new IllegalArgumentException("Buffer previously used and had not been reset.");
 
-        if (messages.isEmpty())
-        {
+        if (messages.isEmpty()) {
             System.arraycopy(EMPTY_ARRAY, 0, buffer.buffer, buffer.offset, EMPTY_ARRAY.length);
             buffer.offset += EMPTY_ARRAY.length;
             return;
@@ -194,14 +170,11 @@ public final class JsonXIOUtil
         output.writeStartArray();
 
         boolean first = true;
-        for (T m : messages)
-        {
-            if (first)
-            {
+        for (T m : messages) {
+            if (first) {
                 first = false;
                 output.writeStartObject();
-            }
-            else
+            } else
                 output.writeCommaAndStartObject();
 
             schema.writeTo(output, m);

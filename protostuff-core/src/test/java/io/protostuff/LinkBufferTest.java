@@ -1,34 +1,29 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-public class LinkBufferTest
-{
+public class LinkBufferTest {
 
     @Test
-    public void testBasics() throws Exception
-    {
+    public void testBasics() throws Exception {
         LinkBuffer buf = new LinkBuffer(8);
 
         // put in 4 longs:
@@ -51,15 +46,13 @@ public class LinkBufferTest
         assertEquals(100, lbb.get(1).remaining());
         assertEquals(2, lbb.get(2).remaining());
         assertEquals(8, lbb.get(3).remaining());
-        for (int i = 3; i < lbb.size(); i++)
-        {
+        for (int i = 3; i < lbb.size(); i++) {
             assertEquals(8, lbb.get(i).remaining());
         }
     }
 
     @Test
-    public void testGetBuffers() throws Exception
-    {
+    public void testGetBuffers() throws Exception {
         LinkBuffer b = new LinkBuffer(8);
         b.writeInt32(42);
         b.writeInt32(43);
@@ -74,8 +67,7 @@ public class LinkBufferTest
     }
 
     @Test
-    public void testGetBuffersAndAppendData() throws Exception
-    {
+    public void testGetBuffersAndAppendData() throws Exception {
         LinkBuffer b = new LinkBuffer(8);
         b.writeInt32(42);
         b.writeInt32(43);

@@ -1,22 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.SampleDelegates.SINGLETON_DELEGATE;
 
 import junit.framework.TestCase;
 
@@ -36,31 +31,51 @@ import io.protostuff.runtime.AbstractRuntimeObjectSchemaTest.Size;
 import io.protostuff.runtime.AbstractRuntimeObjectSchemaTest.WrapsBat;
 import io.protostuff.runtime.SampleDelegates.ShortArrayDelegate;
 
+import static io.protostuff.runtime.SampleDelegates.SINGLETON_DELEGATE;
+
 /**
  * Test for {@link IncrementalIdStrategy}.
- * 
+ *
  * @author David Yu
  */
-public class IncrementalRuntimeObjectSchemaTest extends TestCase
-{
+public class IncrementalRuntimeObjectSchemaTest extends TestCase {
 
     static final boolean runTest;
 
-    static
-    {
+    static {
         // check whether test/run from root module
         String strategy = System.getProperty("test_id_strategy");
         runTest = strategy == null || strategy.equals("incremental");
 
-        if (runTest)
-        {
+        if (runTest) {
             System.setProperty("protostuff.runtime.id_strategy_factory",
                     "io.protostuff.runtime.IncrementalRuntimeObjectSchemaTest$IdStrategyFactory");
         }
     }
 
-    public static class IdStrategyFactory implements IdStrategy.Factory
-    {
+    public void testProtostuff() throws Exception {
+        if (runTest && RuntimeEnv.ID_STRATEGY instanceof IncrementalIdStrategy) {
+            junit.textui.TestRunner tr = new junit.textui.TestRunner();
+            tr.doRun(tr.getTest(
+                    "io.protostuff.runtime.ProtostuffRuntimeObjectSchemaTest"
+            ), false);
+
+            assertTrue(IdStrategyFactory.INSTANCE_COUNT != 0);
+        }
+    }
+
+    public void testProtobuf() throws Exception {
+        if (runTest && RuntimeEnv.ID_STRATEGY instanceof IncrementalIdStrategy) {
+            junit.textui.TestRunner tr = new junit.textui.TestRunner();
+            tr.doRun(tr.getTest(
+                    "io.protostuff.runtime.ProtobufRuntimeObjectSchemaTest"
+            ), false);
+
+            assertTrue(IdStrategyFactory.INSTANCE_COUNT != 0);
+        }
+    }
+
+    public static class IdStrategyFactory implements IdStrategy.Factory {
 
         static int INSTANCE_COUNT = 0;
 
@@ -70,21 +85,18 @@ public class IncrementalRuntimeObjectSchemaTest extends TestCase
                 20, 11,
                 80, 11);
 
-        public IdStrategyFactory()
-        {
+        public IdStrategyFactory() {
             ++INSTANCE_COUNT;
             System.out.println("@INCREMENTAL");
         }
 
         @Override
-        public IdStrategy create()
-        {
+        public IdStrategy create() {
             return r.strategy;
         }
 
         @Override
-        public void postCreate()
-        {
+        public void postCreate() {
             r.registerCollection(CollectionSchema.MessageFactories.ArrayList, 1)
                     .registerCollection(CollectionSchema.MessageFactories.HashSet, 2)
                     .registerCollection(CustomArrayList.MESSAGE_FACTORY, 3);
@@ -113,32 +125,6 @@ public class IncrementalRuntimeObjectSchemaTest extends TestCase
             r = null;
         }
 
-    }
-
-    public void testProtostuff() throws Exception
-    {
-        if (runTest && RuntimeEnv.ID_STRATEGY instanceof IncrementalIdStrategy)
-        {
-            junit.textui.TestRunner tr = new junit.textui.TestRunner();
-            tr.doRun(tr.getTest(
-                    "io.protostuff.runtime.ProtostuffRuntimeObjectSchemaTest"
-                    ), false);
-
-            assertTrue(IdStrategyFactory.INSTANCE_COUNT != 0);
-        }
-    }
-
-    public void testProtobuf() throws Exception
-    {
-        if (runTest && RuntimeEnv.ID_STRATEGY instanceof IncrementalIdStrategy)
-        {
-            junit.textui.TestRunner tr = new junit.textui.TestRunner();
-            tr.doRun(tr.getTest(
-                    "io.protostuff.runtime.ProtobufRuntimeObjectSchemaTest"
-                    ), false);
-
-            assertTrue(IdStrategyFactory.INSTANCE_COUNT != 0);
-        }
     }
 
 }

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
@@ -49,12 +46,11 @@ package io.protostuff;
 /**
  * Thrown when a protocol message being parsed is invalid in some way, e.g. it contains a malformed varint or a negative
  * byte length.
- * 
+ *
  * @author kenton@google.com Kenton Varda
  * @author David Yu
  */
-public class ProtobufException extends ProtostuffException
-{
+public class ProtobufException extends ProtostuffException {
     private static final long serialVersionUID = 1616151763072450476L;
 
     private static final String ERR_TRUNCATED_MESSAGE =
@@ -63,73 +59,61 @@ public class ProtobufException extends ProtostuffException
                     "input has been truncated or that an embedded message " +
                     "misreported its own length.";
 
-    public ProtobufException(final String description)
-    {
+    public ProtobufException(final String description) {
         super(description);
     }
 
-    public ProtobufException(final String description, final Throwable cause)
-    {
+    public ProtobufException(final String description, final Throwable cause) {
         super(description, cause);
     }
 
-    static ProtobufException truncatedMessage(final Throwable cause)
-    {
+    static ProtobufException truncatedMessage(final Throwable cause) {
         return new ProtobufException(ERR_TRUNCATED_MESSAGE, cause);
     }
 
-    static ProtobufException truncatedMessage()
-    {
+    static ProtobufException truncatedMessage() {
         return new ProtobufException(ERR_TRUNCATED_MESSAGE);
     }
 
-    static ProtobufException misreportedSize()
-    {
+    static ProtobufException misreportedSize() {
         return new ProtobufException(
                 "CodedInput encountered an embedded string or bytes " +
                         "that misreported its size.");
     }
 
-    static ProtobufException negativeSize()
-    {
+    static ProtobufException negativeSize() {
         return new ProtobufException(
                 "CodedInput encountered an embedded string or message " +
                         "which claimed to have negative size.");
     }
 
-    static ProtobufException malformedVarint()
-    {
+    static ProtobufException malformedVarint() {
         return new ProtobufException(
                 "CodedInput encountered a malformed varint.");
     }
 
-    static ProtobufException invalidTag()
-    {
+    static ProtobufException invalidTag() {
         return new ProtobufException(
                 "Protocol message contained an invalid tag (zero).");
     }
 
-    static ProtobufException invalidEndTag()
-    {
+    static ProtobufException invalidEndTag() {
         return new ProtobufException(
                 "Protocol message end-group tag did not match expected tag.");
     }
 
-    static ProtobufException invalidWireType()
-    {
+    static ProtobufException invalidWireType() {
         return new ProtobufException(
                 "Protocol message tag had invalid wire type.");
     }
 
-    static ProtobufException recursionLimitExceeded()
-    {
+    static ProtobufException recursionLimitExceeded() {
         return new ProtobufException(
                 "Protocol message had too many levels of nesting.  May be malicious.  " +
                         "Use CodedInput.setRecursionLimit() to increase the depth limit.");
     }
 
-    static ProtobufException sizeLimitExceeded()
-    {
+    static ProtobufException sizeLimitExceeded() {
         return new ProtobufException(
                 "Protocol message was too large.  May be malicious.  " +
                         "Use CodedInput.setSizeLimit() to increase the size limit.");

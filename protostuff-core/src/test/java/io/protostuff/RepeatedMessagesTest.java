@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -26,20 +23,18 @@ import java.util.List;
 
 /**
  * Testcase for ser/deser of multiple messages.
- * 
+ *
  * @author David Yu
  */
-public abstract class RepeatedMessagesTest extends AbstractTest
-{
+public abstract class RepeatedMessagesTest extends AbstractTest {
 
     protected abstract <T> void writeListTo(OutputStream out, List<T> messages,
-            Schema<T> schema) throws IOException;
+                                            Schema<T> schema) throws IOException;
 
     protected abstract <T> List<T> parseListFrom(InputStream in, Schema<T> schema)
             throws IOException;
 
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(SerializableObjects.bar);
         bars.add(SerializableObjects.negativeBar);
@@ -57,8 +52,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(bars.get(i++), b);
     }
 
-    public void testEmptyBar() throws Exception
-    {
+    public void testEmptyBar() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(new Bar());
         bars.add(new Bar());
@@ -76,8 +70,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(bars.get(i++), b);
     }
 
-    public void testEmptyBar2() throws Exception
-    {
+    public void testEmptyBar2() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(new Bar());
 
@@ -94,8 +87,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(bars.get(i++), b);
     }
 
-    public void testEmptyBarInner() throws Exception
-    {
+    public void testEmptyBarInner() throws Exception {
         Bar bar = new Bar();
         bar.setSomeBaz(new Baz());
         ArrayList<Bar> bars = new ArrayList<>();
@@ -114,8 +106,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(bars.get(i++), b);
     }
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         ArrayList<Foo> foos = new ArrayList<>();
         foos.add(SerializableObjects.foo);
         foos.add(SerializableObjects.foo);
@@ -133,8 +124,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(foos.get(i++), f);
     }
 
-    public void testEmptyFoo() throws Exception
-    {
+    public void testEmptyFoo() throws Exception {
         ArrayList<Foo> foos = new ArrayList<>();
         foos.add(new Foo());
         foos.add(new Foo());
@@ -152,8 +142,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(foos.get(i++), f);
     }
 
-    public void testEmptyFoo2() throws Exception
-    {
+    public void testEmptyFoo2() throws Exception {
         ArrayList<Foo> foos = new ArrayList<>();
         foos.add(new Foo());
 
@@ -170,8 +159,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(foos.get(i++), f);
     }
 
-    public void testEmptyFooInner() throws Exception
-    {
+    public void testEmptyFooInner() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(new Bar());
 
@@ -194,8 +182,7 @@ public abstract class RepeatedMessagesTest extends AbstractTest
             SerializableObjects.assertEquals(foos.get(i++), f);
     }
 
-    public void testEmptyFooInner2() throws Exception
-    {
+    public void testEmptyFooInner2() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         Bar bar = new Bar();
         bar.setSomeBaz(new Baz());

@@ -1,24 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.benchmarks;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -35,6 +28,10 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtobufIOUtil;
 import io.protostuff.Schema;
@@ -50,8 +47,7 @@ import io.protostuff.runtime.RuntimeSchema;
 @Measurement(iterations = 10)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-public class RuntimeSchemaBenchmark
-{
+public class RuntimeSchemaBenchmark {
 
     private RuntimeSchema<Int1> int1RuntimeSchema;
     private RuntimeSchema<Int10> int10RuntimeSchema;
@@ -72,8 +68,7 @@ public class RuntimeSchemaBenchmark
 
     private LinkedBuffer buffer;
 
-    public static void main(String[] args) throws RunnerException
-    {
+    public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(RuntimeSchemaBenchmark.class.getSimpleName())
                 .build();
@@ -81,8 +76,7 @@ public class RuntimeSchemaBenchmark
     }
 
     @Setup
-    public void prepare() throws IOException
-    {
+    public void prepare() throws IOException {
         int1RuntimeSchema = RuntimeSchema.createFrom(Int1.class);
         int10RuntimeSchema = RuntimeSchema.createFrom(Int10.class);
         sparseInt1RuntimeSchema = RuntimeSchema.createFrom(SparseInt1.class);
@@ -143,144 +137,111 @@ public class RuntimeSchemaBenchmark
     }
 
     @Benchmark
-    public void baseline()
-    {
+    public void baseline() {
         buffer.clear();
     }
 
     @Benchmark
-    public Int1 runtime_deserialize_1_int_field() throws Exception
-    {
+    public Int1 runtime_deserialize_1_int_field() throws Exception {
         Int1 int1 = new Int1();
         ProtobufIOUtil.mergeFrom(data_1_int, int1, int1RuntimeSchema);
         return int1;
     }
 
     @Benchmark
-    public void runtime_serialize_1_int_field() throws Exception
-    {
-        try
-        {
+    public void runtime_serialize_1_int_field() throws Exception {
+        try {
             ProtobufIOUtil.writeTo(buffer, int1, int1RuntimeSchema);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
     @Benchmark
-    public Int10 runtime_deserialize_10_int_field() throws Exception
-    {
+    public Int10 runtime_deserialize_10_int_field() throws Exception {
         Int10 int10 = new Int10();
         ProtobufIOUtil.mergeFrom(data_10_int, int10, int10RuntimeSchema);
         return int10;
     }
 
     @Benchmark
-    public void runtime_serialize_10_int_fields() throws Exception
-    {
-        try
-        {
+    public void runtime_serialize_10_int_fields() throws Exception {
+        try {
             ProtobufIOUtil.writeTo(buffer, int10, int10RuntimeSchema);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
     @Benchmark
-    public SparseInt1 runtime_sparse_deserialize_1_int_field() throws Exception
-    {
+    public SparseInt1 runtime_sparse_deserialize_1_int_field() throws Exception {
         SparseInt1 int1 = new SparseInt1();
         ProtobufIOUtil.mergeFrom(data_1_int, int1, sparseInt1RuntimeSchema);
         return int1;
     }
 
     @Benchmark
-    public void runtime_sparse_serialize_1_int_field() throws Exception
-    {
-        try
-        {
+    public void runtime_sparse_serialize_1_int_field() throws Exception {
+        try {
             ProtobufIOUtil.writeTo(buffer, sparseInt1, sparseInt1RuntimeSchema);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
     @Benchmark
-    public SparseInt10 runtime_sparse_deserialize_10_int_field() throws Exception
-    {
+    public SparseInt10 runtime_sparse_deserialize_10_int_field() throws Exception {
         SparseInt10 int10 = new SparseInt10();
         ProtobufIOUtil.mergeFrom(data_10_int, int10, sparseInt10RuntimeSchema);
         return int10;
     }
 
     @Benchmark
-    public void runtime_sparse_serialize_10_int_fields() throws Exception
-    {
-        try
-        {
+    public void runtime_sparse_serialize_10_int_fields() throws Exception {
+        try {
             ProtobufIOUtil.writeTo(buffer, sparseInt10, sparseInt10RuntimeSchema);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
     @Benchmark
-    public GeneratedInt1 generated_deserialize_1_int_field() throws Exception
-    {
+    public GeneratedInt1 generated_deserialize_1_int_field() throws Exception {
         GeneratedInt1 int1 = new GeneratedInt1();
         ProtobufIOUtil.mergeFrom(data_1_int, int1, GeneratedInt1.getSchema());
         return int1;
     }
 
     @Benchmark
-    public void generated_serialize_1_int_field() throws Exception
-    {
-        try
-        {
+    public void generated_serialize_1_int_field() throws Exception {
+        try {
             ProtobufIOUtil.writeTo(buffer, generatedInt1, generatedInt1Schema);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
     @Benchmark
-    public GeneratedInt10 generated_deserialize_10_int_field() throws Exception
-    {
+    public GeneratedInt10 generated_deserialize_10_int_field() throws Exception {
         GeneratedInt10 int10 = new GeneratedInt10();
         ProtobufIOUtil.mergeFrom(data_10_int, int10, GeneratedInt10.getSchema());
         return int10;
     }
 
     @Benchmark
-    public void generated_serialize_10_int_field() throws Exception
-    {
-        try
-        {
+    public void generated_serialize_10_int_field() throws Exception {
+        try {
             ProtobufIOUtil.writeTo(buffer, generatedInt10, generatedInt10Schema);
-        }
-        finally
-        {
+        } finally {
             buffer.clear();
         }
     }
 
-    private static class Int1
-    {
+    private static class Int1 {
         public int a0;
     }
 
-    private static class Int10
-    {
+    private static class Int10 {
         public int a0;
         public int a1;
         public int a2;
@@ -293,14 +254,12 @@ public class RuntimeSchemaBenchmark
         public int a9;
     }
 
-    private static class SparseInt1
-    {
+    private static class SparseInt1 {
         @Tag(101)
         public int a0;
     }
 
-    private static class SparseInt10
-    {
+    private static class SparseInt10 {
         @Tag(1)
         public int a0;
         @Tag(2)

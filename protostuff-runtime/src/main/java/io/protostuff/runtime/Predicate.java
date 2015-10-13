@@ -1,28 +1,24 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
 /**
  * A filter for the fields that need to be included.
- * 
+ *
  * @author David Yu
  */
-public interface Predicate
-{
+public interface Predicate {
     /**
      * Returns true if the field is included.
      */
@@ -35,8 +31,51 @@ public interface Predicate
      */
     boolean apply(Field<?> f, Object message);
 
-    interface Factory
-    {
+    /**
+     * Built-in factories that filters based on the field number.
+     */
+    enum Factories implements Predicate.Factory {
+        EQ {
+            @Override
+            public Predicate create(String[] args) {
+                return new Predicate.EQ(Integer.parseInt(args[0]));
+            }
+        },
+        NOTEQ {
+            @Override
+            public Predicate create(String[] args) {
+                return new Predicate.NOTEQ(Integer.parseInt(args[0]));
+            }
+        },
+        GT {
+            @Override
+            public Predicate create(String[] args) {
+                return new Predicate.GT(Integer.parseInt(args[0]));
+            }
+        },
+        LT {
+            @Override
+            public Predicate create(String[] args) {
+                return new Predicate.LT(Integer.parseInt(args[0]));
+            }
+        },
+        RANGE {
+            @Override
+            public Predicate create(String[] args) {
+                return new Predicate.RANGE(Integer.parseInt(args[0]),
+                        Integer.parseInt(args[1]));
+            }
+        },
+        NOTRANGE {
+            @Override
+            public Predicate create(String[] args) {
+                return new Predicate.NOTRANGE(Integer.parseInt(args[0]),
+                        Integer.parseInt(args[1]));
+            }
+        }
+    }
+
+    interface Factory {
         /**
          * Creates a new predicate based from the args.
          */
@@ -46,31 +85,26 @@ public interface Predicate
     /**
      * A predicate that includes only a single field with the provided number.
      */
-    final class EQ implements Predicate, Predicate.Factory
-    {
+    final class EQ implements Predicate, Predicate.Factory {
         final int num;
 
-        EQ(int num)
-        {
+        EQ(int num) {
             this.num = num;
         }
 
         @Override
-        public boolean apply(Field<?> f)
-        {
+        public boolean apply(Field<?> f) {
             return f.number == num;
         }
 
         @Override
-        public boolean apply(Field<?> f, Object message)
-        {
+        public boolean apply(Field<?> f, Object message) {
             return f.number == num;
         }
 
         // instantiate this yourself and pass it to the view factory for re-use
         @Override
-        public Predicate create(String[] args)
-        {
+        public Predicate create(String[] args) {
             return this;
         }
     }
@@ -78,31 +112,26 @@ public interface Predicate
     /**
      * A predicate that includes all fields except the provided number.
      */
-    final class NOTEQ implements Predicate, Predicate.Factory
-    {
+    final class NOTEQ implements Predicate, Predicate.Factory {
         final int num;
 
-        NOTEQ(int num)
-        {
+        NOTEQ(int num) {
             this.num = num;
         }
 
         @Override
-        public boolean apply(Field<?> f)
-        {
+        public boolean apply(Field<?> f) {
             return f.number != num;
         }
 
         @Override
-        public boolean apply(Field<?> f, Object message)
-        {
+        public boolean apply(Field<?> f, Object message) {
             return f.number != num;
         }
 
         // instantiate this yourself and pass it to the view factory for re-use
         @Override
-        public Predicate create(String[] args)
-        {
+        public Predicate create(String[] args) {
             return this;
         }
     }
@@ -110,31 +139,26 @@ public interface Predicate
     /**
      * A predicate that includes fields that are greater than the provider number.
      */
-    final class GT implements Predicate, Predicate.Factory
-    {
+    final class GT implements Predicate, Predicate.Factory {
         final int num;
 
-        GT(int num)
-        {
+        GT(int num) {
             this.num = num;
         }
 
         @Override
-        public boolean apply(Field<?> f)
-        {
+        public boolean apply(Field<?> f) {
             return f.number > num;
         }
 
         @Override
-        public boolean apply(Field<?> f, Object message)
-        {
+        public boolean apply(Field<?> f, Object message) {
             return f.number > num;
         }
 
         // instantiate this yourself and pass it to the view factory for re-use
         @Override
-        public Predicate create(String[] args)
-        {
+        public Predicate create(String[] args) {
             return this;
         }
     }
@@ -142,31 +166,26 @@ public interface Predicate
     /**
      * A predicate that includes fields that are lesser than the provider number.
      */
-    final class LT implements Predicate, Predicate.Factory
-    {
+    final class LT implements Predicate, Predicate.Factory {
         final int num;
 
-        LT(int num)
-        {
+        LT(int num) {
             this.num = num;
         }
 
         @Override
-        public boolean apply(Field<?> f)
-        {
+        public boolean apply(Field<?> f) {
             return f.number < num;
         }
 
         @Override
-        public boolean apply(Field<?> f, Object message)
-        {
+        public boolean apply(Field<?> f, Object message) {
             return f.number < num;
         }
 
         // instantiate this yourself and pass it to the view factory for re-use
         @Override
-        public Predicate create(String[] args)
-        {
+        public Predicate create(String[] args) {
             return this;
         }
     }
@@ -174,32 +193,27 @@ public interface Predicate
     /**
      * A predicate that includes fields if they are within range of the provided numbers, min and max.
      */
-    final class RANGE implements Predicate, Predicate.Factory
-    {
+    final class RANGE implements Predicate, Predicate.Factory {
         final int min, max;
 
-        RANGE(int min, int max)
-        {
+        RANGE(int min, int max) {
             this.min = min;
             this.max = max;
         }
 
         @Override
-        public boolean apply(Field<?> f)
-        {
+        public boolean apply(Field<?> f) {
             return f.number >= min && f.number <= max;
         }
 
         @Override
-        public boolean apply(Field<?> f, Object message)
-        {
+        public boolean apply(Field<?> f, Object message) {
             return f.number >= min && f.number <= max;
         }
 
         // instantiate this yourself and pass it to the view factory for re-use
         @Override
-        public Predicate create(String[] args)
-        {
+        public Predicate create(String[] args) {
             return this;
         }
     }
@@ -207,90 +221,28 @@ public interface Predicate
     /**
      * The opposite of {@link RANGE}.
      */
-    final class NOTRANGE implements Predicate, Predicate.Factory
-    {
+    final class NOTRANGE implements Predicate, Predicate.Factory {
         final int min, max;
 
-        NOTRANGE(int min, int max)
-        {
+        NOTRANGE(int min, int max) {
             this.min = min;
             this.max = max;
         }
 
         @Override
-        public boolean apply(Field<?> f)
-        {
+        public boolean apply(Field<?> f) {
             return f.number < min || f.number > max;
         }
 
         @Override
-        public boolean apply(Field<?> f, Object message)
-        {
+        public boolean apply(Field<?> f, Object message) {
             return f.number < min || f.number > max;
         }
 
         // instantiate this yourself and pass it to the view factory for re-use
         @Override
-        public Predicate create(String[] args)
-        {
+        public Predicate create(String[] args) {
             return this;
-        }
-    }
-
-    /**
-     * Built-in factories that filters based on the field number.
-     */
-    enum Factories implements Predicate.Factory
-    {
-        EQ
-        {
-            @Override
-            public Predicate create(String[] args)
-            {
-                return new Predicate.EQ(Integer.parseInt(args[0]));
-            }
-        },
-        NOTEQ
-        {
-            @Override
-            public Predicate create(String[] args)
-            {
-                return new Predicate.NOTEQ(Integer.parseInt(args[0]));
-            }
-        },
-        GT
-        {
-            @Override
-            public Predicate create(String[] args)
-            {
-                return new Predicate.GT(Integer.parseInt(args[0]));
-            }
-        },
-        LT
-        {
-            @Override
-            public Predicate create(String[] args)
-            {
-                return new Predicate.LT(Integer.parseInt(args[0]));
-            }
-        },
-        RANGE
-        {
-            @Override
-            public Predicate create(String[] args)
-            {
-                return new Predicate.RANGE(Integer.parseInt(args[0]),
-                        Integer.parseInt(args[1]));
-            }
-        },
-        NOTRANGE
-        {
-            @Override
-            public Predicate create(String[] args)
-            {
-                return new Predicate.NOTRANGE(Integer.parseInt(args[0]),
-                        Integer.parseInt(args[1]));
-            }
         }
     }
 }

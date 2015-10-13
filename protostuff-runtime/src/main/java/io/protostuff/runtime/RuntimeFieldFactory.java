@@ -1,24 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS;
-import static io.protostuff.runtime.RuntimeEnv.MORPH_NON_FINAL_POJOS;
-import static io.protostuff.runtime.RuntimeEnv.USE_SUN_MISC_UNSAFE;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -36,13 +29,16 @@ import io.protostuff.ByteString;
 import io.protostuff.Message;
 import io.protostuff.Morph;
 
+import static io.protostuff.runtime.RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS;
+import static io.protostuff.runtime.RuntimeEnv.MORPH_NON_FINAL_POJOS;
+import static io.protostuff.runtime.RuntimeEnv.USE_SUN_MISC_UNSAFE;
+
 /**
  * A factory to create runtime {@link Field fields} based on reflection.
- * 
+ *
  * @author David Yu
  */
-public abstract class RuntimeFieldFactory<V> implements Delegate<V>
-{
+public abstract class RuntimeFieldFactory<V> implements Delegate<V> {
 
     static final int ID_BOOL = 1, ID_BYTE = 2, ID_CHAR = 3, ID_SHORT = 4,
             ID_INT32 = 5, ID_INT64 = 6, ID_FLOAT = 7,
@@ -54,25 +50,25 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
             ID_BIGINTEGER = 13,
             ID_DATE = 14,
             ID_ARRAY = 15, // 1-15 is encoded as 1 byte on protobuf and
-            // protostuff format
-            ID_OBJECT = 16, ID_ARRAY_MAPPED = 17, ID_CLASS = 18,
+    // protostuff format
+    ID_OBJECT = 16, ID_ARRAY_MAPPED = 17, ID_CLASS = 18,
             ID_CLASS_MAPPED = 19, ID_CLASS_ARRAY = 20,
             ID_CLASS_ARRAY_MAPPED = 21,
 
-            ID_ENUM_SET = 22, ID_ENUM_MAP = 23, ID_ENUM = 24,
+    ID_ENUM_SET = 22, ID_ENUM_MAP = 23, ID_ENUM = 24,
             ID_COLLECTION = 25, ID_MAP = 26,
 
-            ID_POLYMORPHIC_COLLECTION = 28, ID_POLYMORPHIC_MAP = 29,
+    ID_POLYMORPHIC_COLLECTION = 28, ID_POLYMORPHIC_MAP = 29,
             ID_DELEGATE = 30,
 
-            ID_ARRAY_DELEGATE = 32, ID_ARRAY_SCALAR = 33, ID_ARRAY_ENUM = 34,
+    ID_ARRAY_DELEGATE = 32, ID_ARRAY_SCALAR = 33, ID_ARRAY_ENUM = 34,
             ID_ARRAY_POJO = 35,
 
-            ID_THROWABLE = 52,
+    ID_THROWABLE = 52,
 
-            // pojo fields limited to 126 if not explicitly using @Tag
-            // annotations
-            ID_POJO = 127;
+    // pojo fields limited to 126 if not explicitly using @Tag
+    // annotations
+    ID_POJO = 127;
 
     static final String STR_BOOL = "a", STR_BYTE = "b", STR_CHAR = "c",
             STR_SHORT = "d", STR_INT32 = "e", STR_INT64 = "f", STR_FLOAT = "g",
@@ -82,23 +78,20 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
             STR_ARRAY_MAPPED = "q", STR_CLASS = "r", STR_CLASS_MAPPED = "s",
             STR_CLASS_ARRAY = "t", STR_CLASS_ARRAY_MAPPED = "u",
 
-            STR_ENUM_SET = "v", STR_ENUM_MAP = "w", STR_ENUM = "x",
+    STR_ENUM_SET = "v", STR_ENUM_MAP = "w", STR_ENUM = "x",
             STR_COLLECTION = "y", STR_MAP = "z",
 
-            STR_POLYMORPHIC_COLLECTION = "B", STR_POLYMOPRHIC_MAP = "C",
+    STR_POLYMORPHIC_COLLECTION = "B", STR_POLYMOPRHIC_MAP = "C",
             STR_DELEGATE = "D",
 
-            STR_ARRAY_DELEGATE = "F", STR_ARRAY_SCALAR = "G",
+    STR_ARRAY_DELEGATE = "F", STR_ARRAY_SCALAR = "G",
             STR_ARRAY_ENUM = "H", STR_ARRAY_POJO = "I",
 
-            STR_THROWABLE = "Z",
+    STR_THROWABLE = "Z",
 
-            // pojo fields limited to 126 if not explicitly using @Tag
-            // annotations
-            STR_POJO = "_";
-
-    private static final HashMap<String, RuntimeFieldFactory<?>> __inlineValues = new HashMap<>();
-
+    // pojo fields limited to 126 if not explicitly using @Tag
+    // annotations
+    STR_POJO = "_";
     static final RuntimeFieldFactory<BigDecimal> BIGDECIMAL;
     static final RuntimeFieldFactory<BigInteger> BIGINTEGER;
     static final RuntimeFieldFactory<Boolean> BOOL;
@@ -113,20 +106,16 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
     static final RuntimeFieldFactory<Long> INT64;
     static final RuntimeFieldFactory<Short> SHORT;
     static final RuntimeFieldFactory<String> STRING;
-
     static final RuntimeFieldFactory<Integer> ENUM;
     static final RuntimeFieldFactory<Object> OBJECT;
     static final RuntimeFieldFactory<Object> POJO;
     static final RuntimeFieldFactory<Object> POLYMORPHIC_POJO;
-
     static final RuntimeFieldFactory<Collection<?>> COLLECTION;
-
     static final RuntimeFieldFactory<Object> DELEGATE;
+    private static final HashMap<String, RuntimeFieldFactory<?>> __inlineValues = new HashMap<>();
 
-    static
-    {
-        if (USE_SUN_MISC_UNSAFE)
-        {
+    static {
+        if (USE_SUN_MISC_UNSAFE) {
             BIGDECIMAL = RuntimeUnsafeFieldFactory.BIGDECIMAL;
             BIGINTEGER = RuntimeUnsafeFieldFactory.BIGINTEGER;
             BOOL = RuntimeUnsafeFieldFactory.BOOL;
@@ -148,9 +137,7 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
             POLYMORPHIC_POJO = RuntimeUnsafeFieldFactory.POLYMORPHIC_POJO;
 
             DELEGATE = RuntimeUnsafeFieldFactory.DELEGATE;
-        }
-        else
-        {
+        } else {
             BIGDECIMAL = RuntimeReflectionFieldFactory.BIGDECIMAL;
             BIGINTEGER = RuntimeReflectionFieldFactory.BIGINTEGER;
             BOOL = RuntimeReflectionFieldFactory.BOOL;
@@ -202,12 +189,20 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
     }
 
     /**
+     * Used by {@link ObjectSchema} to serialize dynamic (polymorphic) fields.
+     */
+    final int id;
+
+    public RuntimeFieldFactory(int id) {
+        this.id = id;
+    }
+
+    /**
      * Gets the runtime field factory of the given {@code clazz}.
      * <p>
      * Method overload for backwards compatibility.
      */
-    public static RuntimeFieldFactory<?> getFieldFactory(Class<?> clazz)
-    {
+    public static RuntimeFieldFactory<?> getFieldFactory(Class<?> clazz) {
         return getFieldFactory(clazz, RuntimeEnv.ID_STRATEGY);
     }
 
@@ -215,8 +210,7 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
      * Gets the runtime field factory of the given {@code clazz}.
      */
     public static RuntimeFieldFactory<?> getFieldFactory(Class<?> clazz,
-            IdStrategy strategy)
-    {
+                                                         IdStrategy strategy) {
         if (strategy.isDelegateRegistered(clazz))
             return DELEGATE;
 
@@ -237,16 +231,14 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
         // Note that it has 10 built-in subtypes
         if (clazz.isArray() || Object.class == clazz || Number.class == clazz
                 || Class.class == clazz || Enum.class == clazz
-                || Throwable.class.isAssignableFrom(clazz))
-        {
+                || Throwable.class.isAssignableFrom(clazz)) {
             return OBJECT;
         }
 
         if (Map.class.isAssignableFrom(clazz))
             return RuntimeMapFieldFactory.MAP;
 
-        if (Collection.class.isAssignableFrom(clazz))
-        {
+        if (Collection.class.isAssignableFrom(clazz)) {
             // repeated fields.
             return COLLECTION;
         }
@@ -268,8 +260,7 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
         return POLYMORPHIC_POJO;
     }
 
-    static boolean pojo(Class<?> clazz, Morph morph, IdStrategy strategy)
-    {
+    static boolean pojo(Class<?> clazz, Morph morph, IdStrategy strategy) {
         if (Modifier.isFinal(clazz.getModifiers()))
             return true;
 
@@ -289,19 +280,15 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
         return !MORPH_NON_FINAL_POJOS;
     }
 
-    static Class<?> getGenericType(java.lang.reflect.Field f, int index)
-    {
-        try
-        {
+    static Class<?> getGenericType(java.lang.reflect.Field f, int index) {
+        try {
             Type type = ((ParameterizedType) f.getGenericType())
                     .getActualTypeArguments()[index];
-            if (type instanceof GenericArrayType)
-            {
+            if (type instanceof GenericArrayType) {
                 int dimensions = 1;
                 Type componentType = ((GenericArrayType) type)
                         .getGenericComponentType();
-                while (componentType instanceof GenericArrayType)
-                {
+                while (componentType instanceof GenericArrayType) {
                     dimensions++;
                     componentType = ((GenericArrayType) componentType)
                             .getGenericComponentType();
@@ -320,8 +307,7 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
                         .getClass();
             }
 
-            if (type instanceof ParameterizedType)
-            {
+            if (type instanceof ParameterizedType) {
                 // TODO in the future, we can opt to do recursive type
                 // inspection which can avoid including type metadata even with
                 // very complex nested generic types (E.g a
@@ -340,17 +326,14 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
             }
 
             return (Class<?>) type;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
     static <T> Delegate<T> getDelegateOrInline(Class<T> typeClass,
-            IdStrategy strategy)
-    {
+                                               IdStrategy strategy) {
         Delegate<T> d = strategy.getDelegate(typeClass);
         if (d == null)
             d = (RuntimeFieldFactory<T>) __inlineValues
@@ -363,8 +346,7 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
      * Returns the factory for inline (scalar) values.
      */
     @SuppressWarnings("unchecked")
-    public static <T> RuntimeFieldFactory<T> getInline(Class<T> typeClass)
-    {
+    public static <T> RuntimeFieldFactory<T> getInline(Class<T> typeClass) {
         return (RuntimeFieldFactory<T>) __inlineValues.get(typeClass.getName());
     }
 
@@ -372,25 +354,14 @@ public abstract class RuntimeFieldFactory<V> implements Delegate<V>
      * Returns the factory for inline (scalar) values.
      */
     @SuppressWarnings("unchecked")
-    static <T> RuntimeFieldFactory<T> getInline(String className)
-    {
+    static <T> RuntimeFieldFactory<T> getInline(String className) {
         return (RuntimeFieldFactory<T>) __inlineValues.get(className);
-    }
-
-    /**
-     * Used by {@link ObjectSchema} to serialize dynamic (polymorphic) fields.
-     */
-    final int id;
-
-    public RuntimeFieldFactory(int id)
-    {
-        this.id = id;
     }
 
     /**
      * Creates a runtime {@link Field field} based on reflection.
      */
     public abstract <T> Field<T> create(int number, java.lang.String name,
-            java.lang.reflect.Field field, IdStrategy strategy);
+                                        java.lang.reflect.Field field, IdStrategy strategy);
 
 }

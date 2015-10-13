@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -29,266 +26,12 @@ import io.protostuff.Schema;
 
 /**
  * Test ser/deser of polymorphic graph objects (references and cyclic dependencies).
- * 
+ *
  * @author David Yu
  */
-public class PolymorphicRuntimeGraphTest extends AbstractTest
-{
+public class PolymorphicRuntimeGraphTest extends AbstractTest {
 
-    public static abstract class Node
-    {
-        ContainerNode parent;
-        String tagName;
-        String id;
-        String name;
-        String text;
-        Map<String, String> attributes;
-        Document root;
-        AtomicReference<Node> self;
-
-        public Node()
-        {
-
-        }
-
-        public Node(ContainerNode parent, String tagName, String id,
-                Document root)
-        {
-            this.parent = parent;
-            this.tagName = tagName;
-            this.id = id;
-            this.root = root;
-            self = new AtomicReference<>(this);
-
-            if (parent != null)
-                parent.addNode(this);
-
-            if (id != null)
-                root.addNodeById(this);
-
-        }
-
-        public void setAttribute(String key, String value)
-        {
-            if (attributes == null)
-                attributes = new HashMap<>();
-
-            attributes.put(key, value);
-        }
-
-        public String getAttribute(String key)
-        {
-            return attributes == null ? null : attributes.get(key);
-        }
-
-        public String toString()
-        {
-            return getClass().getSimpleName();
-        }
-    }
-
-    public static abstract class ContainerNode extends Node
-    {
-
-        List<Node> nodes = new ArrayList<>();
-
-        public ContainerNode()
-        {
-
-        }
-
-        public ContainerNode(ContainerNode parent, String name, String id,
-                Document root)
-        {
-            super(parent, name, id, root);
-        }
-
-        public void addNode(Node node)
-        {
-            nodes.add(node);
-            node.parent = this;
-        }
-
-        public Node getNode(int index)
-        {
-            return nodes.get(index);
-        }
-
-        public int getNodeCount()
-        {
-            return nodes.size();
-        }
-
-    }
-
-    public static class Document extends ContainerNode
-    {
-
-        Map<String, Node> idMap;
-
-        public Document()
-        {
-
-        }
-
-        public Document(ContainerNode parent)
-        {
-            super(parent, "html", null, null);
-        }
-
-        public void addNodeById(Node node)
-        {
-            if (idMap == null)
-                idMap = new HashMap<>();
-
-            idMap.put(node.id, node);
-        }
-
-        public Node getNodeById(String id)
-        {
-            return idMap == null ? null : idMap.get(id);
-        }
-    }
-
-    public static class Head extends ContainerNode
-    {
-        public Head()
-        {
-
-        }
-
-        public Head(ContainerNode parent, Document root)
-        {
-            super(parent, "head", null, root);
-        }
-    }
-
-    public static class Title extends Node
-    {
-        public Title()
-        {
-
-        }
-
-        public Title(ContainerNode parent, Document root)
-        {
-            super(parent, "title", null, root);
-        }
-    }
-
-    public static class Link extends Node
-    {
-        String rel;
-        String type;
-        String href;
-
-        public Link()
-        {
-
-        }
-
-        public Link(ContainerNode parent, Document root)
-        {
-            super(parent, "link", null, root);
-        }
-    }
-
-    public static class Body extends ContainerNode
-    {
-        boolean hidden;
-
-        public Body()
-        {
-
-        }
-
-        public Body(ContainerNode parent, Document root)
-        {
-            super(parent, "body", null, root);
-        }
-    }
-
-    public static class Div extends ContainerNode
-    {
-        public enum Display
-        {
-            INLINE, BLOCK
-        }
-
-        // default is block
-        Display display;
-
-        public Div()
-        {
-
-        }
-
-        public Div(ContainerNode parent, String id, Document root)
-        {
-            super(parent, "div", id, root);
-        }
-    }
-
-    public static class TextArea extends Node
-    {
-        int rows;
-        int cols;
-
-        public TextArea()
-        {
-
-        }
-
-        public TextArea(ContainerNode parent, String id, Document root)
-        {
-            super(parent, "textarea", id, root);
-        }
-    }
-
-    public static class HtmlDocumentRequest
-    {
-        Document document;
-    }
-
-    /*
-     * Scenario:
-     * 
-     * <html> <head> <title>Hello world from protostuff-runtime graph ser/deser!</title> <link rel="shortcut icon"
-     * href="/favicon.ico" type="image/x-icon" /> </head> <body> <div id="firstDiv" name="firstDiv" foo="bar"
-     * display="inline">TextArea</div> <div id="secondDiv" name="secondDiv"> <textarea id="ta" name="ta" rows="10"
-     * cols="20" /> </div> </body> </html>
-     */
-    public void testPolymorphicAndCyclic() throws Exception
-    {
-        Schema<HtmlDocumentRequest> schema = RuntimeSchema
-                .getSchema(HtmlDocumentRequest.class);
-
-        Document document = new Document(null);
-
-        attachHead(document);
-        attachBody(document);
-
-        HtmlDocumentRequest docRequest = new HtmlDocumentRequest();
-        docRequest.document = document;
-
-        verifyGraph(docRequest);
-        byte[] data = GraphTest.toByteArray(docRequest, schema);
-
-        HtmlDocumentRequest docRequestFromByteArray = new HtmlDocumentRequest();
-        GraphTest.mergeFrom(data, 0, data.length, docRequestFromByteArray,
-                schema);
-
-        verifyGraph(docRequestFromByteArray);
-
-        HtmlDocumentRequest docRequestFromStream = new HtmlDocumentRequest();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        GraphTest.mergeFrom(in, docRequestFromStream, schema);
-
-        verifyGraph(docRequestFromStream);
-    }
-
-    static void attachHead(Document document)
-    {
+    static void attachHead(Document document) {
         Head head = new Head(document, document);
 
         Title title = new Title(head, document);
@@ -300,8 +43,7 @@ public class PolymorphicRuntimeGraphTest extends AbstractTest
         link.type = "image/x-icon";
     }
 
-    static void attachBody(Document document)
-    {
+    static void attachBody(Document document) {
         Body body = new Body(document, document);
         Div div = new Div(body, "firstDiv", document);
         div.name = "firstDiv";
@@ -319,8 +61,7 @@ public class PolymorphicRuntimeGraphTest extends AbstractTest
         ta.cols = 20;
     }
 
-    static void verifyGraph(HtmlDocumentRequest docRequest)
-    {
+    static void verifyGraph(HtmlDocumentRequest docRequest) {
         assertNotNull(docRequest);
 
         Document document = docRequest.document;
@@ -409,60 +150,60 @@ public class PolymorphicRuntimeGraphTest extends AbstractTest
         assertTrue(document.getNodeById("ta") == ta);
     }
 
-    public static abstract class LinkedElement
-    {
-        String name;
-        LinkedElement next;
+    static void verifyGraph(LinkedElementContainer container) {
+        assertNotNull(container);
 
-        public LinkedElement()
-        {
+        LinkedElement element = container.element;
+        assertTrue(element instanceof HotElement);
 
-        }
+        HotElement hot = (HotElement) element;
+        assertEquals(hot.name, "hot");
 
-        public LinkedElement(String name, LinkedElement previous)
-        {
-            this.name = name;
-            if (previous != null)
-                previous.next = this;
-        }
+        assertTrue(hot.next instanceof ColdElement);
+
+        ColdElement cold = (ColdElement) hot.next;
+        assertEquals(cold.name, "cold");
+
+        assertTrue(cold == cold.next);
     }
 
-    public static class HotElement extends LinkedElement
-    {
+    /*
+     * Scenario:
+     *
+     * <html> <head> <title>Hello world from protostuff-runtime graph ser/deser!</title> <link rel="shortcut icon"
+     * href="/favicon.ico" type="image/x-icon" /> </head> <body> <div id="firstDiv" name="firstDiv" foo="bar"
+     * display="inline">TextArea</div> <div id="secondDiv" name="secondDiv"> <textarea id="ta" name="ta" rows="10"
+     * cols="20" /> </div> </body> </html>
+     */
+    public void testPolymorphicAndCyclic() throws Exception {
+        Schema<HtmlDocumentRequest> schema = RuntimeSchema
+                .getSchema(HtmlDocumentRequest.class);
 
-        public HotElement()
-        {
+        Document document = new Document(null);
 
-        }
+        attachHead(document);
+        attachBody(document);
 
-        public HotElement(LinkedElement previous)
-        {
-            super("hot", previous);
-        }
+        HtmlDocumentRequest docRequest = new HtmlDocumentRequest();
+        docRequest.document = document;
 
+        verifyGraph(docRequest);
+        byte[] data = GraphTest.toByteArray(docRequest, schema);
+
+        HtmlDocumentRequest docRequestFromByteArray = new HtmlDocumentRequest();
+        GraphTest.mergeFrom(data, 0, data.length, docRequestFromByteArray,
+                schema);
+
+        verifyGraph(docRequestFromByteArray);
+
+        HtmlDocumentRequest docRequestFromStream = new HtmlDocumentRequest();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        GraphTest.mergeFrom(in, docRequestFromStream, schema);
+
+        verifyGraph(docRequestFromStream);
     }
 
-    public static class ColdElement extends LinkedElement
-    {
-
-        public ColdElement()
-        {
-
-        }
-
-        public ColdElement(LinkedElement previous)
-        {
-            super("cold", previous);
-        }
-    }
-
-    public static class LinkedElementContainer
-    {
-        LinkedElement element;
-    }
-
-    public void testPolymorphicSelfReference() throws Exception
-    {
+    public void testPolymorphicSelfReference() throws Exception {
         Schema<LinkedElementContainer> schema = RuntimeSchema
                 .getSchema(LinkedElementContainer.class);
 
@@ -491,22 +232,224 @@ public class PolymorphicRuntimeGraphTest extends AbstractTest
         verifyGraph(containerFromStream);
     }
 
-    static void verifyGraph(LinkedElementContainer container)
-    {
-        assertNotNull(container);
+    public static abstract class Node {
+        ContainerNode parent;
+        String tagName;
+        String id;
+        String name;
+        String text;
+        Map<String, String> attributes;
+        Document root;
+        AtomicReference<Node> self;
 
-        LinkedElement element = container.element;
-        assertTrue(element instanceof HotElement);
+        public Node() {
 
-        HotElement hot = (HotElement) element;
-        assertEquals(hot.name, "hot");
+        }
 
-        assertTrue(hot.next instanceof ColdElement);
+        public Node(ContainerNode parent, String tagName, String id,
+                    Document root) {
+            this.parent = parent;
+            this.tagName = tagName;
+            this.id = id;
+            this.root = root;
+            self = new AtomicReference<>(this);
 
-        ColdElement cold = (ColdElement) hot.next;
-        assertEquals(cold.name, "cold");
+            if (parent != null)
+                parent.addNode(this);
 
-        assertTrue(cold == cold.next);
+            if (id != null)
+                root.addNodeById(this);
+
+        }
+
+        public void setAttribute(String key, String value) {
+            if (attributes == null)
+                attributes = new HashMap<>();
+
+            attributes.put(key, value);
+        }
+
+        public String getAttribute(String key) {
+            return attributes == null ? null : attributes.get(key);
+        }
+
+        public String toString() {
+            return getClass().getSimpleName();
+        }
+    }
+
+    public static abstract class ContainerNode extends Node {
+
+        List<Node> nodes = new ArrayList<>();
+
+        public ContainerNode() {
+
+        }
+
+        public ContainerNode(ContainerNode parent, String name, String id,
+                             Document root) {
+            super(parent, name, id, root);
+        }
+
+        public void addNode(Node node) {
+            nodes.add(node);
+            node.parent = this;
+        }
+
+        public Node getNode(int index) {
+            return nodes.get(index);
+        }
+
+        public int getNodeCount() {
+            return nodes.size();
+        }
+
+    }
+
+    public static class Document extends ContainerNode {
+
+        Map<String, Node> idMap;
+
+        public Document() {
+
+        }
+
+        public Document(ContainerNode parent) {
+            super(parent, "html", null, null);
+        }
+
+        public void addNodeById(Node node) {
+            if (idMap == null)
+                idMap = new HashMap<>();
+
+            idMap.put(node.id, node);
+        }
+
+        public Node getNodeById(String id) {
+            return idMap == null ? null : idMap.get(id);
+        }
+    }
+
+    public static class Head extends ContainerNode {
+        public Head() {
+
+        }
+
+        public Head(ContainerNode parent, Document root) {
+            super(parent, "head", null, root);
+        }
+    }
+
+    public static class Title extends Node {
+        public Title() {
+
+        }
+
+        public Title(ContainerNode parent, Document root) {
+            super(parent, "title", null, root);
+        }
+    }
+
+    public static class Link extends Node {
+        String rel;
+        String type;
+        String href;
+
+        public Link() {
+
+        }
+
+        public Link(ContainerNode parent, Document root) {
+            super(parent, "link", null, root);
+        }
+    }
+
+    public static class Body extends ContainerNode {
+        boolean hidden;
+
+        public Body() {
+
+        }
+
+        public Body(ContainerNode parent, Document root) {
+            super(parent, "body", null, root);
+        }
+    }
+
+    public static class Div extends ContainerNode {
+        // default is block
+        Display display;
+
+        public Div() {
+
+        }
+
+        public Div(ContainerNode parent, String id, Document root) {
+            super(parent, "div", id, root);
+        }
+
+        public enum Display {
+            INLINE, BLOCK
+        }
+    }
+
+    public static class TextArea extends Node {
+        int rows;
+        int cols;
+
+        public TextArea() {
+
+        }
+
+        public TextArea(ContainerNode parent, String id, Document root) {
+            super(parent, "textarea", id, root);
+        }
+    }
+
+    public static class HtmlDocumentRequest {
+        Document document;
+    }
+
+    public static abstract class LinkedElement {
+        String name;
+        LinkedElement next;
+
+        public LinkedElement() {
+
+        }
+
+        public LinkedElement(String name, LinkedElement previous) {
+            this.name = name;
+            if (previous != null)
+                previous.next = this;
+        }
+    }
+
+    public static class HotElement extends LinkedElement {
+
+        public HotElement() {
+
+        }
+
+        public HotElement(LinkedElement previous) {
+            super("hot", previous);
+        }
+
+    }
+
+    public static class ColdElement extends LinkedElement {
+
+        public ColdElement() {
+
+        }
+
+        public ColdElement(LinkedElement previous) {
+            super("cold", previous);
+        }
+    }
+
+    public static class LinkedElementContainer {
+        LinkedElement element;
     }
 
 }

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -25,23 +22,20 @@ import io.protostuff.ProtostuffIOUtil;
 
 /**
  * Baz - for testing
- * 
+ *
  * @author David Yu
  */
-public final class Baz implements Externalizable
-{
+public final class Baz implements Externalizable {
 
     private int id;
     private String name;
     private long timestamp;
 
-    public Baz()
-    {
+    public Baz() {
 
     }
 
-    public Baz(int id, String name, long timestamp)
-    {
+    public Baz(int id, String name, long timestamp) {
         this.id = id;
         this.name = name;
         this.timestamp = timestamp;
@@ -50,8 +44,7 @@ public final class Baz implements Externalizable
     /**
      * @return the id
      */
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
@@ -59,16 +52,14 @@ public final class Baz implements Externalizable
      * @param id
      *            the id to set
      */
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
     /**
      * @return the name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
@@ -76,16 +67,14 @@ public final class Baz implements Externalizable
      * @param name
      *            the name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the timestamp
      */
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -93,27 +82,23 @@ public final class Baz implements Externalizable
      * @param timestamp
      *            the timestamp to set
      */
-    public void setTimestamp(long timestamp)
-    {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException
-    {
+    public void readExternal(ObjectInput in) throws IOException {
         ProtostuffIOUtil.mergeDelimitedFrom(in, this,
                 RuntimeSchema.getSchema(Baz.class));
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
+    public void writeExternal(ObjectOutput out) throws IOException {
         ProtostuffIOUtil.writeDelimitedTo(out, this,
                 RuntimeSchema.getSchema(Baz.class));
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + id;
@@ -122,8 +107,7 @@ public final class Baz implements Externalizable
         return result;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -133,12 +117,10 @@ public final class Baz implements Externalizable
         Baz other = (Baz) obj;
         if (id != other.id)
             return false;
-        if (name == null)
-        {
+        if (name == null) {
             if (other.name != null)
                 return false;
-        }
-        else if (!name.equals(other.name))
+        } else if (!name.equals(other.name))
             return false;
         return timestamp == other.timestamp;
     }

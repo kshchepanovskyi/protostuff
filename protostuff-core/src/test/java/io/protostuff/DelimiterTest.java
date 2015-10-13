@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -28,41 +25,39 @@ import io.protostuff.Foo.EnumSample;
 /**
  * Test writing/reading to/from streams using writeDelimitedTo, mergeDelimitedFrom, optWriteDelimitedTo and
  * optMergeDelimitedFrom.
- * 
+ *
  * @author David Yu
  */
-public abstract class DelimiterTest extends AbstractTest
-{
+public abstract class DelimiterTest extends AbstractTest {
 
     /**
      * Serializes the {@code message} (delimited) into an {@link OutputStream} via {@link DeferredOutput} using the
      * given schema.
      */
     protected abstract <T> int writeDelimitedTo(OutputStream out, T message,
-            Schema<T> schema, LinkedBuffer buffer) throws IOException;
+                                                Schema<T> schema, LinkedBuffer buffer) throws IOException;
 
     /**
      * Deserializes from the byte array and data is merged/saved to the message.
      */
     protected abstract <T> void mergeDelimitedFrom(InputStream in, T message,
-            Schema<T> schema, LinkedBuffer buffer) throws IOException;
+                                                   Schema<T> schema, LinkedBuffer buffer) throws IOException;
 
     /**
      * Serializes the {@code message} (delimited) into an {@link OutputStream} via {@link DeferredOutput} using the
      * given schema.
      */
     protected abstract <T> int optWriteDelimitedTo(OutputStream out, T message,
-            Schema<T> schema, LinkedBuffer buffer) throws IOException;
+                                                   Schema<T> schema, LinkedBuffer buffer) throws IOException;
 
     /**
      * Deserializes from the byte array and data is merged/saved to the message.
      */
     protected abstract <T> boolean optMergeDelimitedFrom(InputStream in, T message,
-            Schema<T> schema, LinkedBuffer buffer) throws IOException;
+                                                         Schema<T> schema, LinkedBuffer buffer) throws IOException;
 
     <T> void verifyOptData(byte[] optData, T message, Schema<T> schema,
-            LinkedBuffer buffer) throws IOException
-    {
+                           LinkedBuffer buffer) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int size = writeDelimitedTo(out, message, schema, buf());
         int delimSize = ProtobufOutput.computeRawVarint32Size(size);
@@ -86,8 +81,7 @@ public abstract class DelimiterTest extends AbstractTest
 
     }
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Schema<Foo> schema = Foo.getSchema();
         Foo message = SerializableObjects.foo;
 
@@ -109,8 +103,7 @@ public abstract class DelimiterTest extends AbstractTest
         assertEquals(message, parsedMessage);
     }
 
-    public void testFooEmpty() throws Exception
-    {
+    public void testFooEmpty() throws Exception {
         Schema<Foo> schema = Foo.getSchema();
         Foo message = new Foo();
 
@@ -136,19 +129,18 @@ public abstract class DelimiterTest extends AbstractTest
         assertEquals(message, parsedMessage);
     }
 
-    public void testFooTooLarge() throws Exception
-    {
+    public void testFooTooLarge() throws Exception {
         Schema<Foo> schema = Foo.getSchema();
         Foo message = SerializableObjects.newFoo(
-                new Integer[] { 90210, -90210, 0, 128 },
-                new String[] { "ab", "cd" },
-                new Bar[] { SerializableObjects.bar, SerializableObjects.negativeBar },
-                new EnumSample[] { EnumSample.TYPE0, EnumSample.TYPE2 },
-                new ByteString[] { ByteString.copyFromUtf8("ef"), ByteString.copyFromUtf8("gh") },
-                new Boolean[] { true, false },
-                new Float[] { 1234.4321f, -1234.4321f, 0f },
-                new Double[] { 12345678.87654321d, -12345678.87654321d, 0d },
-                new Long[] { 7060504030201l, -7060504030201l, 0l });
+                new Integer[]{90210, -90210, 0, 128},
+                new String[]{"ab", "cd"},
+                new Bar[]{SerializableObjects.bar, SerializableObjects.negativeBar},
+                new EnumSample[]{EnumSample.TYPE0, EnumSample.TYPE2},
+                new ByteString[]{ByteString.copyFromUtf8("ef"), ByteString.copyFromUtf8("gh")},
+                new Boolean[]{true, false},
+                new Float[]{1234.4321f, -1234.4321f, 0f},
+                new Double[]{12345678.87654321d, -12345678.87654321d, 0d},
+                new Long[]{7060504030201l, -7060504030201l, 0l});
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int size = optWriteDelimitedTo(out, message, schema, buf());
@@ -166,8 +158,7 @@ public abstract class DelimiterTest extends AbstractTest
         assertFalse(merged);
     }
 
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         Schema<Bar> schema = Bar.getSchema();
         Bar message = SerializableObjects.bar;
 
@@ -189,8 +180,7 @@ public abstract class DelimiterTest extends AbstractTest
         assertEquals(message, parsedMessage);
     }
 
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         Schema<Baz> schema = Baz.getSchema();
         Baz message = SerializableObjects.baz;
 
@@ -212,8 +202,7 @@ public abstract class DelimiterTest extends AbstractTest
         assertEquals(message, parsedMessage);
     }
 
-    public void testBarTooLarge2() throws Exception
-    {
+    public void testBarTooLarge2() throws Exception {
         Schema<Bar> schema = Bar.getSchema();
         Bar message = new Bar();
         message.setSomeBytes(ByteString.wrap(
@@ -235,8 +224,7 @@ public abstract class DelimiterTest extends AbstractTest
         assertFalse(merged);
     }
 
-    public void testBarTooLarge3() throws Exception
-    {
+    public void testBarTooLarge3() throws Exception {
         Schema<Bar> schema = Bar.getSchema();
         Bar message = new Bar();
         message.setSomeBytes(ByteString.wrap(

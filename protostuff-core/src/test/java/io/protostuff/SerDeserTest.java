@@ -1,25 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.SerializableObjects.bar;
-import static io.protostuff.SerializableObjects.baz;
-import static io.protostuff.SerializableObjects.foo;
-import static io.protostuff.SerializableObjects.negativeBar;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,20 +22,50 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import static io.protostuff.SerializableObjects.bar;
+import static io.protostuff.SerializableObjects.baz;
+import static io.protostuff.SerializableObjects.foo;
+import static io.protostuff.SerializableObjects.negativeBar;
+
 /**
  * Serialization and deserialization test cases.
- * 
+ *
  * @author David Yu
  */
-public abstract class SerDeserTest extends StandardTest
-{
+public abstract class SerDeserTest extends StandardTest {
+
+    public static String repeatChar(char c, int size) {
+        StringBuilder sb = new StringBuilder(size);
+        while (size-- > 0)
+            sb.append(c);
+
+        return sb.toString();
+    }
+
+    static void assertEquals(HasHasBar h1, HasHasBar h2) {
+        // true if both are null
+        if (h1 == h2)
+            return;
+
+        assertEquals(h1.getName(), h2.getName());
+        assertEquals(h1.getHasBar(), h2.getHasBar());
+    }
+
+    static void assertEquals(HasBar h1, HasBar h2) {
+        // true if both are null
+        if (h1 == h2)
+            return;
+
+        assertTrue(h1.getId() == h2.getId());
+        assertEquals(h1.getName(), h2.getName());
+        SerializableObjects.assertEquals(h1.getBar(), h2.getBar());
+    }
 
     /**
      * Serializes the {@code message} (delimited) into an {@link OutputStream} via {@link DeferredOutput}.
      */
     protected <T extends Message<T>> void writeDelimitedTo(OutputStream out, T message)
-            throws IOException
-    {
+            throws IOException {
         writeDelimitedTo(out, message, message.cachedSchema());
     }
 
@@ -60,13 +82,10 @@ public abstract class SerDeserTest extends StandardTest
     protected abstract <T> void mergeDelimitedFrom(InputStream in, T message, Schema<T> schema)
             throws IOException;
 
-    public void testFooSkipMessage() throws Exception
-    {
-        final CustomSchema<Foo> fooSchema = new CustomSchema<Foo>(foo.cachedSchema())
-        {
+    public void testFooSkipMessage() throws Exception {
+        final CustomSchema<Foo> fooSchema = new CustomSchema<Foo>(foo.cachedSchema()) {
             @Override
-            public void writeTo(Output output, Foo message) throws IOException
-            {
+            public void writeTo(Output output, Foo message) throws IOException {
                 // 10 is an unknown field
                 output.writeObject(10, baz, Baz.getSchema(), false);
                 super.writeTo(output, message);
@@ -81,21 +100,17 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(fooCompare, dfoo);
     }
 
-    public void testBarSkipMessage() throws Exception
-    {
-        final CustomSchema<Bar> barSchema = new CustomSchema<Bar>(bar.cachedSchema())
-        {
+    public void testBarSkipMessage() throws Exception {
+        final CustomSchema<Bar> barSchema = new CustomSchema<Bar>(bar.cachedSchema()) {
             @Override
-            public void writeTo(Output output, Bar message) throws IOException
-            {
+            public void writeTo(Output output, Bar message) throws IOException {
                 // 10 is an unknown field
                 output.writeObject(10, baz, Baz.getSchema(), false);
                 super.writeTo(output, message);
             }
         };
 
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             Bar dbar = new Bar();
 
             byte[] output = toByteArray(barCompare, barSchema);
@@ -108,13 +123,10 @@ public abstract class SerDeserTest extends StandardTest
      * Foo shares field numbers (and type) with Bar except that foo's fields are all repeated (w/c is alright). Bar also
      * shares the same field and type (1&2) with Baz.
      */
-    public void testShareFieldNumberAndTypeAndSkipMessage() throws Exception
-    {
-        final CustomSchema<Bar> barSchema = new CustomSchema<Bar>(bar.cachedSchema())
-        {
+    public void testShareFieldNumberAndTypeAndSkipMessage() throws Exception {
+        final CustomSchema<Bar> barSchema = new CustomSchema<Bar>(bar.cachedSchema()) {
             @Override
-            public void writeTo(Output output, Bar message) throws IOException
-            {
+            public void writeTo(Output output, Bar message) throws IOException {
                 output.writeObject(10, baz, Baz.getSchema(), false);
                 super.writeTo(output, message);
             }
@@ -142,8 +154,7 @@ public abstract class SerDeserTest extends StandardTest
         assertTrue(bar.getSomeFloat() == foo.getSomeFloat().get(0));
     }
 
-    public void testFooDelimited() throws Exception
-    {
+    public void testFooDelimited() throws Exception {
         Foo fooCompare = SerializableObjects.foo;
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -157,8 +168,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(foo, fooCompare);
     }
 
-    public void testEmptyFooDelimited() throws Exception
-    {
+    public void testEmptyFooDelimited() throws Exception {
         Foo fooCompare = new Foo();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -172,8 +182,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(foo, fooCompare);
     }
 
-    public void testEmptyInnerFooDelimited() throws Exception
-    {
+    public void testEmptyInnerFooDelimited() throws Exception {
         Foo fooCompare = new Foo();
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(new Bar());
@@ -190,8 +199,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(foo, fooCompare);
     }
 
-    public void testBarDelimited() throws Exception
-    {
+    public void testBarDelimited() throws Exception {
         Bar barCompare = SerializableObjects.bar;
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -205,8 +213,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(bar, barCompare);
     }
 
-    public void testEmptyBarDelimited() throws Exception
-    {
+    public void testEmptyBarDelimited() throws Exception {
         Bar barCompare = new Bar();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -220,8 +227,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(bar, barCompare);
     }
 
-    public void testEmptyInnerBarDelimited() throws Exception
-    {
+    public void testEmptyInnerBarDelimited() throws Exception {
         Bar barCompare = new Bar();
         barCompare.setSomeBaz(new Baz());
 
@@ -236,8 +242,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(bar, barCompare);
     }
 
-    public void testBazDelimited() throws Exception
-    {
+    public void testBazDelimited() throws Exception {
         Baz bazCompare = SerializableObjects.baz;
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -251,8 +256,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(baz, bazCompare);
     }
 
-    public void testEmptyBazDelimited() throws Exception
-    {
+    public void testEmptyBazDelimited() throws Exception {
         Baz bazCompare = new Baz();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -266,8 +270,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(baz, bazCompare);
     }
 
-    public void testJavaSerializableGraphIOUtil() throws Exception
-    {
+    public void testJavaSerializableGraphIOUtil() throws Exception {
         ClubFounder founder = new ClubFounder();
 
         StringBuilder b = new StringBuilder();
@@ -299,8 +302,7 @@ public abstract class SerDeserTest extends StandardTest
      * <p>
      * HasBar wraps a message {@link Bar}.
      */
-    public void testJavaSerializable() throws Exception
-    {
+    public void testJavaSerializable() throws Exception {
         HasHasBar hhbCompare = new HasHasBar("hhb",
                 new HasBar(12345, "hb", SerializableObjects.bar));
         HasHasBar dhhb = new HasHasBar();
@@ -311,8 +313,7 @@ public abstract class SerDeserTest extends StandardTest
         assertEquals(hhbCompare, dhhb);
     }
 
-    public void testJavaSerializableEmptyBar() throws Exception
-    {
+    public void testJavaSerializableEmptyBar() throws Exception {
         Bar bar = new Bar();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -326,8 +327,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(parsedBar, bar);
     }
 
-    public void testJavaSerializableEmptyBarInner() throws Exception
-    {
+    public void testJavaSerializableEmptyBarInner() throws Exception {
         Bar bar = new Bar();
         bar.setSomeBaz(new Baz());
 
@@ -342,8 +342,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(parsedBar, bar);
     }
 
-    public void testJavaSerializableEmptyFoo() throws Exception
-    {
+    public void testJavaSerializableEmptyFoo() throws Exception {
         Foo foo = new Foo();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -357,8 +356,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(parsedFoo, foo);
     }
 
-    public void testJavaSerializableEmptyFoo2() throws Exception
-    {
+    public void testJavaSerializableEmptyFoo2() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         Bar bar = new Bar();
         bars.add(bar);
@@ -375,8 +373,7 @@ public abstract class SerDeserTest extends StandardTest
         SerializableObjects.assertEquals(parsedFoo, foo);
     }
 
-    public void testJavaSerializableEmptyFooInner() throws Exception
-    {
+    public void testJavaSerializableEmptyFooInner() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         Bar bar = new Bar();
         bar.setSomeBaz(new Baz());
@@ -392,36 +389,6 @@ public abstract class SerDeserTest extends StandardTest
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(coded));
         Foo parsedFoo = (Foo) in.readObject();
         SerializableObjects.assertEquals(parsedFoo, foo);
-    }
-
-    public static String repeatChar(char c, int size)
-    {
-        StringBuilder sb = new StringBuilder(size);
-        while (size-- > 0)
-            sb.append(c);
-
-        return sb.toString();
-    }
-
-    static void assertEquals(HasHasBar h1, HasHasBar h2)
-    {
-        // true if both are null
-        if (h1 == h2)
-            return;
-
-        assertEquals(h1.getName(), h2.getName());
-        assertEquals(h1.getHasBar(), h2.getHasBar());
-    }
-
-    static void assertEquals(HasBar h1, HasBar h2)
-    {
-        // true if both are null
-        if (h1 == h2)
-            return;
-
-        assertTrue(h1.getId() == h2.getId());
-        assertEquals(h1.getName(), h2.getName());
-        SerializableObjects.assertEquals(h1.getBar(), h2.getBar());
     }
 
 }

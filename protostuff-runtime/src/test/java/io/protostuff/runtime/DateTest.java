@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -30,61 +27,12 @@ import io.protostuff.Schema;
 
 /**
  * Test ser/deser of Date object.
- * 
+ *
  * @author David Yu
  */
-public class DateTest extends AbstractTest
-{
+public class DateTest extends AbstractTest {
 
-    public static class Entity
-    {
-        int id;
-        String name;
-        Date timestamp;
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + id;
-            result = prime * result + ((name == null) ? 0 : name.hashCode());
-            result = prime * result
-                    + ((timestamp == null) ? 0 : timestamp.hashCode());
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Entity other = (Entity) obj;
-            if (id != other.id)
-                return false;
-            if (name == null)
-            {
-                if (other.name != null)
-                    return false;
-            }
-            else if (!name.equals(other.name))
-                return false;
-            if (timestamp == null)
-            {
-                if (other.timestamp != null)
-                    return false;
-            }
-            else if (!timestamp.equals(other.timestamp))
-                return false;
-            return true;
-        }
-
-    }
-
-    static Entity filledEntity()
-    {
+    static Entity filledEntity() {
         Entity e = new Entity();
         e.id = 1;
         e.name = "entity";
@@ -92,8 +40,7 @@ public class DateTest extends AbstractTest
         return e;
     }
 
-    public void testProtobuf() throws Exception
-    {
+    public void testProtobuf() throws Exception {
         Schema<Entity> schema = RuntimeSchema.getSchema(Entity.class);
         Entity p = filledEntity();
 
@@ -119,8 +66,7 @@ public class DateTest extends AbstractTest
         assertEquals(list, parsedList);
     }
 
-    public void testProtostuff() throws Exception
-    {
+    public void testProtostuff() throws Exception {
         Schema<Entity> schema = RuntimeSchema.getSchema(Entity.class);
         Entity p = filledEntity();
 
@@ -144,6 +90,46 @@ public class DateTest extends AbstractTest
         List<Entity> parsedList = ProtostuffIOUtil.parseListFrom(in, schema);
 
         assertEquals(list, parsedList);
+    }
+
+    public static class Entity {
+        int id;
+        String name;
+        Date timestamp;
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + id;
+            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            result = prime * result
+                    + ((timestamp == null) ? 0 : timestamp.hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Entity other = (Entity) obj;
+            if (id != other.id)
+                return false;
+            if (name == null) {
+                if (other.name != null)
+                    return false;
+            } else if (!name.equals(other.name))
+                return false;
+            if (timestamp == null) {
+                if (other.timestamp != null)
+                    return false;
+            } else if (!timestamp.equals(other.timestamp))
+                return false;
+            return true;
+        }
+
     }
 
 }

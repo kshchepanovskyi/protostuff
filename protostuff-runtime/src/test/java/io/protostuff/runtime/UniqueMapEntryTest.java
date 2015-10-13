@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 //================================================================================
 //Copyright (c) 2011, David Yu
@@ -44,40 +41,20 @@
 
 package io.protostuff.runtime;
 
+import junit.framework.TestCase;
+
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 /**
  * Test for Map impls that returns non-unique entries across iterator calls.
- * 
+ *
  * @author David Yu
  */
-public class UniqueMapEntryTest extends TestCase
-{
+public class UniqueMapEntryTest extends TestCase {
 
-    enum Gender
-    {
-        MALE, FEMALE
-    }
-
-    public void testIt()
-    {
-        for (MapSchema.MessageFactory mf : MapSchema.MessageFactories.values())
-        {
-            Map<String, String> map = mf.newMessage();
-            verify(map, "key1", "value1", "key2", "value2");
-        }
-
-        EnumMap<Gender, String> map = new EnumMap<>(Gender.class);
-        verify(map, Gender.MALE, "m", Gender.FEMALE, "f");
-
-    }
-
-    static <K, V> void verify(Map<K, V> map, K k1, V v1, K k2, V v2)
-    {
+    static <K, V> void verify(Map<K, V> map, K k1, V v1, K k2, V v2) {
         map.put(k1, v1);
         map.put(k2, v2);
 
@@ -89,10 +66,24 @@ public class UniqueMapEntryTest extends TestCase
         assertTrue(iter.hasNext());
         Map.Entry<K, V> second = iter.next();
 
-        if (first == second)
-        {
+        if (first == second) {
             // either IdentityHashMap or EnumMap
             System.err.println(map.getClass().getName() + " with entry: " + first.getClass().getName());
         }
+    }
+
+    public void testIt() {
+        for (MapSchema.MessageFactory mf : MapSchema.MessageFactories.values()) {
+            Map<String, String> map = mf.newMessage();
+            verify(map, "key1", "value1", "key2", "value2");
+        }
+
+        EnumMap<Gender, String> map = new EnumMap<>(Gender.class);
+        verify(map, Gender.MALE, "m", Gender.FEMALE, "f");
+
+    }
+
+    enum Gender {
+        MALE, FEMALE
     }
 }

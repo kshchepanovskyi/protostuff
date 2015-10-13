@@ -1,28 +1,25 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.NumberParser.parseInt;
-import static io.protostuff.NumberParser.parseLong;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import io.protostuff.StringSerializer.STRING;
+
+import static io.protostuff.NumberParser.parseInt;
+import static io.protostuff.NumberParser.parseLong;
 
 /**
  * An input for deserializing kvp-encoded messages. A kvp encoding is a binary encoding w/c contains a key-value
@@ -32,19 +29,16 @@ import io.protostuff.StringSerializer.STRING;
  * <p>
  * Note that this encoding does not support nested messages. This encoding is mostly useful for headers w/c contain
  * information about the content it carries (see http://projects.unbit.it/uwsgi/wiki/uwsgiProtocol).
- * 
+ *
  * @author David Yu
  */
-public final class KvpByteArrayInput implements Input
-{
+public final class KvpByteArrayInput implements Input {
 
     final byte[] buffer;
+    final boolean numeric;
     int offset, limit;
 
-    final boolean numeric;
-
-    public KvpByteArrayInput(byte[] buffer, int offset, int len, boolean numeric)
-    {
+    public KvpByteArrayInput(byte[] buffer, int offset, int len, boolean numeric) {
         this.buffer = buffer;
         this.offset = offset;
         this.limit = offset + len;
@@ -53,8 +47,7 @@ public final class KvpByteArrayInput implements Input
     }
 
     @Override
-    public <T> int readFieldNumber(Schema<T> schema) throws IOException
-    {
+    public <T> int readFieldNumber(Schema<T> schema) throws IOException {
         if (offset == limit)
             return 0;
 
@@ -64,8 +57,7 @@ public final class KvpByteArrayInput implements Input
 
         offset += size;
 
-        if (number == 0)
-        {
+        if (number == 0) {
             // skip unknown fields.
             handleUnknownField(number, schema);
             return readFieldNumber(schema);
@@ -75,21 +67,18 @@ public final class KvpByteArrayInput implements Input
     }
 
     @Override
-    public <T> void handleUnknownField(int fieldNumber, Schema<T> schema) throws IOException
-    {
+    public <T> void handleUnknownField(int fieldNumber, Schema<T> schema) throws IOException {
         final int size = buffer[offset++] | (buffer[offset++] << 8);
         offset += size;
     }
 
     @Override
-    public <T> T mergeObject(T value, Schema<T> schema) throws IOException
-    {
+    public <T> T mergeObject(T value, Schema<T> schema) throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean readBool() throws IOException
-    {
+    public boolean readBool() throws IOException {
         final int size = buffer[offset++] | (buffer[offset++] << 8);
 
         if (size != 1)
@@ -99,8 +88,7 @@ public final class KvpByteArrayInput implements Input
     }
 
     @Override
-    public byte[] readByteArray() throws IOException
-    {
+    public byte[] readByteArray() throws IOException {
         final int size = buffer[offset++] | (buffer[offset++] << 8);
         if (size == 0)
             return ByteString.EMPTY_BYTE_ARRAY;
@@ -115,42 +103,36 @@ public final class KvpByteArrayInput implements Input
     }
 
     @Override
-    public ByteString readBytes() throws IOException
-    {
+    public ByteString readBytes() throws IOException {
         return ByteString.wrap(readByteArray());
     }
 
     @Override
-    public double readDouble() throws IOException
-    {
+    public double readDouble() throws IOException {
         // TODO efficiency
 
         return Double.parseDouble(readString());
     }
 
     @Override
-    public float readFloat() throws IOException
-    {
+    public float readFloat() throws IOException {
         // TODO efficiency
 
         return Float.parseFloat(readString());
     }
 
     @Override
-    public int readUInt32() throws IOException
-    {
+    public int readUInt32() throws IOException {
         return readInt32();
     }
 
     @Override
-    public long readUInt64() throws IOException
-    {
+    public long readUInt64() throws IOException {
         return readInt64();
     }
 
     @Override
-    public int readInt32() throws IOException
-    {
+    public int readInt32() throws IOException {
         final int size = buffer[offset++] | (buffer[offset++] << 8);
         if (size == 0)
             return 0;
@@ -164,8 +146,7 @@ public final class KvpByteArrayInput implements Input
     }
 
     @Override
-    public long readInt64() throws IOException
-    {
+    public long readInt64() throws IOException {
         final int size = buffer[offset++] | (buffer[offset++] << 8);
         if (size == 0)
             return 0;
@@ -179,50 +160,42 @@ public final class KvpByteArrayInput implements Input
     }
 
     @Override
-    public int readEnum() throws IOException
-    {
+    public int readEnum() throws IOException {
         return readInt32();
     }
 
     @Override
-    public int readFixed32() throws IOException
-    {
+    public int readFixed32() throws IOException {
         return readUInt32();
     }
 
     @Override
-    public long readFixed64() throws IOException
-    {
+    public long readFixed64() throws IOException {
         return readUInt64();
     }
 
     @Override
-    public int readSFixed32() throws IOException
-    {
+    public int readSFixed32() throws IOException {
         return readInt32();
     }
 
     @Override
-    public long readSFixed64() throws IOException
-    {
+    public long readSFixed64() throws IOException {
         return readInt64();
     }
 
     @Override
-    public int readSInt32() throws IOException
-    {
+    public int readSInt32() throws IOException {
         return readInt32();
     }
 
     @Override
-    public long readSInt64() throws IOException
-    {
+    public long readSInt64() throws IOException {
         return readInt64();
     }
 
     @Override
-    public String readString() throws IOException
-    {
+    public String readString() throws IOException {
         final int size = buffer[offset++] | (buffer[offset++] << 8);
         if (size == 0)
             return ByteString.EMPTY_STRING;
@@ -237,8 +210,7 @@ public final class KvpByteArrayInput implements Input
 
     @Override
     public void transferByteRangeTo(Output output, boolean utf8String, int fieldNumber,
-            boolean repeated) throws IOException
-    {
+                                    boolean repeated) throws IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -246,8 +218,7 @@ public final class KvpByteArrayInput implements Input
      * Reads a byte array/ByteBuffer value.
      */
     @Override
-    public ByteBuffer readByteBuffer() throws IOException
-    {
+    public ByteBuffer readByteBuffer() throws IOException {
         return ByteBuffer.wrap(readByteArray());
     }
 

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -20,11 +17,10 @@ import java.io.Serializable;
 
 /**
  * Ser/deser test object that wraps a message {@link Bar}.
- * 
+ *
  * @author David Yu
  */
-public class HasBar implements Serializable
-{
+public class HasBar implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,13 +28,11 @@ public class HasBar implements Serializable
     private String name;
     private Bar bar;
 
-    public HasBar()
-    {
+    public HasBar() {
 
     }
 
-    public HasBar(int id, String name, Bar bar)
-    {
+    public HasBar(int id, String name, Bar bar) {
         this.id = id;
         this.name = name;
         this.bar = bar;
@@ -47,8 +41,7 @@ public class HasBar implements Serializable
     /**
      * @return the id
      */
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
@@ -56,16 +49,14 @@ public class HasBar implements Serializable
      * @param id
      *            the id to set
      */
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
     /**
      * @return the name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
@@ -73,16 +64,14 @@ public class HasBar implements Serializable
      * @param name
      *            the name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the bar
      */
-    public Bar getBar()
-    {
+    public Bar getBar() {
         return bar;
     }
 
@@ -90,8 +79,7 @@ public class HasBar implements Serializable
      * @param bar
      *            the bar to set
      */
-    public void setBar(Bar bar)
-    {
+    public void setBar(Bar bar) {
         this.bar = bar;
     }
 

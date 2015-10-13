@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 /**
@@ -27,11 +24,10 @@ import java.util.Properties;
 
 /**
  * The runtime environment.
- * 
+ *
  * @author David Yu
  */
-public final class RuntimeEnv
-{
+public final class RuntimeEnv {
     /**
      * Returns true if serializing enums by name is activated. Disabled by default.
      */
@@ -61,7 +57,7 @@ public final class RuntimeEnv
      * <p>
      * If disabled, type metadata will not be included and instead, will be mapped to a default impl.
      * <p>
-     * 
+     *
      * <pre>
      * Collection = ArrayList
      * List = ArrayList
@@ -84,7 +80,7 @@ public final class RuntimeEnv
      * <p>
      * If disabled, type metadata will not be included and instead, will be mapped to a default impl.
      * <p>
-     * 
+     *
      * <pre>
      * Map = HashMap
      * SortedMap = TreeMap
@@ -113,30 +109,22 @@ public final class RuntimeEnv
      * by default if running on a sun jre.
      */
     public static final boolean USE_SUN_MISC_UNSAFE;
-
+    public static final IdStrategy ID_STRATEGY;
     static final Method newInstanceFromObjectInputStream,
             newInstanceFromObjectStreamClass;
-
     static final long objectConstructorId;
     static final boolean android43;
-
     static final Constructor<Object> OBJECT_CONSTRUCTOR;
 
-    public static final IdStrategy ID_STRATEGY;
-
-    static
-    {
+    static {
         Constructor<Object> c = null;
         Class<?> reflectionFactoryClass = null;
-        try
-        {
+        try {
             c = Object.class.getConstructor((Class[]) null);
             reflectionFactoryClass = Thread.currentThread()
                     .getContextClassLoader()
                     .loadClass("sun.reflect.ReflectionFactory");
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // ignore
         }
 
@@ -146,24 +134,18 @@ public final class RuntimeEnv
         newInstanceFromObjectInputStream = OBJECT_CONSTRUCTOR == null ? getMethodNewInstanceFromObjectInputStream()
                 : null;
 
-        if (newInstanceFromObjectInputStream != null)
-        {
+        if (newInstanceFromObjectInputStream != null) {
             newInstanceFromObjectInputStream.setAccessible(true);
             newInstanceFromObjectStreamClass = null;
             objectConstructorId = -1;
             android43 = false;
-        }
-        else
-        {
+        } else {
             Number[] holder = new Number[1];
             newInstanceFromObjectStreamClass = getMethodNewInstanceFromObjectStreamClass(holder);
-            if (newInstanceFromObjectStreamClass == null)
-            {
+            if (newInstanceFromObjectStreamClass == null) {
                 objectConstructorId = -1;
                 android43 = false;
-            }
-            else
-            {
+            } else {
                 objectConstructorId = holder[0].longValue();
                 android43 = holder[0] instanceof Long;
             }
@@ -199,22 +181,18 @@ public final class RuntimeEnv
         // must be on a sun jre
         USE_SUN_MISC_UNSAFE = OBJECT_CONSTRUCTOR != null
                 && Boolean.parseBoolean(props.getProperty(
-                        "protostuff.runtime.use_sun_misc_unsafe", "true"));
+                "protostuff.runtime.use_sun_misc_unsafe", "true"));
 
         String factoryProp = props
                 .getProperty("protostuff.runtime.id_strategy_factory");
         if (factoryProp == null)
             ID_STRATEGY = new DefaultIdStrategy();
-        else
-        {
+        else {
             final IdStrategy.Factory factory;
-            try
-            {
+            try {
                 factory = ((IdStrategy.Factory) loadClass(factoryProp)
                         .newInstance());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
@@ -223,23 +201,20 @@ public final class RuntimeEnv
         }
     }
 
-    private static Method getMethodNewInstanceFromObjectInputStream()
-    {
-        try
-        {
+    private RuntimeEnv() {
+    }
+
+    private static Method getMethodNewInstanceFromObjectInputStream() {
+        try {
             return java.io.ObjectInputStream.class.getDeclaredMethod(
                     "newInstance", Class.class, Class.class);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             return null;
         }
     }
 
-    private static Method getMethodNewInstanceFromObjectStreamClass(Number[] holder)
-    {
-        try
-        {
+    private static Method getMethodNewInstanceFromObjectStreamClass(Number[] holder) {
+        try {
             // android >= 4.3
             Method m43 = java.io.ObjectStreamClass.class.getDeclaredMethod(
                     "newInstance", Class.class, long.class);
@@ -250,11 +225,8 @@ public final class RuntimeEnv
             holder[0] = (Number) mcid43.invoke(null, Object.class);
 
             return m43;
-        }
-        catch (Exception ex)
-        {
-            try
-            {
+        } catch (Exception ex) {
+            try {
                 // android <= 4.2.2
                 Method m = java.io.ObjectStreamClass.class.getDeclaredMethod(
                         "newInstance", Class.class, int.class);
@@ -265,24 +237,18 @@ public final class RuntimeEnv
                 holder[0] = (Number) mcid.invoke(null, Object.class);
 
                 return m;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 return null;
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    static <T> Class<T> loadClass(String className)
-    {
-        try
-        {
+    static <T> Class<T> loadClass(String className) {
+        try {
             return (Class<T>) Thread.currentThread().getContextClassLoader()
                     .loadClass(className);
-        }
-        catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -290,17 +256,14 @@ public final class RuntimeEnv
     /**
      * Returns an instatiator for the specified {@code clazz}.
      */
-    public static <T> Instantiator<T> newInstantiator(Class<T> clazz)
-    {
+    public static <T> Instantiator<T> newInstantiator(Class<T> clazz) {
         final Constructor<T> constructor = getConstructor(clazz);
-        if (constructor == null)
-        {
+        if (constructor == null) {
             // non-sun jre
             if (android43)
                 return new Android43Instantiator<>(clazz);
 
-            if (newInstanceFromObjectInputStream == null)
-            {
+            if (newInstanceFromObjectInputStream == null) {
                 if (objectConstructorId == -1)
                     throw new RuntimeException("Could not resolve constructor for " + clazz);
 
@@ -313,21 +276,15 @@ public final class RuntimeEnv
         return new DefaultInstantiator<>(constructor);
     }
 
-    private static <T> Constructor<T> getConstructor(Class<T> clazz)
-    {
-        try
-        {
+    private static <T> Constructor<T> getConstructor(Class<T> clazz) {
+        try {
             return clazz.getDeclaredConstructor((Class[]) null);
-        }
-        catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             return null;
             // return OBJECT_CONSTRUCTOR == null ? null :
             // OnDemandSunReflectionFactory.getConstructor(clazz,
             // OBJECT_CONSTRUCTOR);
-        }
-        catch (NoSuchMethodException e)
-        {
+        } catch (NoSuchMethodException e) {
             return null;
             // return OBJECT_CONSTRUCTOR == null ? null :
             // OnDemandSunReflectionFactory.getConstructor(clazz,
@@ -335,117 +292,88 @@ public final class RuntimeEnv
         }
     }
 
-    private RuntimeEnv()
-    {
-    }
-
-    public static abstract class Instantiator<T>
-    {
+    public static abstract class Instantiator<T> {
         /**
          * Creates a new instance of an object.
          */
         public abstract T newInstance();
     }
 
-    static final class DefaultInstantiator<T> extends Instantiator<T>
-    {
+    static final class DefaultInstantiator<T> extends Instantiator<T> {
 
         final Constructor<T> constructor;
 
-        DefaultInstantiator(Constructor<T> constructor)
-        {
+        DefaultInstantiator(Constructor<T> constructor) {
             this.constructor = constructor;
             constructor.setAccessible(true);
         }
 
         @Override
-        public T newInstance()
-        {
-            try
-            {
+        public T newInstance() {
+            try {
                 return constructor.newInstance((Object[]) null);
-            }
-            catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException
-                    | InstantiationException e)
-            {
+            } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException
+                    | InstantiationException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    static final class Android2Instantiator<T> extends Instantiator<T>
-    {
+    static final class Android2Instantiator<T> extends Instantiator<T> {
 
         final Class<T> clazz;
 
-        Android2Instantiator(Class<T> clazz)
-        {
+        Android2Instantiator(Class<T> clazz) {
             this.clazz = clazz;
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public T newInstance()
-        {
-            try
-            {
+        public T newInstance() {
+            try {
                 return (T) newInstanceFromObjectInputStream.invoke(null, clazz,
                         Object.class);
-            }
-            catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e)
-            {
+            } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    static final class Android3Instantiator<T> extends Instantiator<T>
-    {
+    static final class Android3Instantiator<T> extends Instantiator<T> {
 
         final Class<T> clazz;
 
-        Android3Instantiator(Class<T> clazz)
-        {
+        Android3Instantiator(Class<T> clazz) {
             this.clazz = clazz;
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public T newInstance()
-        {
-            try
-            {
+        public T newInstance() {
+            try {
                 return (T) newInstanceFromObjectStreamClass.invoke(null, clazz,
                         (int) objectConstructorId);
-            }
-            catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e)
-            {
+            } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    static final class Android43Instantiator<T> extends Instantiator<T>
-    {
+    static final class Android43Instantiator<T> extends Instantiator<T> {
 
         final Class<T> clazz;
 
-        Android43Instantiator(Class<T> clazz)
-        {
+        Android43Instantiator(Class<T> clazz) {
             this.clazz = clazz;
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public T newInstance()
-        {
-            try
-            {
+        public T newInstance() {
+            try {
                 return (T) newInstanceFromObjectStreamClass.invoke(null, clazz,
                         objectConstructorId);
-            }
-            catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e)
-            {
+            } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }

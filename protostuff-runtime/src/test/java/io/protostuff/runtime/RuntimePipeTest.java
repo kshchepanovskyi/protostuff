@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -23,20 +20,17 @@ import io.protostuff.runtime.MathObjectsTest.Payment;
 
 /**
  * Test case for pipes generated at runtime.
- * 
+ *
  * @author David Yu
  */
-public class RuntimePipeTest extends ProtostuffPipeTest
-{
+public class RuntimePipeTest extends ProtostuffPipeTest {
 
-    static <T> RuntimeSchema<T> getSchema(Class<T> typeClass)
-    {
+    static <T> RuntimeSchema<T> getSchema(Class<T> typeClass) {
         return (RuntimeSchema<T>) RuntimeSchema.getSchema(typeClass);
     }
 
     @Override
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         RuntimeSchema<Foo> schema = getSchema(Foo.class);
 
         Foo foo = SerializableObjects.foo;
@@ -45,8 +39,7 @@ public class RuntimePipeTest extends ProtostuffPipeTest
     }
 
     @Override
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         RuntimeSchema<Bar> schema = getSchema(Bar.class);
 
         Bar bar = SerializableObjects.bar;
@@ -55,8 +48,7 @@ public class RuntimePipeTest extends ProtostuffPipeTest
     }
 
     @Override
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         RuntimeSchema<Baz> schema = getSchema(Baz.class);
 
         Baz baz = SerializableObjects.baz;
@@ -64,8 +56,7 @@ public class RuntimePipeTest extends ProtostuffPipeTest
         roundTrip(baz, schema, schema.getPipeSchema());
     }
 
-    public void testEmployee() throws Exception
-    {
+    public void testEmployee() throws Exception {
         RuntimeSchema<Employee> schema = getSchema(Employee.class);
 
         Employee emp = CollectionTest.filledEmployee();
@@ -73,8 +64,7 @@ public class RuntimePipeTest extends ProtostuffPipeTest
         roundTrip(emp, schema, schema.getPipeSchema());
     }
 
-    public void testTask() throws Exception
-    {
+    public void testTask() throws Exception {
         RuntimeSchema<Task> schema = getSchema(Task.class);
 
         Task task = CollectionTest.filledTask();
@@ -82,8 +72,7 @@ public class RuntimePipeTest extends ProtostuffPipeTest
         roundTrip(task, schema, schema.getPipeSchema());
     }
 
-    public void testPayment() throws Exception
-    {
+    public void testPayment() throws Exception {
         RuntimeSchema<Payment> schema = getSchema(Payment.class);
 
         Payment payment = MathObjectsTest.filledPayment();
@@ -91,8 +80,7 @@ public class RuntimePipeTest extends ProtostuffPipeTest
         roundTrip(payment, schema, schema.getPipeSchema());
     }
 
-    public void testPojoWithArrayAndSet() throws Exception
-    {
+    public void testPojoWithArrayAndSet() throws Exception {
         RuntimeSchema<PojoWithArrayAndSet> schema = getSchema(PojoWithArrayAndSet.class);
 
         PojoWithArrayAndSet p = SerDeserTest.filledPojoWithArrayAndSet();

@@ -1,34 +1,30 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.WireFormat.WIRETYPE_REFERENCE;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static io.protostuff.WireFormat.WIRETYPE_REFERENCE;
+
 /**
  * A ByteArrayInput w/c can handle cyclic dependencies when deserializing objects with graph transformations.
- * 
+ *
  * @author David Yu
  */
 public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
-        implements GraphInput, Schema<Object>
-{
+        implements GraphInput, Schema<Object> {
 
     private final ArrayList<Object> references;
     private int lastRef = -1;
@@ -36,8 +32,7 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
     private Schema<Object> lastSchema;
     private boolean messageReference = false;
 
-    public GraphByteArrayInput(ByteArrayInput input)
-    {
+    public GraphByteArrayInput(ByteArrayInput input) {
         super(input);
 
         // protostuff format only.
@@ -46,8 +41,7 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
         references = new ArrayList<>();
     }
 
-    public GraphByteArrayInput(ByteArrayInput input, int initialCapacity)
-    {
+    public GraphByteArrayInput(ByteArrayInput input, int initialCapacity) {
         super(input);
 
         // protostuff format only.
@@ -57,34 +51,27 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
     }
 
     @Override
-    public void updateLast(Object morphedMessage, Object lastMessage)
-    {
+    public void updateLast(Object morphedMessage, Object lastMessage) {
         final int last = references.size() - 1;
-        if (lastMessage != null && lastMessage == references.get(last))
-        {
+        if (lastMessage != null && lastMessage == references.get(last)) {
             // update the reference
             references.set(last, morphedMessage);
         }
     }
 
     @Override
-    public boolean isCurrentMessageReference()
-    {
+    public boolean isCurrentMessageReference() {
         return messageReference;
     }
 
     @Override
-    public <T> int readFieldNumber(Schema<T> schema) throws IOException
-    {
+    public <T> int readFieldNumber(Schema<T> schema) throws IOException {
         final int fieldNumber = input.readFieldNumber(schema);
-        if (WireFormat.getTagWireType(input.getLastTag()) == WIRETYPE_REFERENCE)
-        {
+        if (WireFormat.getTagWireType(input.getLastTag()) == WIRETYPE_REFERENCE) {
             // a reference.
             lastRef = input.readUInt32();
             messageReference = true;
-        }
-        else
-        {
+        } else {
             // always unset.
             messageReference = false;
         }
@@ -94,10 +81,8 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T mergeObject(T value, Schema<T> schema) throws IOException
-    {
-        if (messageReference)
-        {
+    public <T> T mergeObject(T value, Schema<T> schema) throws IOException {
+        if (messageReference) {
             // a reference.
             return (T) references.get(lastRef);
         }
@@ -115,44 +100,37 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
     }
 
     @Override
-    public String getFieldName(int number)
-    {
+    public String getFieldName(int number) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int getFieldNumber(String name)
-    {
+    public int getFieldNumber(String name) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String messageFullName()
-    {
+    public String messageFullName() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String messageName()
-    {
+    public String messageName() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object newMessage()
-    {
+    public Object newMessage() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Class<? super Object> typeClass()
-    {
+    public Class<? super Object> typeClass() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void mergeFrom(Input input, final Object message) throws IOException
-    {
+    public void mergeFrom(Input input, final Object message) throws IOException {
         final Schema<Object> schema = lastSchema;
 
         // merge using this input.
@@ -162,8 +140,7 @@ public final class GraphByteArrayInput extends FilterInput<ByteArrayInput>
     }
 
     @Override
-    public void writeTo(Output output, Object message) throws IOException
-    {
+    public void writeTo(Output output, Object message) throws IOException {
         // only using mergeFrom.
         throw new UnsupportedOperationException();
     }

@@ -1,26 +1,19 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
-import static io.protostuff.SerializableObjects.bar;
-import static io.protostuff.SerializableObjects.baz;
-import static io.protostuff.SerializableObjects.foo;
-import static io.protostuff.SerializableObjects.negativeBar;
-import static io.protostuff.SerializableObjects.negativeBaz;
+import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,19 +22,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
 import io.protostuff.StringSerializer.STRING;
+
+import static io.protostuff.SerializableObjects.bar;
+import static io.protostuff.SerializableObjects.baz;
+import static io.protostuff.SerializableObjects.foo;
+import static io.protostuff.SerializableObjects.negativeBar;
+import static io.protostuff.SerializableObjects.negativeBaz;
 
 /**
  * Testing for xml ser/deser against messages.
- * 
+ *
  * @author David Yu
  */
-public class XmlCoreSerDeserTest extends TestCase
-{
+public class XmlCoreSerDeserTest extends TestCase {
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Foo fooCompare = foo;
         Foo dfoo = new Foo();
 
@@ -50,10 +46,8 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(fooCompare, dfoo);
     }
 
-    public void testBar() throws Exception
-    {
-        for (Bar barCompare : new Bar[] { bar, negativeBar })
-        {
+    public void testBar() throws Exception {
+        for (Bar barCompare : new Bar[]{bar, negativeBar}) {
             Bar dbar = new Bar();
 
             byte[] data = XmlIOUtil.toByteArray(barCompare, barCompare.cachedSchema());
@@ -62,8 +56,7 @@ public class XmlCoreSerDeserTest extends TestCase
         }
     }
 
-    public void testBarWithEmptyStringAndByteString() throws Exception
-    {
+    public void testBarWithEmptyStringAndByteString() throws Exception {
         Bar barCompare = new Bar();
         barCompare.setSomeBytes(ByteString.copyFromUtf8(new String("")));
         barCompare.setSomeString(new String(""));
@@ -79,10 +72,8 @@ public class XmlCoreSerDeserTest extends TestCase
                 barCompare.cachedSchema(), LinkedBuffer.allocate(256))));
     }
 
-    public void testBaz() throws Exception
-    {
-        for (Baz bazCompare : new Baz[] { baz, negativeBaz })
-        {
+    public void testBaz() throws Exception {
+        for (Baz bazCompare : new Baz[]{baz, negativeBaz}) {
             Baz dbaz = new Baz();
 
             byte[] data = XmlIOUtil.toByteArray(bazCompare, bazCompare.cachedSchema());
@@ -91,9 +82,8 @@ public class XmlCoreSerDeserTest extends TestCase
         }
     }
 
-    public void testUnknownScalarFields() throws Exception
-    {
-        String[] regularMessages = new String[] {
+    public void testUnknownScalarFields() throws Exception {
+        String[] regularMessages = new String[]{
                 "<?xml version='1.0' encoding='UTF-8'?>" +
                         "<Baz><int>1</int><string>string</string>" +
                         "<double>555.444</double><id>1</id></Baz>",
@@ -108,8 +98,7 @@ public class XmlCoreSerDeserTest extends TestCase
                         "<bytes><![CDATA[b2]]></bytes></Baz>"
         };
 
-        for (int i = 0; i < regularMessages.length; i++)
-        {
+        for (int i = 0; i < regularMessages.length; i++) {
             Baz b = new Baz();
             XmlIOUtil.mergeFrom(STRING.ser(regularMessages[i]),
                     b, b.cachedSchema());
@@ -117,8 +106,7 @@ public class XmlCoreSerDeserTest extends TestCase
         }
     }
 
-    public void testListIO() throws Exception
-    {
+    public void testListIO() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(SerializableObjects.bar);
         bars.add(SerializableObjects.negativeBar);
@@ -138,8 +126,7 @@ public class XmlCoreSerDeserTest extends TestCase
             SerializableObjects.assertEquals(bars.get(i++), b);
     }
 
-    public void testListIOEmpty() throws Exception
-    {
+    public void testListIOEmpty() throws Exception {
         ArrayList<Bar> bars = new ArrayList<>();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -160,8 +147,7 @@ public class XmlCoreSerDeserTest extends TestCase
             SerializableObjects.assertEquals(bars.get(i++), b);
     }
 
-    public void testListIOWithArrays() throws Exception
-    {
+    public void testListIOWithArrays() throws Exception {
         ArrayList<Foo> foos = new ArrayList<>();
         foos.add(SerializableObjects.foo);
         foos.add(SerializableObjects.foo);
@@ -181,8 +167,7 @@ public class XmlCoreSerDeserTest extends TestCase
             SerializableObjects.assertEquals(foos.get(i++), f);
     }
 
-    public void testEmptyMessage() throws Exception
-    {
+    public void testEmptyMessage() throws Exception {
         Bar bar = new Bar();
 
         byte[] data = XmlIOUtil.toByteArray(bar, bar.cachedSchema());
@@ -195,8 +180,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testEmptyMessageInner() throws Exception
-    {
+    public void testEmptyMessageInner() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         // method name is setSomeBaz, should have been someBaz!
@@ -213,8 +197,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testPartialEmptyMessage() throws Exception
-    {
+    public void testPartialEmptyMessage() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         bar.setSomeInt(1);
@@ -231,8 +214,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testPartialEmptyMessageWithString() throws Exception
-    {
+    public void testPartialEmptyMessageWithString() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         bar.setSomeString("someString");
@@ -249,8 +231,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testPartialEmptyMessageWithEmptyString() throws Exception
-    {
+    public void testPartialEmptyMessageWithEmptyString() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         bar.setSomeString("");
@@ -267,8 +248,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testPartialEmptyMessageInner() throws Exception
-    {
+    public void testPartialEmptyMessageInner() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         baz.setId(2);
@@ -285,8 +265,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testPartialEmptyMessageInnerWithString() throws Exception
-    {
+    public void testPartialEmptyMessageInnerWithString() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         baz.setName("asdfsf");
@@ -303,8 +282,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testPartialEmptyMessageInnerWithEmptyString() throws Exception
-    {
+    public void testPartialEmptyMessageInnerWithEmptyString() throws Exception {
         Baz baz = new Baz();
         Bar bar = new Bar();
         baz.setName("");
@@ -321,8 +299,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(bar, parsedBar);
     }
 
-    public void testEmptyFoo() throws Exception
-    {
+    public void testEmptyFoo() throws Exception {
         Foo foo = new Foo();
 
         byte[] data = XmlIOUtil.toByteArray(foo, foo.cachedSchema());
@@ -335,8 +312,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(foo, parsedFoo);
     }
 
-    public void testEmptyFooInner() throws Exception
-    {
+    public void testEmptyFooInner() throws Exception {
         Foo foo = new Foo();
         ArrayList<Bar> bars = new ArrayList<>();
         bars.add(new Bar());
@@ -354,8 +330,7 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(foo, parsedFoo);
     }
 
-    public void testEmptyFooDeeper() throws Exception
-    {
+    public void testEmptyFooDeeper() throws Exception {
         Foo foo = new Foo();
         ArrayList<Bar> bars = new ArrayList<>();
         Bar bar = new Bar();
@@ -374,20 +349,16 @@ public class XmlCoreSerDeserTest extends TestCase
         SerializableObjects.assertEquals(foo, parsedFoo);
     }
 
-    static class RequiresName
-    {
+    static class RequiresName {
 
         String name;
         String description;
 
-        static final Schema<RequiresName> SCHEMA = new Schema<RequiresName>()
-        {
+        static final Schema<RequiresName> SCHEMA = new Schema<RequiresName>() {
 
             @Override
-            public String getFieldName(int number)
-            {
-                switch (number)
-                {
+            public String getFieldName(int number) {
+                switch (number) {
                     case 1:
                         return "n";
                     case 2:
@@ -398,13 +369,11 @@ public class XmlCoreSerDeserTest extends TestCase
             }
 
             @Override
-            public int getFieldNumber(String name)
-            {
+            public int getFieldNumber(String name) {
                 if (name.length() != 1)
                     return 0;
 
-                switch (name.charAt(0))
-                {
+                switch (name.charAt(0)) {
                     case 'n':
                         return 1;
                     case 'd':
@@ -415,12 +384,9 @@ public class XmlCoreSerDeserTest extends TestCase
             }
 
             @Override
-            public void mergeFrom(Input input, RequiresName message) throws IOException
-            {
-                for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))
-                {
-                    switch (number)
-                    {
+            public void mergeFrom(Input input, RequiresName message) throws IOException {
+                for (int number = input.readFieldNumber(this); ; number = input.readFieldNumber(this)) {
+                    switch (number) {
                         case 0:
                             return;
                         case 1:
@@ -436,32 +402,27 @@ public class XmlCoreSerDeserTest extends TestCase
             }
 
             @Override
-            public String messageFullName()
-            {
+            public String messageFullName() {
                 return RequiresName.class.getName();
             }
 
             @Override
-            public String messageName()
-            {
+            public String messageName() {
                 return RequiresName.class.getSimpleName();
             }
 
             @Override
-            public RequiresName newMessage()
-            {
+            public RequiresName newMessage() {
                 return new RequiresName();
             }
 
             @Override
-            public Class<? super RequiresName> typeClass()
-            {
+            public Class<? super RequiresName> typeClass() {
                 return RequiresName.class;
             }
 
             @Override
-            public void writeTo(Output output, RequiresName message) throws IOException
-            {
+            public void writeTo(Output output, RequiresName message) throws IOException {
                 if (message.name != null)
                     output.writeString(1, message.name, false);
                 if (message.description != null)
@@ -472,32 +433,25 @@ public class XmlCoreSerDeserTest extends TestCase
 
     }
 
-    static class WrapperPojo
-    {
+    static class WrapperPojo {
         RequiresName requiresName;
 
-        static final Schema<WrapperPojo> SCHEMA = new Schema<WrapperPojo>()
-        {
+        static final Schema<WrapperPojo> SCHEMA = new Schema<WrapperPojo>() {
 
             @Override
-            public String getFieldName(int number)
-            {
+            public String getFieldName(int number) {
                 return number == 1 ? "w" : null;
             }
 
             @Override
-            public int getFieldNumber(String name)
-            {
+            public int getFieldNumber(String name) {
                 return name.length() == 1 && name.charAt(0) == 'w' ? 1 : 0;
             }
 
             @Override
-            public void mergeFrom(Input input, WrapperPojo message) throws IOException
-            {
-                for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))
-                {
-                    switch (number)
-                    {
+            public void mergeFrom(Input input, WrapperPojo message) throws IOException {
+                for (int number = input.readFieldNumber(this); ; number = input.readFieldNumber(this)) {
+                    switch (number) {
                         case 0:
                             return;
                         case 1:
@@ -510,32 +464,27 @@ public class XmlCoreSerDeserTest extends TestCase
             }
 
             @Override
-            public String messageFullName()
-            {
+            public String messageFullName() {
                 return WrapperPojo.class.getName();
             }
 
             @Override
-            public String messageName()
-            {
+            public String messageName() {
                 return WrapperPojo.class.getSimpleName();
             }
 
             @Override
-            public WrapperPojo newMessage()
-            {
+            public WrapperPojo newMessage() {
                 return new WrapperPojo();
             }
 
             @Override
-            public Class<? super WrapperPojo> typeClass()
-            {
+            public Class<? super WrapperPojo> typeClass() {
                 return WrapperPojo.class;
             }
 
             @Override
-            public void writeTo(Output output, WrapperPojo message) throws IOException
-            {
+            public void writeTo(Output output, WrapperPojo message) throws IOException {
                 if (message.requiresName != null)
                     output.writeObject(1, message.requiresName, RequiresName.SCHEMA, false);
             }

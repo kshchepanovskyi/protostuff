@@ -1,20 +1,35 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.Map;
+
+import io.protostuff.GraphInput;
+import io.protostuff.Input;
+import io.protostuff.Message;
+import io.protostuff.Output;
+import io.protostuff.Pipe;
+import io.protostuff.ProtostuffException;
+import io.protostuff.Schema;
+import io.protostuff.StatefulOutput;
 
 import static io.protostuff.runtime.RuntimeFieldFactory.BIGDECIMAL;
 import static io.protostuff.runtime.RuntimeFieldFactory.BIGINTEGER;
@@ -101,40 +116,29 @@ import static io.protostuff.runtime.RuntimeFieldFactory.STR_SHORT;
 import static io.protostuff.runtime.RuntimeFieldFactory.STR_STRING;
 import static io.protostuff.runtime.RuntimeFieldFactory.STR_THROWABLE;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Map;
-
-import io.protostuff.GraphInput;
-import io.protostuff.Input;
-import io.protostuff.Message;
-import io.protostuff.Output;
-import io.protostuff.Pipe;
-import io.protostuff.ProtostuffException;
-import io.protostuff.Schema;
-import io.protostuff.StatefulOutput;
-
 /**
  * A schema for dynamic types (fields where the type is {@link Object}).
- * 
+ *
  * @author David Yu
  */
-public abstract class ObjectSchema extends PolymorphicSchema
-{
+public abstract class ObjectSchema extends PolymorphicSchema {
 
     static final int ID_ENUM_VALUE = 1;
     static final int ID_ARRAY_LEN = 3;
     static final int ID_ARRAY_DIMENSION = 2;
+    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(this) {
+        @Override
+        protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
+            transferObject(this, pipe, input, output, strategy);
+        }
+    };
 
-    static String name(int number)
-    {
-        switch (number)
-        {
+    public ObjectSchema(IdStrategy strategy) {
+        super(strategy);
+    }
+
+    static String name(int number) {
+        switch (number) {
             case ID_POLYMORPHIC_COLLECTION:
                 return STR_POLYMORPHIC_COLLECTION;
             case ID_POLYMORPHIC_MAP:
@@ -215,13 +219,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
         }
     }
 
-    static int number(String name)
-    {
+    static int number(String name) {
         if (name.length() != 1)
             return 0;
 
-        switch (name.charAt(0))
-        {
+        switch (name.charAt(0)) {
             case 'B':
                 return 28;
             case 'C':
@@ -301,65 +303,8 @@ public abstract class ObjectSchema extends PolymorphicSchema
         }
     }
 
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(this)
-    {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output) throws IOException
-        {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
-
-    public ObjectSchema(IdStrategy strategy)
-    {
-        super(strategy);
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema()
-    {
-        return pipeSchema;
-    }
-
-    @Override
-    public String getFieldName(int number)
-    {
-        return name(number);
-    }
-
-    @Override
-    public int getFieldNumber(String name)
-    {
-        return number(name);
-    }
-
-    @Override
-    public String messageFullName()
-    {
-        return Object.class.getName();
-    }
-
-    @Override
-    public String messageName()
-    {
-        return Object.class.getSimpleName();
-    }
-
-    @Override
-    public void mergeFrom(Input input, Object owner) throws IOException
-    {
-        setValue(readObjectFrom(input, this, owner, strategy), owner);
-    }
-
-    @Override
-    public void writeTo(Output output, Object value) throws IOException
-    {
-        writeObjectTo(output, value, this, strategy);
-    }
-
     static ArrayWrapper newArrayWrapper(Input input, Schema<?> schema,
-            boolean mapped, IdStrategy strategy) throws IOException
-    {
+                                        boolean mapped, IdStrategy strategy) throws IOException {
         final Class<?> componentType = strategy.resolveArrayComponentTypeFrom(
                 input, mapped);
 
@@ -380,8 +325,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
     }
 
     static void transferArray(Pipe pipe, Input input, Output output, int number,
-            Pipe.Schema<?> pipeSchema, boolean mapped, IdStrategy strategy) throws IOException
-    {
+                              Pipe.Schema<?> pipeSchema, boolean mapped, IdStrategy strategy) throws IOException {
         strategy.transferArrayId(input, output, number, mapped);
 
         if (input.readFieldNumber(pipeSchema.wrappedSchema) != ID_ARRAY_LEN)
@@ -394,8 +338,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
         output.writeUInt32(ID_ARRAY_DIMENSION, input.readUInt32(), false);
 
-        if (output instanceof StatefulOutput)
-        {
+        if (output instanceof StatefulOutput) {
             // update using the derived schema.
             ((StatefulOutput) output).updateLast(strategy.ARRAY_PIPE_SCHEMA, pipeSchema);
         }
@@ -404,13 +347,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
     }
 
     static void transferClass(Pipe pipe, Input input, Output output, int number,
-            Pipe.Schema<?> pipeSchema, boolean mapped, boolean array,
-            IdStrategy strategy) throws IOException
-    {
+                              Pipe.Schema<?> pipeSchema, boolean mapped, boolean array,
+                              IdStrategy strategy) throws IOException {
         strategy.transferClassId(input, output, number, mapped, array);
 
-        if (array)
-        {
+        if (array) {
             if (input.readFieldNumber(pipeSchema.wrappedSchema) != ID_ARRAY_DIMENSION)
                 throw new ProtostuffException("Corrupt input.");
 
@@ -419,8 +360,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
     }
 
     static Class<?> getArrayClass(Input input, Schema<?> schema,
-            final Class<?> componentType) throws IOException
-    {
+                                  final Class<?> componentType) throws IOException {
         if (input.readFieldNumber(schema) != ID_ARRAY_DIMENSION)
             throw new ProtostuffException("Corrupt input.");
         final int dimensions = input.readUInt32();
@@ -437,12 +377,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
     @SuppressWarnings("unchecked")
     static Object readObjectFrom(final Input input, final Schema<?> schema,
-            Object owner, IdStrategy strategy) throws IOException
-    {
+                                 Object owner, IdStrategy strategy) throws IOException {
         Object value = null;
         final int number = input.readFieldNumber(schema);
-        switch (number)
-        {
+        switch (number) {
             case ID_BOOL:
                 value = BOOL.readFrom(input);
                 break;
@@ -486,13 +424,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 value = DATE.readFrom(input);
                 break;
 
-            case ID_ARRAY:
-            {
+            case ID_ARRAY: {
                 final ArrayWrapper arrayWrapper = newArrayWrapper(input, schema, false,
                         strategy);
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(arrayWrapper.array, owner);
                 }
@@ -509,13 +445,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 break;
 
-            case ID_ARRAY_MAPPED:
-            {
+            case ID_ARRAY_MAPPED: {
                 final ArrayWrapper mArrayWrapper = newArrayWrapper(input, schema, true,
                         strategy);
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(mArrayWrapper.array, owner);
                 }
@@ -539,8 +473,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                         strategy.resolveClassFrom(input, true, true));
                 break;
 
-            case ID_ENUM:
-            {
+            case ID_ENUM: {
                 final EnumIO<?> eio = strategy.resolveEnumFrom(input);
 
                 if (input.readFieldNumber(schema) != ID_ENUM_VALUE)
@@ -549,12 +482,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 value = eio.readFrom(input);
                 break;
             }
-            case ID_ENUM_SET:
-            {
+            case ID_ENUM_SET: {
                 final Collection<?> es = strategy.resolveEnumFrom(input).newEnumSet();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(es, owner);
                 }
@@ -563,12 +494,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 return es;
             }
-            case ID_ENUM_MAP:
-            {
+            case ID_ENUM_MAP: {
                 final Map<?, Object> em = strategy.resolveEnumFrom(input).newEnumMap();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(em, owner);
                 }
@@ -577,13 +506,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 return em;
             }
-            case ID_COLLECTION:
-            {
+            case ID_COLLECTION: {
                 final Collection<Object> collection = strategy.resolveCollectionFrom(
                         input).newMessage();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
@@ -592,13 +519,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 return collection;
             }
-            case ID_MAP:
-            {
+            case ID_MAP: {
                 final Map<Object, Object> map =
                         strategy.resolveMapFrom(input).newMessage();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(map, owner);
                 }
@@ -607,40 +532,35 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 return map;
             }
-            case ID_POLYMORPHIC_COLLECTION:
-            {
+            case ID_POLYMORPHIC_COLLECTION: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
                 final Object collection = PolymorphicCollectionSchema.readObjectFrom(input,
                         strategy.POLYMORPHIC_COLLECTION_SCHEMA, owner, strategy);
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(collection, owner);
                 }
 
                 return collection;
             }
-            case ID_POLYMORPHIC_MAP:
-            {
+            case ID_POLYMORPHIC_MAP: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
 
                 final Object map = PolymorphicMapSchema.readObjectFrom(input,
                         strategy.POLYMORPHIC_MAP_SCHEMA, owner, strategy);
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(map, owner);
                 }
 
                 return map;
             }
-            case ID_DELEGATE:
-            {
+            case ID_DELEGATE: {
                 final HasDelegate<Object> hd = strategy.resolveDelegateFrom(input);
                 if (1 != input.readFieldNumber(schema))
                     throw new ProtostuffException("Corrupt input.");
@@ -648,14 +568,12 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 value = hd.delegate.readFrom(input);
                 break;
             }
-            case ID_ARRAY_DELEGATE:
-            {
+            case ID_ARRAY_DELEGATE: {
                 final HasDelegate<Object> hd = strategy.resolveDelegateFrom(input);
 
                 return hd.genericElementSchema.readFrom(input, owner);
             }
-            case ID_ARRAY_SCALAR:
-            {
+            case ID_ARRAY_SCALAR: {
                 final int arrayId = input.readUInt32(), id = ArraySchemas.toInlineId(arrayId);
 
                 final ArraySchemas.Base arraySchema = ArraySchemas.getSchema(id,
@@ -663,14 +581,12 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 return arraySchema.readFrom(input, owner);
             }
-            case ID_ARRAY_ENUM:
-            {
+            case ID_ARRAY_ENUM: {
                 final EnumIO<?> eio = strategy.resolveEnumFrom(input);
 
                 return eio.genericElementSchema.readFrom(input, owner);
             }
-            case ID_ARRAY_POJO:
-            {
+            case ID_ARRAY_POJO: {
                 final HasSchema<Object> hs = strategy.resolvePojoFrom(input, number);
 
                 return hs.genericElementSchema.readFrom(input, owner);
@@ -678,15 +594,13 @@ public abstract class ObjectSchema extends PolymorphicSchema
             case ID_THROWABLE:
                 return PolymorphicThrowableSchema.readObjectFrom(input, schema, owner,
                         strategy, number);
-            case ID_POJO:
-            {
+            case ID_POJO: {
                 final Schema<Object> derivedSchema = strategy.resolvePojoFrom(
                         input, number).getSchema();
 
                 final Object pojo = derivedSchema.newMessage();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(pojo, owner);
                 }
@@ -698,8 +612,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 throw new ProtostuffException("Corrupt input.  Unknown field number: " + number);
         }
 
-        if (input instanceof GraphInput)
-        {
+        if (input instanceof GraphInput) {
             // update the actual reference.
             ((GraphInput) input).updateLast(value, owner);
         }
@@ -712,34 +625,29 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
     @SuppressWarnings("unchecked")
     static void writeObjectTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy) throws IOException
-    {
+                              Schema<?> currentSchema, IdStrategy strategy) throws IOException {
         final Class<Object> clazz = (Class<Object>) value.getClass();
 
         final HasDelegate<Object> hd = strategy.tryWriteDelegateIdTo(output,
                 ID_DELEGATE, clazz);
 
-        if (hd != null)
-        {
+        if (hd != null) {
             hd.delegate.writeTo(output, 1, value, false);
             return;
         }
 
         final RuntimeFieldFactory<Object> inline = RuntimeFieldFactory.getInline(clazz);
-        if (inline != null)
-        {
+        if (inline != null) {
             // scalar value
             inline.writeTo(output, inline.id, value, false);
             return;
         }
 
-        if (Message.class.isAssignableFrom(clazz))
-        {
+        if (Message.class.isAssignableFrom(clazz)) {
             final Schema<Object> schema = strategy.writeMessageIdTo(
                     output, ID_POJO, (Message<Object>) value);
 
-            if (output instanceof StatefulOutput)
-            {
+            if (output instanceof StatefulOutput) {
                 // update using the derived schema.
                 ((StatefulOutput) output).updateLast(schema, currentSchema);
             }
@@ -748,33 +656,28 @@ public abstract class ObjectSchema extends PolymorphicSchema
             return;
         }
 
-        if (clazz.isEnum())
-        {
+        if (clazz.isEnum()) {
             EnumIO<?> eio = strategy.getEnumIO(clazz);
             strategy.writeEnumIdTo(output, ID_ENUM, clazz);
             eio.writeTo(output, ID_ENUM_VALUE, false, (Enum<?>) value);
             return;
         }
 
-        if (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())
-        {
+        if (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum()) {
             EnumIO<?> eio = strategy.getEnumIO(clazz.getSuperclass());
             strategy.writeEnumIdTo(output, ID_ENUM, clazz.getSuperclass());
             eio.writeTo(output, ID_ENUM_VALUE, false, (Enum<?>) value);
             return;
         }
 
-        if (clazz.isArray())
-        {
+        if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
 
             final HasDelegate<Object> hdArray = strategy.tryWriteDelegateIdTo(output,
                     ID_ARRAY_DELEGATE, (Class<Object>) componentType);
 
-            if (hdArray != null)
-            {
-                if (output instanceof StatefulOutput)
-                {
+            if (hdArray != null) {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(hdArray.genericElementSchema,
                             currentSchema);
@@ -786,8 +689,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
             final RuntimeFieldFactory<?> inlineArray = RuntimeFieldFactory.getInline(
                     componentType);
-            if (inlineArray != null)
-            {
+            if (inlineArray != null) {
                 // scalar
                 final boolean primitive = componentType.isPrimitive();
                 final ArraySchemas.Base arraySchema = ArraySchemas.getSchema(
@@ -797,8 +699,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                         ArraySchemas.toArrayId(inlineArray.id, primitive),
                         false);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(arraySchema, currentSchema);
                 }
@@ -807,15 +708,13 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            if (componentType.isEnum())
-            {
+            if (componentType.isEnum()) {
                 // enum
                 final EnumIO<?> eio = strategy.getEnumIO(componentType);
 
                 strategy.writeEnumIdTo(output, ID_ARRAY_ENUM, componentType);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(eio.genericElementSchema,
                             currentSchema);
@@ -826,14 +725,12 @@ public abstract class ObjectSchema extends PolymorphicSchema
             }
 
             if (Message.class.isAssignableFrom(componentType) ||
-                    strategy.isRegistered(componentType))
-            {
+                    strategy.isRegistered(componentType)) {
                 // messsage / registered pojo
                 final HasSchema<Object> hs = strategy.writePojoIdTo(output,
                         ID_ARRAY_POJO, (Class<Object>) componentType);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(hs.genericElementSchema,
                             currentSchema);
@@ -847,14 +744,13 @@ public abstract class ObjectSchema extends PolymorphicSchema
              * if(!Throwable.class.isAssignableFrom(componentType)) { boolean create =
              * Message.class.isAssignableFrom(componentType); HasSchema<Object> hs = strategy.getSchemaWrapper(
              * (Class<Object>)componentType, create); if(hs != null) {
-             * 
+             *
              * } }
              */
 
             // complex type
             int dimensions = 1;
-            while (componentType.isArray())
-            {
+            while (componentType.isArray()) {
                 dimensions++;
                 componentType = componentType.getComponentType();
             }
@@ -865,8 +761,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
             // write the dimensions of the array
             output.writeUInt32(ID_ARRAY_DIMENSION, dimensions, false);
 
-            if (output instanceof StatefulOutput)
-            {
+            if (output instanceof StatefulOutput) {
                 // update using the derived schema.
                 ((StatefulOutput) output).updateLast(strategy.ARRAY_SCHEMA, currentSchema);
             }
@@ -875,22 +770,18 @@ public abstract class ObjectSchema extends PolymorphicSchema
             return;
         }
 
-        if (Object.class == clazz)
-        {
+        if (Object.class == clazz) {
             output.writeUInt32(ID_OBJECT, 0, false);
             return;
         }
 
-        if (Class.class == value.getClass())
-        {
+        if (Class.class == value.getClass()) {
             // its a class
             final Class<?> c = ((Class<?>) value);
-            if (c.isArray())
-            {
+            if (c.isArray()) {
                 int dimensions = 1;
                 Class<?> componentType = c.getComponentType();
-                while (componentType.isArray())
-                {
+                while (componentType.isArray()) {
                     dimensions++;
                     componentType = componentType.getComponentType();
                 }
@@ -905,14 +796,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
             return;
         }
 
-        if (Map.class.isAssignableFrom(clazz))
-        {
-            if (Collections.class == clazz.getDeclaringClass())
-            {
+        if (Map.class.isAssignableFrom(clazz)) {
+            if (Collections.class == clazz.getDeclaringClass()) {
                 output.writeUInt32(ID_POLYMORPHIC_MAP, 0, false);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             strategy.POLYMORPHIC_MAP_SCHEMA, currentSchema);
@@ -923,18 +811,14 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            if (EnumMap.class.isAssignableFrom(clazz))
-            {
+            if (EnumMap.class.isAssignableFrom(clazz)) {
                 strategy.writeEnumIdTo(output, ID_ENUM_MAP,
                         EnumIO.getKeyTypeFromEnumMap(value));
-            }
-            else
-            {
+            } else {
                 strategy.writeMapIdTo(output, ID_MAP, clazz);
             }
 
-            if (output instanceof StatefulOutput)
-            {
+            if (output instanceof StatefulOutput) {
                 // update using the derived schema.
                 ((StatefulOutput) output).updateLast(strategy.MAP_SCHEMA, currentSchema);
             }
@@ -943,14 +827,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
             return;
         }
 
-        if (Collection.class.isAssignableFrom(clazz))
-        {
-            if (Collections.class == clazz.getDeclaringClass())
-            {
+        if (Collection.class.isAssignableFrom(clazz)) {
+            if (Collections.class == clazz.getDeclaringClass()) {
                 output.writeUInt32(ID_POLYMORPHIC_COLLECTION, 0, false);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             strategy.POLYMORPHIC_COLLECTION_SCHEMA, currentSchema);
@@ -961,18 +842,14 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            if (EnumSet.class.isAssignableFrom(clazz))
-            {
+            if (EnumSet.class.isAssignableFrom(clazz)) {
                 strategy.writeEnumIdTo(output, ID_ENUM_SET,
                         EnumIO.getElementTypeFromEnumSet(value));
-            }
-            else
-            {
+            } else {
                 strategy.writeCollectionIdTo(output, ID_COLLECTION, clazz);
             }
 
-            if (output instanceof StatefulOutput)
-            {
+            if (output instanceof StatefulOutput) {
                 // update using the derived schema.
                 ((StatefulOutput) output).updateLast(strategy.COLLECTION_SCHEMA, currentSchema);
             }
@@ -981,8 +858,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
             return;
         }
 
-        if (Throwable.class.isAssignableFrom(clazz))
-        {
+        if (Throwable.class.isAssignableFrom(clazz)) {
             // throwable
             PolymorphicThrowableSchema.writeObjectTo(output, value, currentSchema,
                     strategy);
@@ -993,8 +869,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
         final Schema<Object> schema = strategy.writePojoIdTo(
                 output, ID_POJO, clazz).getSchema();
 
-        if (output instanceof StatefulOutput)
-        {
+        if (output instanceof StatefulOutput) {
             // update using the derived schema.
             ((StatefulOutput) output).updateLast(schema, currentSchema);
         }
@@ -1003,11 +878,9 @@ public abstract class ObjectSchema extends PolymorphicSchema
     }
 
     static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-            Input input, Output output, IdStrategy strategy) throws IOException
-    {
+                               Input input, Output output, IdStrategy strategy) throws IOException {
         final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        switch (number)
-        {
+        switch (number) {
             case ID_BOOL:
                 BOOL.transfer(pipe, input, output, number, false);
                 break;
@@ -1072,8 +945,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 transferClass(pipe, input, output, number, pipeSchema, true, true, strategy);
                 break;
 
-            case ID_ENUM:
-            {
+            case ID_ENUM: {
                 strategy.transferEnumId(input, output, number);
 
                 if (input.readFieldNumber(pipeSchema.wrappedSchema) != ID_ENUM_VALUE)
@@ -1082,12 +954,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_ENUM_SET:
-            {
+            case ID_ENUM_SET: {
                 strategy.transferEnumId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(strategy.COLLECTION_PIPE_SCHEMA, pipeSchema);
                 }
@@ -1096,12 +966,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_ENUM_MAP:
-            {
+            case ID_ENUM_MAP: {
                 strategy.transferEnumId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(strategy.MAP_PIPE_SCHEMA, pipeSchema);
                 }
@@ -1110,12 +978,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_COLLECTION:
-            {
+            case ID_COLLECTION: {
                 strategy.transferCollectionId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(strategy.COLLECTION_PIPE_SCHEMA, pipeSchema);
                 }
@@ -1124,12 +990,10 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_MAP:
-            {
+            case ID_MAP: {
                 strategy.transferMapId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(strategy.MAP_PIPE_SCHEMA, pipeSchema);
                 }
@@ -1138,14 +1002,12 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_POLYMORPHIC_COLLECTION:
-            {
+            case ID_POLYMORPHIC_COLLECTION: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
                 output.writeUInt32(number, 0, false);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             strategy.POLYMORPHIC_COLLECTION_PIPE_SCHEMA, pipeSchema);
@@ -1156,14 +1018,12 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_POLYMORPHIC_MAP:
-            {
+            case ID_POLYMORPHIC_MAP: {
                 if (0 != input.readUInt32())
                     throw new ProtostuffException("Corrupt input.");
                 output.writeUInt32(number, 0, false);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, pipeSchema);
@@ -1174,8 +1034,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_DELEGATE:
-            {
+            case ID_DELEGATE: {
                 final HasDelegate<Object> hd = strategy.transferDelegateId(input,
                         output, number);
                 if (1 != input.readFieldNumber(pipeSchema.wrappedSchema))
@@ -1185,13 +1044,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 break;
             }
 
-            case ID_ARRAY_DELEGATE:
-            {
+            case ID_ARRAY_DELEGATE: {
                 final HasDelegate<Object> hd = strategy.transferDelegateId(input,
                         output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             hd.genericElementSchema.getPipeSchema(),
@@ -1203,8 +1060,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_ARRAY_SCALAR:
-            {
+            case ID_ARRAY_SCALAR: {
                 final int arrayId = input.readUInt32(), id = ArraySchemas.toInlineId(arrayId);
 
                 final ArraySchemas.Base arraySchema = ArraySchemas.getSchema(id,
@@ -1212,8 +1068,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
 
                 output.writeUInt32(number, arrayId, false);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(arraySchema.getPipeSchema(),
                             pipeSchema);
@@ -1223,14 +1078,12 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_ARRAY_ENUM:
-            {
+            case ID_ARRAY_ENUM: {
                 final EnumIO<?> eio = strategy.resolveEnumFrom(input);
 
                 strategy.writeEnumIdTo(output, number, eio.enumClass);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             eio.genericElementSchema.getPipeSchema(),
@@ -1242,13 +1095,11 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 return;
             }
 
-            case ID_ARRAY_POJO:
-            {
+            case ID_ARRAY_POJO: {
                 final HasSchema<Object> hs = strategy.transferPojoId(input, output,
                         number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(
                             hs.genericElementSchema.getPipeSchema(),
@@ -1269,8 +1120,7 @@ public abstract class ObjectSchema extends PolymorphicSchema
                 final Pipe.Schema<Object> derivedPipeSchema = strategy.transferPojoId(
                         input, output, number).getPipeSchema();
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(derivedPipeSchema, pipeSchema);
                 }
@@ -1285,95 +1135,115 @@ public abstract class ObjectSchema extends PolymorphicSchema
             throw new ProtostuffException("Corrupt input.");
     }
 
+    @Override
+    public Pipe.Schema<Object> getPipeSchema() {
+        return pipeSchema;
+    }
+
+    @Override
+    public String getFieldName(int number) {
+        return name(number);
+    }
+
+    @Override
+    public int getFieldNumber(String name) {
+        return number(name);
+    }
+
+    @Override
+    public String messageFullName() {
+        return Object.class.getName();
+    }
+
+    @Override
+    public String messageName() {
+        return Object.class.getSimpleName();
+    }
+
+    @Override
+    public void mergeFrom(Input input, Object owner) throws IOException {
+        setValue(readObjectFrom(input, this, owner, strategy), owner);
+    }
+
+    @Override
+    public void writeTo(Output output, Object value) throws IOException {
+        writeObjectTo(output, value, this, strategy);
+    }
+
     /**
      * An array wrapper internally used for adding objects.
      */
-    static final class ArrayWrapper implements Collection<Object>
-    {
+    static final class ArrayWrapper implements Collection<Object> {
         final Object array;
         int offset = 0;
 
-        ArrayWrapper(Object array)
-        {
+        ArrayWrapper(Object array) {
             this.array = array;
         }
 
         @Override
-        public boolean add(Object value)
-        {
+        public boolean add(Object value) {
             Array.set(array, offset++, value);
             return true;
         }
 
         @Override
-        public boolean addAll(Collection<? extends Object> arg0)
-        {
+        public boolean addAll(Collection<? extends Object> arg0) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void clear()
-        {
+        public void clear() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean contains(Object arg0)
-        {
+        public boolean contains(Object arg0) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean containsAll(Collection<?> arg0)
-        {
+        public boolean containsAll(Collection<?> arg0) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean isEmpty()
-        {
+        public boolean isEmpty() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Iterator<Object> iterator()
-        {
+        public Iterator<Object> iterator() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean remove(Object arg0)
-        {
+        public boolean remove(Object arg0) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean removeAll(Collection<?> arg0)
-        {
+        public boolean removeAll(Collection<?> arg0) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean retainAll(Collection<?> arg0)
-        {
+        public boolean retainAll(Collection<?> arg0) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public int size()
-        {
+        public int size() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Object[] toArray()
-        {
+        public Object[] toArray() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public <T> T[] toArray(T[] arg0)
-        {
+        public <T> T[] toArray(T[] arg0) {
             throw new UnsupportedOperationException();
         }
     }

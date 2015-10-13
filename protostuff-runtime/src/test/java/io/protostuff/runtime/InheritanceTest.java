@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -31,210 +28,27 @@ import io.protostuff.Schema;
  * Test ser/deser for subclasses that inherit from non-abstract base types.
  * <p>
  * Run this standalone to execute the actual tests.
- * 
+ *
  * @author David Yu
  */
-public class InheritanceTest extends AbstractTest
-{
+public class InheritanceTest extends AbstractTest {
 
-    static
-    {
+    static {
         // must enable to support inheritance on non-abstract base types.
         System.setProperty("protostuff.runtime.morph_non_final_pojos", "true");
-    }
-
-    public static class InputDevice
-    {
-        private String name;
-
-        public InputDevice()
-        {
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public void setName(String name)
-        {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-            final InputDevice other = (InputDevice) obj;
-            return !((this.name == null) ? (other.name != null) : !this.name
-                    .equals(other.name));
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int hash = 7;
-            hash = 47 * hash + (this.name != null ? this.name.hashCode() : 0);
-            return hash;
-        }
-
-    }
-
-    public static class Mouse extends InputDevice
-    {
-        private int numberOfButtons;
-
-        public Mouse()
-        {
-        }
-
-        public int getNumberOfButtons()
-        {
-            return numberOfButtons;
-        }
-
-        public void setNumberOfButtons(int numberOfButtons)
-        {
-            this.numberOfButtons = numberOfButtons;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-            final Mouse other = (Mouse) obj;
-            return this.numberOfButtons == other.numberOfButtons;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int hash = 7;
-            hash = 83 * hash + this.numberOfButtons;
-            return hash;
-        }
-
-    }
-
-    public static class KeyBoard extends InputDevice
-    {
-        private int numberOfKeys;
-
-        public KeyBoard()
-        {
-        }
-
-        public int getNumberOfKeys()
-        {
-            return numberOfKeys;
-        }
-
-        public void setNumberOfKeys(int numberOfKeys)
-        {
-            this.numberOfKeys = numberOfKeys;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-            final KeyBoard other = (KeyBoard) obj;
-            return this.numberOfKeys == other.numberOfKeys;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int hash = 5;
-            hash = 67 * hash + this.numberOfKeys;
-            return hash;
-        }
-
-    }
-
-    public static class InputSystem
-    {
-        List<InputDevice> inputDevices;
-
-        public InputSystem()
-        {
-        }
-
-        public List<InputDevice> getInputDevices()
-        {
-            return inputDevices;
-        }
-
-        public void setInputDevices(List<InputDevice> inputDevices)
-        {
-            this.inputDevices = inputDevices;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-            final InputSystem other = (InputSystem) obj;
-            return !(this.inputDevices != other.inputDevices
-                    && (this.inputDevices == null || !this.inputDevices
-                    .equals(other.inputDevices)));
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int hash = 3;
-            hash = 67
-                    * hash
-                    + (this.inputDevices != null ? this.inputDevices.hashCode()
-                            : 0);
-            return hash;
-        }
-
     }
 
     boolean skipTests = false;
 
     @Override
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         System.setProperty("protostuff.morph_non_final_pojos", "true");
         skipTests = !RuntimeEnv.MORPH_NON_FINAL_POJOS;
         super.setUp();
     }
 
-    public void testInheritance() throws IOException
-    {
-        if (skipTests)
-        {
+    public void testInheritance() throws IOException {
+        if (skipTests) {
             System.err
                     .println("RuntimeSchema.MORPH_NON_FINAL_POJOS was not enabled.");
             return;
@@ -263,10 +77,8 @@ public class InheritanceTest extends AbstractTest
         assertEquals(sys, deserSystem);
     }
 
-    public void testInheritanceProtobuf() throws IOException
-    {
-        if (skipTests)
-        {
+    public void testInheritanceProtobuf() throws IOException {
+        if (skipTests) {
             System.err
                     .println("RuntimeSchema.MORPH_NON_FINAL_POJOS was not enabled.");
             return;
@@ -293,6 +105,152 @@ public class InheritanceTest extends AbstractTest
         ProtobufIOUtil.mergeFrom(in, deserSystem, schema, buf());
 
         assertEquals(sys, deserSystem);
+    }
+
+    public static class InputDevice {
+        private String name;
+
+        public InputDevice() {
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final InputDevice other = (InputDevice) obj;
+            return !((this.name == null) ? (other.name != null) : !this.name
+                    .equals(other.name));
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 47 * hash + (this.name != null ? this.name.hashCode() : 0);
+            return hash;
+        }
+
+    }
+
+    public static class Mouse extends InputDevice {
+        private int numberOfButtons;
+
+        public Mouse() {
+        }
+
+        public int getNumberOfButtons() {
+            return numberOfButtons;
+        }
+
+        public void setNumberOfButtons(int numberOfButtons) {
+            this.numberOfButtons = numberOfButtons;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Mouse other = (Mouse) obj;
+            return this.numberOfButtons == other.numberOfButtons;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 83 * hash + this.numberOfButtons;
+            return hash;
+        }
+
+    }
+
+    public static class KeyBoard extends InputDevice {
+        private int numberOfKeys;
+
+        public KeyBoard() {
+        }
+
+        public int getNumberOfKeys() {
+            return numberOfKeys;
+        }
+
+        public void setNumberOfKeys(int numberOfKeys) {
+            this.numberOfKeys = numberOfKeys;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final KeyBoard other = (KeyBoard) obj;
+            return this.numberOfKeys == other.numberOfKeys;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 67 * hash + this.numberOfKeys;
+            return hash;
+        }
+
+    }
+
+    public static class InputSystem {
+        List<InputDevice> inputDevices;
+
+        public InputSystem() {
+        }
+
+        public List<InputDevice> getInputDevices() {
+            return inputDevices;
+        }
+
+        public void setInputDevices(List<InputDevice> inputDevices) {
+            this.inputDevices = inputDevices;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final InputSystem other = (InputSystem) obj;
+            return !(this.inputDevices != other.inputDevices
+                    && (this.inputDevices == null || !this.inputDevices
+                    .equals(other.inputDevices)));
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 67
+                    * hash
+                    + (this.inputDevices != null ? this.inputDevices.hashCode()
+                    : 0);
+            return hash;
+        }
+
     }
 
 }

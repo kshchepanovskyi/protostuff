@@ -1,25 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.RuntimeFieldFactory.ID_ENUM_MAP;
-import static io.protostuff.runtime.RuntimeFieldFactory.ID_MAP;
-import static io.protostuff.runtime.RuntimeFieldFactory.STR_ENUM_MAP;
-import static io.protostuff.runtime.RuntimeFieldFactory.STR_MAP;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -39,13 +31,17 @@ import io.protostuff.StatefulOutput;
 import io.protostuff.runtime.IdStrategy.Wrapper;
 import io.protostuff.runtime.RuntimeEnv.Instantiator;
 
+import static io.protostuff.runtime.RuntimeFieldFactory.ID_ENUM_MAP;
+import static io.protostuff.runtime.RuntimeFieldFactory.ID_MAP;
+import static io.protostuff.runtime.RuntimeFieldFactory.STR_ENUM_MAP;
+import static io.protostuff.runtime.RuntimeFieldFactory.STR_MAP;
+
 /**
  * Used when the type is an interface (Map/SortedMap).
- * 
+ *
  * @author David Yu
  */
-public abstract class PolymorphicMapSchema extends PolymorphicSchema
-{
+public abstract class PolymorphicMapSchema extends PolymorphicSchema {
 
     static final int ID_EMPTY_MAP = 1, ID_SINGLETON_MAP = 2,
             ID_UNMODIFIABLE_MAP = 3, ID_UNMODIFIABLE_SORTED_MAP = 4,
@@ -61,29 +57,28 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
     static final Field fSingletonMap_k, fSingletonMap_v,
 
-            fUnmodifiableMap_m,
+    fUnmodifiableMap_m,
 
-            fUnmodifiableSortedMap_sm,
+    fUnmodifiableSortedMap_sm,
 
-            fSynchronizedMap_m,
+    fSynchronizedMap_m,
 
-            fSynchronizedSortedMap_sm,
+    fSynchronizedSortedMap_sm,
 
-            fSynchronizedMap_mutex,
+    fSynchronizedMap_mutex,
 
-            fCheckedMap_m, fCheckedSortedMap_sm, fCheckedMap_keyType,
+    fCheckedMap_m, fCheckedSortedMap_sm, fCheckedMap_keyType,
             fCheckedMap_valueType;
 
     static final Instantiator<?> iSingletonMap,
 
-            iUnmodifiableMap, iUnmodifiableSortedMap,
+    iUnmodifiableMap, iUnmodifiableSortedMap,
 
-            iSynchronizedMap, iSynchronizedSortedMap,
+    iSynchronizedMap, iSynchronizedSortedMap,
 
-            iCheckedMap, iCheckedSortedMap;
+    iCheckedMap, iCheckedSortedMap;
 
-    static
-    {
+    static {
         map("java.util.Collections$EmptyMap", ID_EMPTY_MAP);
 
         Class<?> cSingletonMap = map("java.util.Collections$SingletonMap",
@@ -109,8 +104,7 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         Class<?> cCheckedSortedMap = map(
                 "java.util.Collections$CheckedSortedMap", ID_CHECKED_SORTED_MAP);
 
-        try
-        {
+        try {
             fSingletonMap_k = cSingletonMap.getDeclaredField("k");
             fSingletonMap_v = cSingletonMap.getDeclaredField("v");
 
@@ -140,9 +134,7 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
             iCheckedMap = RuntimeEnv.newInstantiator(cCheckedMap);
             iCheckedSortedMap = RuntimeEnv.newInstantiator(cCheckedSortedMap);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -162,17 +154,27 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         fCheckedMap_valueType.setAccessible(true);
     }
 
-    private static Class<?> map(String className, int id)
-    {
+    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
+            this) {
+        @Override
+        protected void transfer(Pipe pipe, Input input, Output output)
+                throws IOException {
+            transferObject(this, pipe, input, output, strategy);
+        }
+    };
+
+    public PolymorphicMapSchema(IdStrategy strategy) {
+        super(strategy);
+    }
+
+    private static Class<?> map(String className, int id) {
         Class<?> clazz = RuntimeEnv.loadClass(className);
         __nonPublicMaps.put(clazz, id);
         return clazz;
     }
 
-    static String name(int number)
-    {
-        switch (number)
-        {
+    static String name(int number) {
+        switch (number) {
             case ID_EMPTY_MAP:
                 return STR_EMPTY_MAP;
             case ID_SINGLETON_MAP:
@@ -198,13 +200,11 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         }
     }
 
-    static int number(String name)
-    {
+    static int number(String name) {
         if (name.length() != 1)
             return 0;
 
-        switch (name.charAt(0))
-        {
+        switch (name.charAt(0)) {
             case 'a':
                 return 1;
             case 'b':
@@ -230,66 +230,7 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         }
     }
 
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this)
-    {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException
-        {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
-
-    public PolymorphicMapSchema(IdStrategy strategy)
-    {
-        super(strategy);
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema()
-    {
-        return pipeSchema;
-    }
-
-    @Override
-    public String getFieldName(int number)
-    {
-        return name(number);
-    }
-
-    @Override
-    public int getFieldNumber(String name)
-    {
-        return number(name);
-    }
-
-    @Override
-    public String messageFullName()
-    {
-        return Collection.class.getName();
-    }
-
-    @Override
-    public String messageName()
-    {
-        return Collection.class.getSimpleName();
-    }
-
-    @Override
-    public void mergeFrom(Input input, Object owner) throws IOException
-    {
-        setValue(readObjectFrom(input, this, owner, strategy), owner);
-    }
-
-    @Override
-    public void writeTo(Output output, Object value) throws IOException
-    {
-        writeObjectTo(output, value, this, strategy);
-    }
-
-    static int idFrom(Class<?> clazz)
-    {
+    static int idFrom(Class<?> clazz) {
         final Integer id = __nonPublicMaps.get(clazz);
         if (id == null)
             throw new RuntimeException("Unknown map: " + clazz);
@@ -297,10 +238,8 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         return id.intValue();
     }
 
-    static Object instanceFrom(final int id)
-    {
-        switch (id)
-        {
+    static Object instanceFrom(final int id) {
+        switch (id) {
             case ID_EMPTY_MAP:
                 return Collections.EMPTY_MAP;
 
@@ -329,29 +268,23 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
     @SuppressWarnings("unchecked")
     static void writeObjectTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy) throws IOException
-    {
-        if (Collections.class == value.getClass().getDeclaringClass())
-        {
+                              Schema<?> currentSchema, IdStrategy strategy) throws IOException {
+        if (Collections.class == value.getClass().getDeclaringClass()) {
             writeNonPublicMapTo(output, value, currentSchema, strategy);
             return;
         }
 
         Class<Object> clazz = (Class<Object>) value.getClass();
-        if (EnumMap.class.isAssignableFrom(clazz))
-        {
+        if (EnumMap.class.isAssignableFrom(clazz)) {
             strategy.writeEnumIdTo(output, ID_ENUM_MAP,
                     EnumIO.getKeyTypeFromEnumMap(value));
 
             // TODO use enum schema
-        }
-        else
-        {
+        } else {
             strategy.writeMapIdTo(output, ID_MAP, clazz);
         }
 
-        if (output instanceof StatefulOutput)
-        {
+        if (output instanceof StatefulOutput) {
             // update using the derived schema.
             ((StatefulOutput) output).updateLast(strategy.MAP_SCHEMA,
                     currentSchema);
@@ -361,29 +294,23 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     static void writeNonPublicMapTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy) throws IOException
-    {
+                                    Schema<?> currentSchema, IdStrategy strategy) throws IOException {
         final Integer n = __nonPublicMaps.get(value.getClass());
         if (n == null)
             throw new RuntimeException("Unknown collection: "
                     + value.getClass());
         final int id = n.intValue();
-        switch (id)
-        {
+        switch (id) {
             case ID_EMPTY_MAP:
                 output.writeUInt32(id, 0, false);
                 break;
 
-            case ID_SINGLETON_MAP:
-            {
+            case ID_SINGLETON_MAP: {
                 final Object k, v;
-                try
-                {
+                try {
                     k = fSingletonMap_k.get(value);
                     v = fSingletonMap_v.get(value);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -425,16 +352,12 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     private static void writeUnmodifiableMapTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy, int id)
-            throws IOException
-    {
+                                               Schema<?> currentSchema, IdStrategy strategy, int id)
+            throws IOException {
         final Object m;
-        try
-        {
+        try {
             m = fUnmodifiableMap_m.get(value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -442,22 +365,17 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     private static void writeSynchronizedMapTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy, int id)
-            throws IOException
-    {
+                                               Schema<?> currentSchema, IdStrategy strategy, int id)
+            throws IOException {
         final Object m, mutex;
-        try
-        {
+        try {
             m = fSynchronizedMap_m.get(value);
             mutex = fSynchronizedMap_mutex.get(value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-        if (mutex != value)
-        {
+        if (mutex != value) {
             // TODO for future release, introduce an interface(GraphOutput) so
             // we
             // can check whether the output can retain references.
@@ -471,18 +389,14 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     private static void writeCheckedMapTo(Output output, Object value,
-            Schema<?> currentSchema, IdStrategy strategy, int id)
-            throws IOException
-    {
+                                          Schema<?> currentSchema, IdStrategy strategy, int id)
+            throws IOException {
         final Object m, keyType, valueType;
-        try
-        {
+        try {
             m = fCheckedMap_m.get(value);
             keyType = fCheckedMap_keyType.get(value);
             valueType = fCheckedMap_valueType.get(value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -493,16 +407,13 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
     @SuppressWarnings("unchecked")
     static Object readObjectFrom(Input input, Schema<?> schema, Object owner,
-            IdStrategy strategy) throws IOException
-    {
+                                 IdStrategy strategy) throws IOException {
         final boolean graph = input instanceof GraphInput;
         Object ret = null;
         final int number = input.readFieldNumber(schema);
-        switch (number)
-        {
+        switch (number) {
             case ID_EMPTY_MAP:
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(Collections.EMPTY_MAP, owner);
                 }
@@ -513,11 +424,9 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
                 ret = Collections.EMPTY_MAP;
                 break;
 
-            case ID_SINGLETON_MAP:
-            {
+            case ID_SINGLETON_MAP: {
                 final Object map = iSingletonMap.newInstance();
-                if (graph)
-                {
+                if (graph) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(map, owner);
                 }
@@ -559,13 +468,11 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
                         iCheckedSortedMap.newInstance(), true);
                 break;
 
-            case ID_ENUM_MAP:
-            {
+            case ID_ENUM_MAP: {
                 final Map<?, Object> em = strategy.resolveEnumFrom(input)
                         .newEnumMap();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(em, owner);
                 }
@@ -574,13 +481,11 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
                 return em;
             }
-            case ID_MAP:
-            {
+            case ID_MAP: {
                 final Map<Object, Object> map = strategy.resolveMapFrom(input)
                         .newMessage();
 
-                if (input instanceof GraphInput)
-                {
+                if (input instanceof GraphInput) {
                     // update the actual reference.
                     ((GraphInput) input).updateLast(map, owner);
                 }
@@ -604,33 +509,26 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
      * Return true to
      */
     private static Object fillSingletonMapFrom(Input input, Schema<?> schema,
-            Object owner, IdStrategy strategy, boolean graph, Object map)
-            throws IOException
-    {
-        switch (input.readFieldNumber(schema))
-        {
+                                               Object owner, IdStrategy strategy, boolean graph, Object map)
+            throws IOException {
+        switch (input.readFieldNumber(schema)) {
             case 0:
                 // both are null
                 return map;
-            case 1:
-            {
+            case 1: {
                 // key exists
                 break;
             }
-            case 3:
-            {
+            case 3: {
                 // key is null
                 final Wrapper wrapper = new Wrapper();
                 Object v = input.mergeObject(wrapper, strategy.OBJECT_SCHEMA);
                 if (!graph || !((GraphInput) input).isCurrentMessageReference())
                     v = wrapper.value;
 
-                try
-                {
+                try {
                     fSingletonMap_v.set(map, v);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -648,16 +546,12 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             k = wrapper.value;
 
-        switch (input.readFieldNumber(schema))
-        {
+        switch (input.readFieldNumber(schema)) {
             case 0:
                 // key exists but null value
-                try
-                {
+                try {
                     fSingletonMap_k.set(map, k);
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -673,13 +567,10 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             v = wrapper.value;
 
-        try
-        {
+        try {
             fSingletonMap_k.set(map, k);
             fSingletonMap_v.set(map, v);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -690,11 +581,9 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     private static Object readUnmodifiableMapFrom(Input input,
-            Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
-            Object map, boolean sm) throws IOException
-    {
-        if (graph)
-        {
+                                                  Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
+                                                  Object map, boolean sm) throws IOException {
+        if (graph) {
             // update the actual reference.
             ((GraphInput) input).updateLast(map, owner);
         }
@@ -703,15 +592,12 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         Object m = input.mergeObject(wrapper, strategy.POLYMORPHIC_MAP_SCHEMA);
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             m = wrapper.value;
-        try
-        {
+        try {
             fUnmodifiableMap_m.set(map, m);
 
             if (sm)
                 fUnmodifiableSortedMap_sm.set(map, m);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -719,11 +605,9 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     private static Object readSynchronizedMapFrom(Input input,
-            Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
-            Object map, boolean sm) throws IOException
-    {
-        if (graph)
-        {
+                                                  Schema<?> schema, Object owner, IdStrategy strategy, boolean graph,
+                                                  Object map, boolean sm) throws IOException {
+        if (graph) {
             // update the actual reference.
             ((GraphInput) input).updateLast(map, owner);
         }
@@ -732,16 +616,13 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         Object m = input.mergeObject(wrapper, strategy.POLYMORPHIC_MAP_SCHEMA);
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             m = wrapper.value;
-        try
-        {
+        try {
             fSynchronizedMap_m.set(map, m);
             fSynchronizedMap_mutex.set(map, map);
 
             if (sm)
                 fSynchronizedSortedMap_sm.set(map, m);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -749,11 +630,9 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     private static Object readCheckedMapFrom(Input input, Schema<?> schema,
-            Object owner, IdStrategy strategy, boolean graph, Object map,
-            boolean sm) throws IOException
-    {
-        if (graph)
-        {
+                                             Object owner, IdStrategy strategy, boolean graph, Object map,
+                                             boolean sm) throws IOException {
+        if (graph) {
             // update the actual reference.
             ((GraphInput) input).updateLast(map, owner);
         }
@@ -777,17 +656,14 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
         if (!graph || !((GraphInput) input).isCurrentMessageReference())
             valueType = wrapper.value;
 
-        try
-        {
+        try {
             fCheckedMap_m.set(map, m);
             fCheckedMap_keyType.set(map, keyType);
             fCheckedMap_valueType.set(map, valueType);
 
             if (sm)
                 fCheckedSortedMap_sm.set(map, m);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -795,11 +671,9 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-            Input input, Output output, IdStrategy strategy) throws IOException
-    {
+                               Input input, Output output, IdStrategy strategy) throws IOException {
         final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        switch (number)
-        {
+        switch (number) {
             case ID_EMPTY_MAP:
                 output.writeUInt32(number, input.readUInt32(), false);
                 break;
@@ -866,8 +740,7 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
             case ID_ENUM_MAP:
                 strategy.transferEnumId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(strategy.MAP_PIPE_SCHEMA,
                             pipeSchema);
@@ -878,8 +751,7 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
             case ID_MAP:
                 strategy.transferMapId(input, output, number);
 
-                if (output instanceof StatefulOutput)
-                {
+                if (output instanceof StatefulOutput) {
                     // update using the derived schema.
                     ((StatefulOutput) output).updateLast(strategy.MAP_PIPE_SCHEMA,
                             pipeSchema);
@@ -897,20 +769,16 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
     }
 
     static void transferSingletonMap(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-            Input input, Output output, IdStrategy strategy) throws IOException
-    {
-        switch (input.readFieldNumber(pipeSchema.wrappedSchema))
-        {
+                                     Input input, Output output, IdStrategy strategy) throws IOException {
+        switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
             case 0:
                 // both are null
                 return;
-            case 1:
-            {
+            case 1: {
                 // key exists
                 break;
             }
-            case 3:
-            {
+            case 3: {
                 // key is null
                 output.writeObject(3, pipe, strategy.OBJECT_PIPE_SCHEMA, false);
 
@@ -925,8 +793,7 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
         output.writeObject(1, pipe, strategy.OBJECT_PIPE_SCHEMA, false);
 
-        switch (input.readFieldNumber(pipeSchema.wrappedSchema))
-        {
+        switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
             case 0:
                 // key exists but null value
                 return;
@@ -941,5 +808,40 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema
 
         if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
             throw new ProtostuffException("Corrupt input.");
+    }
+
+    @Override
+    public Pipe.Schema<Object> getPipeSchema() {
+        return pipeSchema;
+    }
+
+    @Override
+    public String getFieldName(int number) {
+        return name(number);
+    }
+
+    @Override
+    public int getFieldNumber(String name) {
+        return number(name);
+    }
+
+    @Override
+    public String messageFullName() {
+        return Collection.class.getName();
+    }
+
+    @Override
+    public String messageName() {
+        return Collection.class.getSimpleName();
+    }
+
+    @Override
+    public void mergeFrom(Input input, Object owner) throws IOException {
+        setValue(readObjectFrom(input, this, owner, strategy), owner);
+    }
+
+    @Override
+    public void writeTo(Output output, Object value) throws IOException {
+        writeObjectTo(output, value, this, strategy);
     }
 }

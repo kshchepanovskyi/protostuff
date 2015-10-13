@@ -1,20 +1,21 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 import static io.protostuff.ProtobufOutput.encodeZigZag32;
 import static io.protostuff.ProtobufOutput.encodeZigZag64;
@@ -24,10 +25,6 @@ import static io.protostuff.WireFormat.WIRETYPE_LENGTH_DELIMITED;
 import static io.protostuff.WireFormat.WIRETYPE_VARINT;
 import static io.protostuff.WireFormat.makeTag;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
-
 /**
  * Output that differs from the standard by attempting to avoid extra copies of large ByteBuffer fields. When used with
  * ByteBuffer=true compiler option, we can splice in ByteBuffer objects without copying them. Most of the magic lives in
@@ -35,150 +32,126 @@ import java.util.List;
  *
  * @author Ryan Rawson
  */
-public final class LowCopyProtobufOutput implements Output
-{
+public final class LowCopyProtobufOutput implements Output {
 
     public LinkBuffer buffer;
 
-    public LowCopyProtobufOutput()
-    {
+    public LowCopyProtobufOutput() {
         buffer = new LinkBuffer();
     }
 
-    public LowCopyProtobufOutput(final LinkBuffer buffer)
-    {
+    public LowCopyProtobufOutput(final LinkBuffer buffer) {
         this.buffer = buffer;
     }
 
     @Override
-    public void writeInt32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
-        if (value < 0)
-        {
+    public void writeInt32(int fieldNumber, int value, boolean repeated) throws IOException {
+        if (value < 0) {
             buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
             buffer.writeVarInt64(value);
-        }
-        else
-        {
+        } else {
             buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
             buffer.writeVarInt32(value);
         }
     }
 
     @Override
-    public void writeUInt32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeUInt32(int fieldNumber, int value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
         buffer.writeVarInt32(value);
     }
 
     @Override
-    public void writeSInt32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeSInt32(int fieldNumber, int value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
         buffer.writeVarInt32(encodeZigZag32(value));
     }
 
     @Override
-    public void writeFixed32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeFixed32(int fieldNumber, int value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_FIXED32));
         buffer.writeInt32LE(value);
     }
 
     @Override
-    public void writeSFixed32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeSFixed32(int fieldNumber, int value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_FIXED32));
         buffer.writeInt32LE(value);
     }
 
     @Override
-    public void writeInt64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeInt64(int fieldNumber, long value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
         buffer.writeVarInt64(value);
     }
 
     @Override
-    public void writeUInt64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeUInt64(int fieldNumber, long value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
         buffer.writeVarInt64(value);
     }
 
     @Override
-    public void writeSInt64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeSInt64(int fieldNumber, long value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
         buffer.writeVarInt64(encodeZigZag64(value));
     }
 
     @Override
-    public void writeFixed64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeFixed64(int fieldNumber, long value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_FIXED64));
         buffer.writeInt64LE(value);
     }
 
     @Override
-    public void writeSFixed64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeSFixed64(int fieldNumber, long value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_FIXED64));
         buffer.writeInt64LE(value);
     }
 
     @Override
-    public void writeFloat(int fieldNumber, float value, boolean repeated) throws IOException
-    {
+    public void writeFloat(int fieldNumber, float value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_FIXED32));
         buffer.writeInt32LE(Float.floatToRawIntBits(value));
     }
 
     @Override
-    public void writeDouble(int fieldNumber, double value, boolean repeated) throws IOException
-    {
+    public void writeDouble(int fieldNumber, double value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_FIXED64));
         buffer.writeInt64LE(Double.doubleToRawLongBits(value));
     }
 
     @Override
-    public void writeBool(int fieldNumber, boolean value, boolean repeated) throws IOException
-    {
+    public void writeBool(int fieldNumber, boolean value, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_VARINT));
         buffer.writeByte(value ? (byte) 0x01 : 0x00);
     }
 
     @Override
-    public void writeEnum(int fieldNumber, int number, boolean repeated) throws IOException
-    {
+    public void writeEnum(int fieldNumber, int number, boolean repeated) throws IOException {
         writeInt32(fieldNumber, number, repeated);
     }
 
     @Override
-    public void writeString(int fieldNumber, String value, boolean repeated) throws IOException
-    {
+    public void writeString(int fieldNumber, String value, boolean repeated) throws IOException {
         // TODO the original implementation is a lot more complex, is this compatible?
         byte[] strbytes = value.getBytes("UTF-8");
         writeByteArray(fieldNumber, strbytes, repeated);
     }
 
     @Override
-    public void writeBytes(int fieldNumber, ByteString value, boolean repeated) throws IOException
-    {
+    public void writeBytes(int fieldNumber, ByteString value, boolean repeated) throws IOException {
         writeByteArray(fieldNumber, value.getBytes(), repeated);
     }
 
     @Override
-    public void writeByteArray(int fieldNumber, byte[] bytes, boolean repeated) throws IOException
-    {
+    public void writeByteArray(int fieldNumber, byte[] bytes, boolean repeated) throws IOException {
         writeByteRange(false, fieldNumber, bytes, 0, bytes.length, repeated);
     }
 
     @Override
     public void writeByteRange(boolean utf8String, int fieldNumber, byte[] value,
-            int offset, int length, boolean repeated) throws IOException
-    {
+                               int offset, int length, boolean repeated) throws IOException {
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_LENGTH_DELIMITED));
         buffer.writeVarInt32(length);
         buffer.writeByteArray(value, offset, length);
@@ -186,8 +159,7 @@ public final class LowCopyProtobufOutput implements Output
 
     @Override
     public <T> void writeObject(final int fieldNumber, final T value, final Schema<T> schema,
-            final boolean repeated) throws IOException
-    {
+                                final boolean repeated) throws IOException {
         LinkBuffer subBuf = new LinkBuffer(buffer.allocSize);
         // now serialize:
         LowCopyProtobufOutput subOutput = new LowCopyProtobufOutput(subBuf);
@@ -198,15 +170,13 @@ public final class LowCopyProtobufOutput implements Output
 
         buffer.writeVarInt32(makeTag(fieldNumber, WIRETYPE_LENGTH_DELIMITED));
         buffer.writeVarInt64(subSize);
-        for (ByteBuffer b : subBuffers)
-        {
+        for (ByteBuffer b : subBuffers) {
             buffer.writeByteBuffer(b);
         }
     }
 
     @Override
-    public void writeBytes(int fieldNumber, ByteBuffer value, boolean repeated) throws IOException
-    {
+    public void writeBytes(int fieldNumber, ByteBuffer value, boolean repeated) throws IOException {
         writeByteRange(false, fieldNumber, value.array(), value.arrayOffset() + value.position(),
                 value.remaining(), repeated);
     }

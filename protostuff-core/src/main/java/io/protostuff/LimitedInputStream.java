@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
@@ -53,73 +50,60 @@ import java.io.InputStream;
 /**
  * An InputStream implementations which reads from some other InputStream but is limited to a particular number of
  * bytes.
- * 
+ *
  * @author David Yu
  */
-public final class LimitedInputStream extends FilterInputStream
-{
+public final class LimitedInputStream extends FilterInputStream {
     private int limit;
 
-    public LimitedInputStream(InputStream in)
-    {
+    public LimitedInputStream(InputStream in) {
         super(in);
     }
 
-    public LimitedInputStream(InputStream in, int limit)
-    {
+    public LimitedInputStream(InputStream in, int limit) {
         super(in);
         this.limit = limit;
     }
 
-    LimitedInputStream limit(int limit)
-    {
+    LimitedInputStream limit(int limit) {
         this.limit = limit;
         return this;
     }
 
     @Override
-    public int available() throws IOException
-    {
+    public int available() throws IOException {
         return Math.min(super.available(), limit);
     }
 
     @Override
-    public int read() throws IOException
-    {
-        if (limit <= 0)
-        {
+    public int read() throws IOException {
+        if (limit <= 0) {
             return -1;
         }
         final int result = super.read();
-        if (result >= 0)
-        {
+        if (result >= 0) {
             --limit;
         }
         return result;
     }
 
     @Override
-    public int read(final byte[] b, final int off, int len) throws IOException
-    {
-        if (limit <= 0)
-        {
+    public int read(final byte[] b, final int off, int len) throws IOException {
+        if (limit <= 0) {
             return -1;
         }
         len = Math.min(len, limit);
         final int result = super.read(b, off, len);
-        if (result >= 0)
-        {
+        if (result >= 0) {
             limit -= result;
         }
         return result;
     }
 
     @Override
-    public long skip(final long n) throws IOException
-    {
+    public long skip(final long n) throws IOException {
         final long result = super.skip(Math.min(n, limit));
-        if (result >= 0)
-        {
+        if (result >= 0) {
             limit -= result;
         }
         return result;

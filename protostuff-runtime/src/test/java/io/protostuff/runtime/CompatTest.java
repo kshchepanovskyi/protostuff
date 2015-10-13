@@ -1,24 +1,19 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
-import static io.protostuff.AbstractTest.buf;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,35 +24,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
-
 import io.protostuff.ByteString;
 import io.protostuff.Message;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.StringSerializer.STRING;
 
+import static io.protostuff.AbstractTest.buf;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Test that the runtime schema would have the same output as hand-coded/code-generated schema.
- * 
+ *
  * @author David Yu
  */
-public class CompatTest
-{
+public class CompatTest {
 
-    @Test
-    public void testCompat() throws IOException
-    {
-        compareBar();
-
-        if (!RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS)
-        {
-            compareFoo();
-        }
-    }
-
-    static void compareBar()
-    {
+    static void compareBar() {
         io.protostuff.Bar bar1 = io.protostuff.SerializableObjects.bar;
         Schema<io.protostuff.Bar> schema1 = io.protostuff.Bar
                 .getSchema();
@@ -76,8 +60,7 @@ public class CompatTest
         assertArrayEquals(byte1, byte3);
     }
 
-    static void compareFoo()
-    {
+    static void compareFoo() {
         io.protostuff.Foo foo1 = io.protostuff.SerializableObjects.foo;
         Schema<io.protostuff.Foo> schema1 = io.protostuff.Foo
                 .getSchema();
@@ -97,161 +80,30 @@ public class CompatTest
     }
 
     static <T extends Message<T>> Schema<T> getCachedSchema(Class<T> clazz)
-            throws InstantiationException, IllegalAccessException
-    {
+            throws InstantiationException, IllegalAccessException {
         Schema<T> schema = clazz.newInstance().cachedSchema();
         // System.err.println("! " + schema + " | " +
         // System.identityHashCode(schema));
         return schema;
     }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testMixed() throws Exception
-    {
-        if (RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS)
-            return;
-
-        Schema<Mixed> schema = RuntimeSchema.getSchema(Mixed.class);
-
-        assertTrue(RuntimeSchema.class.isAssignableFrom(schema.getClass()));
-
-        RuntimeSchema<Mixed> mappedSchema = (RuntimeSchema<Mixed>) schema;
-
-        assertTrue(RuntimeMessageField.class
-                .isAssignableFrom(mappedSchema.getFieldByName("rfoo")
-						.getClass()));
-        assertTrue(RuntimeMessageField.class
-                .isAssignableFrom(mappedSchema.getFieldByName("rbar")
-						.getClass()));
-        assertTrue(RuntimeMessageField.class
-                .isAssignableFrom(mappedSchema.getFieldByName("rbaz")
-						.getClass()));
-
-        RuntimeMessageField<Mixed, io.protostuff.Foo> rfoo = (RuntimeMessageField<Mixed, io.protostuff.Foo>) mappedSchema
-                .getFieldByName("rfoo");
-
-        RuntimeMessageField<Mixed, io.protostuff.Bar> rbar = (RuntimeMessageField<Mixed, io.protostuff.Bar>) mappedSchema
-                .getFieldByName("rbar");
-
-        RuntimeMessageField<Mixed, io.protostuff.Baz> rbaz = (RuntimeMessageField<Mixed, io.protostuff.Baz>) mappedSchema
-                .getFieldByName("rbaz");
-
-        assertTrue(rfoo
-                .getSchema()
-                .getClass()
-                .isAssignableFrom(
-                        getCachedSchema(io.protostuff.Foo.class)
-                                .getClass()));
-
-        assertTrue(rbar
-                .getSchema()
-                .getClass()
-                .isAssignableFrom(
-                        getCachedSchema(io.protostuff.Bar.class)
-                                .getClass()));
-
-        assertTrue(rbaz
-                .getSchema()
-                .getClass()
-                .isAssignableFrom(
-                        getCachedSchema(io.protostuff.Baz.class)
-                                .getClass()));
-    }
-
-    public static class Mixed
-    {
-        int id;
-
-        Foo fo;
-        Bar br;
-        Baz bz;
-
-        io.protostuff.Foo foo;
-        io.protostuff.Bar bar;
-        io.protostuff.Baz baz;
-
-        List<io.protostuff.Foo> rfoo;
-        Set<io.protostuff.Bar> rbar;
-        Collection<io.protostuff.Baz> rbaz;
-    }
-
-    static byte[] ba(String text)
-    {
+    static byte[] ba(String text) {
         return STRING.ser(text);
     }
 
-    static ByteString bs(String text)
-    {
+    static ByteString bs(String text) {
         return ByteString.copyFromUtf8(text);
     }
 
-    static <T> List<T> newList()
-    {
+    static <T> List<T> newList() {
         return new ArrayList<>();
     }
 
-    static <K, V> Map<K, V> newMap()
-    {
+    static <K, V> Map<K, V> newMap() {
         return new LinkedHashMap<>();
     }
 
-    @Test
-    public void testByteArrayCompat()
-    {
-        PojoWithByteArray pwba = new PojoWithByteArray();
-        PojoWithByteString pwbs = new PojoWithByteString();
-        fill(pwba);
-        fill(pwbs);
-
-        byte[] b1 = ProtostuffIOUtil.toByteArray(pwba,
-                RuntimeSchema.getSchema(PojoWithByteArray.class), buf());
-
-        byte[] b2 = ProtostuffIOUtil.toByteArray(pwbs,
-                RuntimeSchema.getSchema(PojoWithByteString.class), buf());
-
-        assertTrue(Arrays.equals(b1, b2));
-    }
-
-    public enum Direction
-    {
-        NORTH, SOUTH, EAST, WEST
-    }
-
-    public static class PojoWithByteArray
-    {
-        byte[] bytes;
-        List<byte[]> bytesList;
-
-        Map<Integer, byte[]> scalarKeyMap;
-        Map<Direction, byte[]> enumKeyMap;
-        Map<Baz, byte[]> pojoKeyMap;
-
-        Map<byte[], Integer> scalarValueMap;
-        Map<byte[], Direction> enumValueMap;
-        Map<byte[], Baz> pojoValueMap;
-
-        Map<byte[], byte[]> bytesMap;
-    }
-
-    public static class PojoWithByteString
-    {
-        ByteString bytes;
-        List<ByteString> bytesList;
-
-        Map<Integer, ByteString> scalarKeyMap;
-        Map<Direction, ByteString> enumKeyMap;
-        Map<Baz, ByteString> pojoKeyMap;
-
-        Map<ByteString, Integer> scalarValueMap;
-        Map<ByteString, Direction> enumValueMap;
-        Map<ByteString, Baz> pojoValueMap;
-
-        Map<ByteString, ByteString> bytesMap;
-    }
-
-    static void fill(PojoWithByteArray pwba)
-    {
+    static void fill(PojoWithByteArray pwba) {
         pwba.bytes = ba("1");
 
         pwba.bytesList = newList();
@@ -287,8 +139,7 @@ public class CompatTest
         pwba.bytesMap.put(ba("18"), ba("19"));
     }
 
-    static void fill(PojoWithByteString pwbs)
-    {
+    static void fill(PojoWithByteString pwbs) {
         pwbs.bytes = bs("1");
 
         pwbs.bytesList = newList();
@@ -322,6 +173,134 @@ public class CompatTest
         pwbs.bytesMap = newMap();
         pwbs.bytesMap.put(bs("16"), bs("17"));
         pwbs.bytesMap.put(bs("18"), bs("19"));
+    }
+
+    @Test
+    public void testCompat() throws IOException {
+        compareBar();
+
+        if (!RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS) {
+            compareFoo();
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testMixed() throws Exception {
+        if (RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS)
+            return;
+
+        Schema<Mixed> schema = RuntimeSchema.getSchema(Mixed.class);
+
+        assertTrue(RuntimeSchema.class.isAssignableFrom(schema.getClass()));
+
+        RuntimeSchema<Mixed> mappedSchema = (RuntimeSchema<Mixed>) schema;
+
+        assertTrue(RuntimeMessageField.class
+                .isAssignableFrom(mappedSchema.getFieldByName("rfoo")
+                        .getClass()));
+        assertTrue(RuntimeMessageField.class
+                .isAssignableFrom(mappedSchema.getFieldByName("rbar")
+                        .getClass()));
+        assertTrue(RuntimeMessageField.class
+                .isAssignableFrom(mappedSchema.getFieldByName("rbaz")
+                        .getClass()));
+
+        RuntimeMessageField<Mixed, io.protostuff.Foo> rfoo = (RuntimeMessageField<Mixed, io.protostuff.Foo>) mappedSchema
+                .getFieldByName("rfoo");
+
+        RuntimeMessageField<Mixed, io.protostuff.Bar> rbar = (RuntimeMessageField<Mixed, io.protostuff.Bar>) mappedSchema
+                .getFieldByName("rbar");
+
+        RuntimeMessageField<Mixed, io.protostuff.Baz> rbaz = (RuntimeMessageField<Mixed, io.protostuff.Baz>) mappedSchema
+                .getFieldByName("rbaz");
+
+        assertTrue(rfoo
+                .getSchema()
+                .getClass()
+                .isAssignableFrom(
+                        getCachedSchema(io.protostuff.Foo.class)
+                                .getClass()));
+
+        assertTrue(rbar
+                .getSchema()
+                .getClass()
+                .isAssignableFrom(
+                        getCachedSchema(io.protostuff.Bar.class)
+                                .getClass()));
+
+        assertTrue(rbaz
+                .getSchema()
+                .getClass()
+                .isAssignableFrom(
+                        getCachedSchema(io.protostuff.Baz.class)
+                                .getClass()));
+    }
+
+    @Test
+    public void testByteArrayCompat() {
+        PojoWithByteArray pwba = new PojoWithByteArray();
+        PojoWithByteString pwbs = new PojoWithByteString();
+        fill(pwba);
+        fill(pwbs);
+
+        byte[] b1 = ProtostuffIOUtil.toByteArray(pwba,
+                RuntimeSchema.getSchema(PojoWithByteArray.class), buf());
+
+        byte[] b2 = ProtostuffIOUtil.toByteArray(pwbs,
+                RuntimeSchema.getSchema(PojoWithByteString.class), buf());
+
+        assertTrue(Arrays.equals(b1, b2));
+    }
+
+    public enum Direction {
+        NORTH, SOUTH, EAST, WEST
+    }
+
+    public static class Mixed {
+        int id;
+
+        Foo fo;
+        Bar br;
+        Baz bz;
+
+        io.protostuff.Foo foo;
+        io.protostuff.Bar bar;
+        io.protostuff.Baz baz;
+
+        List<io.protostuff.Foo> rfoo;
+        Set<io.protostuff.Bar> rbar;
+        Collection<io.protostuff.Baz> rbaz;
+    }
+
+    public static class PojoWithByteArray {
+        byte[] bytes;
+        List<byte[]> bytesList;
+
+        Map<Integer, byte[]> scalarKeyMap;
+        Map<Direction, byte[]> enumKeyMap;
+        Map<Baz, byte[]> pojoKeyMap;
+
+        Map<byte[], Integer> scalarValueMap;
+        Map<byte[], Direction> enumValueMap;
+        Map<byte[], Baz> pojoValueMap;
+
+        Map<byte[], byte[]> bytesMap;
+    }
+
+    public static class PojoWithByteString {
+        ByteString bytes;
+        List<ByteString> bytesList;
+
+        Map<Integer, ByteString> scalarKeyMap;
+        Map<Direction, ByteString> enumKeyMap;
+        Map<Baz, ByteString> pojoKeyMap;
+
+        Map<ByteString, Integer> scalarValueMap;
+        Map<ByteString, Direction> enumValueMap;
+        Map<ByteString, Baz> pojoValueMap;
+
+        Map<ByteString, ByteString> bytesMap;
     }
 
 }

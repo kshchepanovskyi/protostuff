@@ -1,20 +1,19 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
+
+import junit.framework.TestCase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,16 +21,12 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 /**
  * @author Ryan Rawson
  */
-public class LowCopyProtobufOutputTest extends TestCase
-{
+public class LowCopyProtobufOutputTest extends TestCase {
 
-    public void testCompareVsOther() throws Exception
-    {
+    public void testCompareVsOther() throws Exception {
 
         Baz aBaz = new Baz(1, "hello world", 1238372479L);
         ByteBuffer serForm1 = testObj(aBaz, aBaz);
@@ -46,24 +41,22 @@ public class LowCopyProtobufOutputTest extends TestCase
                 3.14f,
                 2.7182818284,
                 599L
-                );
+        );
 
         ByteBuffer serForm2 = testObj(testBar, testBar);
         deserTest(testBar, testBar, serForm2);
     }
 
     private void deserTest(Message origMsg,
-            Schema sch,
-            ByteBuffer buf) throws IOException
-    {
+                           Schema sch,
+                           ByteBuffer buf) throws IOException {
         ByteBufferInput input = new ByteBufferInput(buf, false);
         Object newM = sch.newMessage();
         sch.mergeFrom(input, newM);
         assertEquals(origMsg, newM);
     }
 
-    private ByteBuffer testObj(Message msg, Schema sch) throws java.io.IOException
-    {
+    private ByteBuffer testObj(Message msg, Schema sch) throws java.io.IOException {
         // do protostuff now:
         ByteArrayOutputStream controlStream = new ByteArrayOutputStream();
         LinkedBuffer linkedBuffer = LinkedBuffer.allocate(512); // meh

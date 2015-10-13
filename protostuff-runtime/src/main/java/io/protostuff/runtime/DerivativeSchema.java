@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.RuntimeFieldFactory.ID_POJO;
-import static io.protostuff.runtime.RuntimeFieldFactory.STR_POJO;
 
 import java.io.IOException;
 
@@ -28,55 +22,74 @@ import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 import io.protostuff.StatefulOutput;
 
+import static io.protostuff.runtime.RuntimeFieldFactory.ID_POJO;
+import static io.protostuff.runtime.RuntimeFieldFactory.STR_POJO;
+
 /**
  * This schema delegates to another schema derived from the input.
- * 
+ *
  * @author David Yu
  */
-public abstract class DerivativeSchema implements Schema<Object>
-{
+public abstract class DerivativeSchema implements Schema<Object> {
 
     public final IdStrategy strategy;
+    /**
+     * This pipe schema delegates to another schema derived from the input.
+     */
+    public final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
+            DerivativeSchema.this) {
+        @Override
+        public void transfer(Pipe pipe, Input input, Output output)
+                throws IOException {
+            final int first = input.readFieldNumber(DerivativeSchema.this);
+            if (first != ID_POJO)
+                throw new ProtostuffException("order not preserved.");
 
-    public DerivativeSchema(IdStrategy strategy)
-    {
+            final Pipe.Schema<Object> pipeSchema = strategy.transferPojoId(
+                    input, output, ID_POJO).getPipeSchema();
+
+            if (output instanceof StatefulOutput) {
+                // update using the derived schema.
+                ((StatefulOutput) output).updateLast(pipeSchema, this);
+            }
+
+            Pipe.transferDirect(pipeSchema, pipe, input, output);
+        }
+
+    };
+
+    public DerivativeSchema(IdStrategy strategy) {
         this.strategy = strategy;
     }
 
     @Override
-    public String getFieldName(int number)
-    {
+    public String getFieldName(int number) {
         return number == ID_POJO ? STR_POJO : null;
     }
 
     @Override
-    public int getFieldNumber(String name)
-    {
+    public int getFieldNumber(String name) {
         return name.length() == 1 && name.charAt(0) == '_' ? ID_POJO : 0;
     }
 
     @Override
-    public String messageFullName()
-    {
+    public String messageFullName() {
         return Object.class.getName();
     }
 
     @Override
-    public String messageName()
-    {
+    public String messageName() {
         return Object.class.getSimpleName();
     }
 
     @Override
-    public Object newMessage()
-    {
+    public Object newMessage() {
         // cannot instantiate because the type is dynamic.
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Class<? super Object> typeClass()
-    {
+    public Class<? super Object> typeClass() {
         return Object.class;
     }
 
@@ -85,8 +98,7 @@ public abstract class DerivativeSchema implements Schema<Object>
      * this schema.
      */
     @Override
-    public void mergeFrom(Input input, final Object owner) throws IOException
-    {
+    public void mergeFrom(Input input, final Object owner) throws IOException {
         final int first = input.readFieldNumber(this);
         if (first != ID_POJO)
             throw new ProtostuffException("order not preserved.");
@@ -101,13 +113,11 @@ public abstract class DerivativeSchema implements Schema<Object>
     @Override
     @SuppressWarnings("unchecked")
     public void writeTo(final Output output, final Object value)
-            throws IOException
-    {
+            throws IOException {
         final Schema<Object> schema = strategy.writePojoIdTo(output, ID_POJO,
                 (Class<Object>) value.getClass()).getSchema();
 
-        if (output instanceof StatefulOutput)
-        {
+        if (output instanceof StatefulOutput) {
             // update using the derived schema.
             ((StatefulOutput) output).updateLast(schema, this);
         }
@@ -116,35 +126,7 @@ public abstract class DerivativeSchema implements Schema<Object>
         schema.writeTo(output, value);
     }
 
-    /**
-     * This pipe schema delegates to another schema derived from the input.
-     */
-    public final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            DerivativeSchema.this)
-    {
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output)
-                throws IOException
-        {
-            final int first = input.readFieldNumber(DerivativeSchema.this);
-            if (first != ID_POJO)
-                throw new ProtostuffException("order not preserved.");
-
-            final Pipe.Schema<Object> pipeSchema = strategy.transferPojoId(
-                    input, output, ID_POJO).getPipeSchema();
-
-            if (output instanceof StatefulOutput)
-            {
-                // update using the derived schema.
-                ((StatefulOutput) output).updateLast(pipeSchema, this);
-            }
-
-            Pipe.transferDirect(pipeSchema, pipe, input, output);
-        }
-
-    };
-
     protected abstract void doMergeFrom(Input input,
-            Schema<Object> derivedSchema, Object owner) throws IOException;
+                                        Schema<Object> derivedSchema, Object owner) throws IOException;
 
 }

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -24,20 +21,26 @@ import java.io.IOException;
  * It is recommended to use pipe only to stream data coming from server-side services (e.g from your datastore/etc).
  * <p>
  * Incoming data from the interwebs should not be piped due to validation/security purposes.
- * 
+ *
  * @author David Yu
  */
-public abstract class Pipe
-{
+public abstract class Pipe {
 
     protected Input input;
     protected Output output;
 
     /**
+     * This should not be called directly by applications.
+     */
+    public static <T> void transferDirect(Pipe.Schema<T> pipeSchema, Pipe pipe,
+                                          Input input, Output output) throws IOException {
+        pipeSchema.transfer(pipe, input, output);
+    }
+
+    /**
      * Resets this pipe for re-use.
      */
-    protected Pipe reset()
-    {
+    protected Pipe reset() {
         output = null;
         input = null;
         return this;
@@ -55,69 +58,58 @@ public abstract class Pipe
      * cleanup/close all resources that need to be.
      */
     protected abstract void end(Pipe.Schema<?> pipeSchema, Input input,
-            boolean cleanupOnly) throws IOException;
+                                boolean cleanupOnly) throws IOException;
 
     /**
      * Schema for transferring data from a source ({@link Input}) to a different sink ({@link Output}).
      */
-    public static abstract class Schema<T> implements io.protostuff.Schema<Pipe>
-    {
+    public static abstract class Schema<T> implements io.protostuff.Schema<Pipe> {
 
         public final io.protostuff.Schema<T> wrappedSchema;
 
-        public Schema(io.protostuff.Schema<T> wrappedSchema)
-        {
+        public Schema(io.protostuff.Schema<T> wrappedSchema) {
             this.wrappedSchema = wrappedSchema;
         }
 
         @Override
-        public String getFieldName(int number)
-        {
+        public String getFieldName(int number) {
             return wrappedSchema.getFieldName(number);
         }
 
         @Override
-        public int getFieldNumber(String name)
-        {
+        public int getFieldNumber(String name) {
             return wrappedSchema.getFieldNumber(name);
         }
 
         @Override
-        public String messageFullName()
-        {
+        public String messageFullName() {
             return wrappedSchema.messageFullName();
         }
 
         @Override
-        public String messageName()
-        {
+        public String messageName() {
             return wrappedSchema.messageName();
         }
 
         @Override
-        public Pipe newMessage()
-        {
+        public Pipe newMessage() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Class<Pipe> typeClass()
-        {
+        public Class<Pipe> typeClass() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public final void writeTo(final Output output, final Pipe pipe) throws IOException
-        {
-            if (pipe.output == null)
-            {
+        public final void writeTo(final Output output, final Pipe pipe) throws IOException {
+            if (pipe.output == null) {
                 pipe.output = output;
 
                 // begin message pipe
                 final Input input = pipe.begin(this);
 
-                if (input == null)
-                {
+                if (input == null) {
                     // empty message pipe.
                     pipe.output = null;
                     pipe.end(this, input, true);
@@ -127,13 +119,10 @@ public abstract class Pipe
                 pipe.input = input;
 
                 boolean transferComplete = false;
-                try
-                {
+                try {
                     transfer(pipe, input, output);
                     transferComplete = true;
-                }
-                finally
-                {
+                } finally {
                     pipe.end(this, input, !transferComplete);
                     // pipe.input = null;
                     // pipe.output = null;
@@ -147,8 +136,7 @@ public abstract class Pipe
         }
 
         @Override
-        public final void mergeFrom(final Input input, final Pipe pipe) throws IOException
-        {
+        public final void mergeFrom(final Input input, final Pipe pipe) throws IOException {
             transfer(pipe, input, pipe.output);
         }
 
@@ -158,15 +146,6 @@ public abstract class Pipe
         protected abstract void transfer(Pipe pipe, Input input, Output output)
                 throws IOException;
 
-    }
-
-    /**
-     * This should not be called directly by applications.
-     */
-    public static <T> void transferDirect(Pipe.Schema<T> pipeSchema, Pipe pipe,
-            Input input, Output output) throws IOException
-    {
-        pipeSchema.transfer(pipe, input, output);
     }
 
 }

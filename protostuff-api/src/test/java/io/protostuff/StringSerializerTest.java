@@ -1,20 +1,19 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
+
+import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,7 +23,6 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
 import io.protostuff.StringSerializer.STRING;
 
 /**
@@ -32,8 +30,7 @@ import io.protostuff.StringSerializer.STRING;
  *
  * @author David Yu
  */
-public class StringSerializerTest extends TestCase
-{
+public class StringSerializerTest extends TestCase {
 
     // 4*3-byte
     static final String three_byte_utf8 = "\u1234\u8000\uF800\u0800";
@@ -49,12 +46,12 @@ public class StringSerializerTest extends TestCase
     static final String surrogatePairs = "\uD83C\uDFE0\uD83C\uDF4E\uD83D\uDCA9";
 
     // Result of surrogatePairs.getBytes("UTF-8"), which is what protobuf uses.
-    static final byte[] nativeSurrogatePairsSerialized = { -16, -97, -113, -96, -16, -97, -115, -114, -16, -97, -110,
-            -87 };
+    static final byte[] nativeSurrogatePairsSerialized = {-16, -97, -113, -96, -16, -97, -115, -114, -16, -97, -110,
+            -87};
 
     // Result of writeUTF8 before 3-byte surrogate fix (i.e. no 4-byte encoding)
-    static final byte[] legacySurrogatePairSerialized = { -19, -96, -68, -19, -65, -96, -19, -96, -68, -19, -67, -114,
-            -19, -96, -67, -19, -78, -87 };
+    static final byte[] legacySurrogatePairSerialized = {-19, -96, -68, -19, -65, -96, -19, -96, -68, -19, -67, -114,
+            -19, -96, -67, -19, -78, -87};
 
     // 10 total
     static final String numeric = "0123456789";
@@ -67,7 +64,7 @@ public class StringSerializerTest extends TestCase
 
     static final String str_len_130 = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
 
-    static final String[] targets = new String[] {
+    static final String[] targets = new String[]{
             three_byte_utf8,
             two_byte_utf8,
             alphabet,
@@ -83,7 +80,7 @@ public class StringSerializerTest extends TestCase
             repeatChar('a', 0x8000 + 16)
     };
 
-    static final String[] ascii_targets = new String[] {
+    static final String[] ascii_targets = new String[]{
             alphabet,
             alphabet_to_upper,
             numeric,
@@ -95,7 +92,7 @@ public class StringSerializerTest extends TestCase
             repeatChar('b', 0x8000 + 16)
     };
 
-    static final int[] int_targets = new int[] {
+    static final int[] int_targets = new int[]{
             0,
             1,
             -1,
@@ -117,7 +114,7 @@ public class StringSerializerTest extends TestCase
             Integer.MIN_VALUE,
     };
 
-    static final long[] long_targets = new long[] {
+    static final long[] long_targets = new long[]{
             0l,
             1l,
             -1l,
@@ -147,24 +144,24 @@ public class StringSerializerTest extends TestCase
             Long.MIN_VALUE,
     };
 
-    static final float[] float_targets = new float[] {
+    static final float[] float_targets = new float[]{
             0.0f,
             10.01f,
             -10.01f,
             1234.4321f
-            - 1234.4321f,
+                    - 1234.4321f,
             56789.98765f,
             -56789.98765f,
             Float.MAX_VALUE,
             Float.MIN_VALUE
     };
 
-    static final double[] double_targets = new double[] {
+    static final double[] double_targets = new double[]{
             0.0d,
             10.01d,
             -10.01d,
             1234.4321d
-            - 1234.4321d,
+                    - 1234.4321d,
             56789.98765d,
             -56789.98765d,
             1234567890.0987654321d,
@@ -173,41 +170,15 @@ public class StringSerializerTest extends TestCase
             Double.MIN_VALUE
     };
 
-    public void testVarDelimitedBoundryTwoByte() throws Exception
-    {
-        int size = StringSerializer.THREE_BYTE_LOWER_LIMIT - 1; // takes 2 bytes for size and is larger than buffer
-
-        checkVarDelimitedBoundry(1, size); // 1st str does not fit
-        checkVarDelimitedBoundry(2, size); // 1st str fits
-        checkVarDelimitedBoundry(3, size); // 2nd str varint doesn't fit
-        checkVarDelimitedBoundry(4, size); // Only 2nd varint fits (slow)
-    }
-
-    public void testVarDelimitedBoundryThreeByte() throws Exception
-    {
-        int size = StringSerializer.FOUR_BYTE_LOWER_LIMIT - 1; // takes 3 bytes for size
-
-        checkVarDelimitedBoundry(1, size); // 1st str does not fit
-        checkVarDelimitedBoundry(2, size); // 1st str fits
-        checkVarDelimitedBoundry(3, size); // 2nd str varint doesn't fit
-        checkVarDelimitedBoundry(4, size); // same as above
-        checkVarDelimitedBoundry(5, size); // Only 2nd varint fits (slow)
-    }
-
-    // 4-byte & 5-byte ommitted (256mb length string = eats 512mb memory as char is 16 bit)
-
-    public static String repeatChar(char ch, int times)
-    {
+    public static String repeatChar(char ch, int times) {
         StringBuilder sb = new StringBuilder(times);
-        for (int i = 0; i < times; i++)
-        {
+        for (int i = 0; i < times; i++) {
             sb.append(ch);
         }
         return sb.toString();
     }
 
-    public static void checkVarDelimitedBoundry(int initialGap, int secondWriteSize)
-    {
+    public static void checkVarDelimitedBoundry(int initialGap, int secondWriteSize) {
         int bufferSize = 256;
         final LinkedBuffer lb = LinkedBuffer.allocate(bufferSize);
         WriteSession session = new WriteSession(lb, bufferSize);
@@ -221,10 +192,153 @@ public class StringSerializerTest extends TestCase
         StringSerializer.writeUTF8VarDelimited(repeatChar('a', secondWriteSize), session, lb);
     }
 
-    public void testInt() throws Exception
-    {
-        for (int i : int_targets)
-        {
+    // 4-byte & 5-byte ommitted (256mb length string = eats 512mb memory as char is 16 bit)
+
+    static void checkVarDelimited(String str, int size, int stringLen) throws Exception {
+        LinkedBuffer lb = new LinkedBuffer(512);
+        WriteSession session = new WriteSession(lb);
+        StringSerializer.writeUTF8VarDelimited(str, session, lb);
+
+        byte[] buf = session.toByteArray();
+
+        assertTrue(buf.length == stringLen + size);
+
+        int len = readRawVarint32(lb.buffer, 0);
+        assertTrue(len == stringLen);
+
+        print("total len: " + buf.length);
+    }
+
+    static void checkFixedDelimited(String str) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(getShortStringLengthInBytes(str));
+        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
+        writer.write(str, 0, str.length());
+        writer.close();
+
+        LinkedBuffer lb = new LinkedBuffer(512);
+        WriteSession session = new WriteSession(lb);
+        StringSerializer.writeUTF8FixedDelimited(str, session, lb);
+
+        byte[] b1 = out.toByteArray();
+        byte[] b2 = session.toByteArray();
+
+        assertEquals(b1, b2);
+    }
+
+    static byte[] getShortStringLengthInBytes(String str) throws Exception {
+        byte[] array = str.getBytes("UTF-8");
+        return new byte[]{(byte) ((array.length >> 8) & 0xff), (byte) (array.length & 0xff)};
+    }
+
+    static void assertEquals(byte[] b1, byte[] b2) throws Exception {
+        assertTrue(Arrays.equals(b1, b2));
+    }
+
+    static void checkAscii(String str) throws Exception {
+        byte[] builtin = str.getBytes(StandardCharsets.UTF_8);
+        LinkedBuffer lb = new LinkedBuffer(512);
+        WriteSession session = new WriteSession(lb);
+
+        StringSerializer.writeAscii(str, session, lb);
+
+        assertTrue(builtin.length == session.size);
+
+        byte[] buffered = session.toByteArray();
+
+        assertTrue(builtin.length == buffered.length);
+
+        String strBuiltin = new String(builtin, "ASCII");
+        String strBuffered = new String(buffered, "ASCII");
+
+        assertEquals(strBuiltin, strBuffered);
+        print(strBuiltin);
+        print("len: " + builtin.length);
+    }
+
+    static void check(String str) throws Exception {
+        byte[] builtin = str.getBytes(StandardCharsets.UTF_8);
+        LinkedBuffer lb = new LinkedBuffer(512);
+        WriteSession session = new WriteSession(lb);
+
+        StringSerializer.writeUTF8(str, session, lb);
+
+        assertTrue(builtin.length == session.size);
+
+        byte[] buffered = session.toByteArray();
+
+        assertTrue(builtin.length == buffered.length);
+
+        String strBuiltin = new String(builtin, "UTF-8");
+        String strBuffered = new String(buffered, "UTF-8");
+
+        assertEquals(strBuiltin, strBuffered);
+        print(strBuiltin);
+        print("len: " + builtin.length);
+    }
+
+    static void print(String msg) {
+        // System.err.println(msg);
+    }
+
+    /**
+     * Reads a var int 32 from the buffer.
+     */
+    static int readRawVarint32(final byte[] buffer, int offset) throws IOException {
+        byte tmp = buffer[offset++];
+        if (tmp >= 0) {
+            return tmp;
+        }
+        int result = tmp & 0x7f;
+        if ((tmp = buffer[offset++]) >= 0) {
+            result |= tmp << 7;
+        } else {
+            result |= (tmp & 0x7f) << 7;
+            if ((tmp = buffer[offset++]) >= 0) {
+                result |= tmp << 14;
+            } else {
+                result |= (tmp & 0x7f) << 14;
+                if ((tmp = buffer[offset++]) >= 0) {
+                    result |= tmp << 21;
+                } else {
+                    result |= (tmp & 0x7f) << 21;
+                    result |= (tmp = buffer[offset++]) << 28;
+                    if (tmp < 0) {
+                        // Discard upper 32 bits.
+                        for (int i = 0; i < 5; i++) {
+                            if (buffer[offset++] >= 0) {
+                                return result;
+                            }
+                        }
+                        throw new RuntimeException("Malformed varint.");
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public void testVarDelimitedBoundryTwoByte() throws Exception {
+        int size = StringSerializer.THREE_BYTE_LOWER_LIMIT - 1; // takes 2 bytes for size and is larger than buffer
+
+        checkVarDelimitedBoundry(1, size); // 1st str does not fit
+        checkVarDelimitedBoundry(2, size); // 1st str fits
+        checkVarDelimitedBoundry(3, size); // 2nd str varint doesn't fit
+        checkVarDelimitedBoundry(4, size); // Only 2nd varint fits (slow)
+    }
+
+    public void testVarDelimitedBoundryThreeByte() throws Exception {
+        int size = StringSerializer.FOUR_BYTE_LOWER_LIMIT - 1; // takes 3 bytes for size
+
+        checkVarDelimitedBoundry(1, size); // 1st str does not fit
+        checkVarDelimitedBoundry(2, size); // 1st str fits
+        checkVarDelimitedBoundry(3, size); // 2nd str varint doesn't fit
+        checkVarDelimitedBoundry(4, size); // same as above
+        checkVarDelimitedBoundry(5, size); // Only 2nd varint fits (slow)
+    }
+
+    public void testInt() throws Exception {
+        for (int i : int_targets) {
             LinkedBuffer lb = new LinkedBuffer(256);
             WriteSession session = new WriteSession(lb);
             StringSerializer.writeInt(i, session, lb);
@@ -242,10 +356,8 @@ public class StringSerializerTest extends TestCase
         }
     }
 
-    public void testLong() throws Exception
-    {
-        for (long i : long_targets)
-        {
+    public void testLong() throws Exception {
+        for (long i : long_targets) {
             LinkedBuffer lb = new LinkedBuffer(256);
             WriteSession session = new WriteSession(lb);
             StringSerializer.writeLong(i, session, lb);
@@ -263,10 +375,8 @@ public class StringSerializerTest extends TestCase
         }
     }
 
-    public void testFloat() throws Exception
-    {
-        for (float i : float_targets)
-        {
+    public void testFloat() throws Exception {
+        for (float i : float_targets) {
             LinkedBuffer lb = new LinkedBuffer(256);
             WriteSession session = new WriteSession(lb);
             StringSerializer.writeFloat(i, session, lb);
@@ -284,10 +394,8 @@ public class StringSerializerTest extends TestCase
         }
     }
 
-    public void testDouble() throws Exception
-    {
-        for (double i : double_targets)
-        {
+    public void testDouble() throws Exception {
+        for (double i : double_targets) {
             LinkedBuffer lb = new LinkedBuffer(256);
             WriteSession session = new WriteSession(lb);
             StringSerializer.writeDouble(i, session, lb);
@@ -305,14 +413,12 @@ public class StringSerializerTest extends TestCase
         }
     }
 
-    public void testAscii() throws Exception
-    {
+    public void testAscii() throws Exception {
         for (String s : ascii_targets)
             checkAscii(s);
     }
 
-    public void testUTF8() throws Exception
-    {
+    public void testUTF8() throws Exception {
         for (String s : targets)
             check(s);
 
@@ -337,8 +443,7 @@ public class StringSerializerTest extends TestCase
         check(moreThan2048);
     }
 
-    public void testUTF8VarDelimited() throws Exception
-    {
+    public void testUTF8VarDelimited() throws Exception {
         checkVarDelimited(foo, 1, 71);
         checkVarDelimited(whitespace, 1, 3);
         checkVarDelimited(numeric, 1, 10);
@@ -375,8 +480,7 @@ public class StringSerializerTest extends TestCase
         checkVarDelimited(str16384, 3, str16384.length());
     }
 
-    public void testUTF8FixedDelimited() throws Exception
-    {
+    public void testUTF8FixedDelimited() throws Exception {
         for (String s : targets)
             checkFixedDelimited(s);
 
@@ -402,8 +506,7 @@ public class StringSerializerTest extends TestCase
         checkFixedDelimited(moreThan2048);
     }
 
-    public void testLegacySurrogatePairs() throws Exception
-    {
+    public void testLegacySurrogatePairs() throws Exception {
         LinkedBuffer lb = new LinkedBuffer(256);
         WriteSession session = new WriteSession(lb);
         StringSerializer.writeUTF8(surrogatePairs, session, lb);
@@ -421,8 +524,7 @@ public class StringSerializerTest extends TestCase
         assertEquals(surrogatePairs, STRING.deser(buffered));
     }
 
-    public void testSurrogatePairsCustomOnly() throws Exception
-    {
+    public void testSurrogatePairsCustomOnly() throws Exception {
         // This test is mainly for Java 8+, where 3-byte surrogates
         // and 6-byte surrogate pairs are not allowed.
         LinkedBuffer lb = new LinkedBuffer(256);
@@ -455,14 +557,11 @@ public class StringSerializerTest extends TestCase
         // Should be encoded using 4-byte code points, instead of 6-byte surrogate pairs.
         assertFalse(Arrays.equals(fastPathBuffered, legacySurrogatePairSerialized));
 
-        try
-        {
+        try {
             // Can we deserialize from a protobuf source (specifically java generated)
             // using our first method?
             assertEquals(surrogatePairs, STRING.deserCustomOnly(nativeSurrogatePairsSerialized));
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             // No? Fallback should catch this.
             assertEquals(surrogatePairs, STRING.deser(nativeSurrogatePairsSerialized));
 
@@ -471,8 +570,7 @@ public class StringSerializerTest extends TestCase
         }
     }
 
-    public void testPartialSurrogatePair() throws Exception
-    {
+    public void testPartialSurrogatePair() throws Exception {
         // Make sure that we don't overflow or get out of bounds,
         // since pairs require 2 characters.
         String partial = "\uD83C";
@@ -492,8 +590,7 @@ public class StringSerializerTest extends TestCase
 
     }
 
-    public void testDataInputStreamDecoding() throws Exception
-    {
+    public void testDataInputStreamDecoding() throws Exception {
         // Unfortuneatley, DataInputStream uses Modified UTF-8,
         // which does not support 4-byte characters, as used in the
         // 'Standard UTF-8'. This is a sacrifice of generating
@@ -509,19 +606,15 @@ public class StringSerializerTest extends TestCase
         ByteArrayInputStream in = new ByteArrayInputStream(buffered);
         DataInputStream din = new DataInputStream(in);
 
-        try
-        {
+        try {
             String dinResult = din.readUTF();
             fail();
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             // Decoding failed of 4-byte format.
         }
     }
 
-    public void testReallyLongString() throws Exception
-    {
+    public void testReallyLongString() throws Exception {
         LinkedBuffer lb = new LinkedBuffer(256);
         WriteSession session = new WriteSession(lb);
 
@@ -535,8 +628,7 @@ public class StringSerializerTest extends TestCase
         // which would overflow an unsigned short.
 
         StringBuilder sb = new StringBuilder(3 * Short.MAX_VALUE);
-        for (int i = 0; i < 3 * Short.MAX_VALUE; i++)
-        {
+        for (int i = 0; i < 3 * Short.MAX_VALUE; i++) {
             sb.append(i % 10);
         }
         String bigString = sb.toString();
@@ -548,151 +640,6 @@ public class StringSerializerTest extends TestCase
         // We want to make sure it's our implementation
         // that can handle the large string
         assertEquals(bigString, STRING.deserCustomOnly(buffered));
-    }
-
-    static void checkVarDelimited(String str, int size, int stringLen) throws Exception
-    {
-        LinkedBuffer lb = new LinkedBuffer(512);
-        WriteSession session = new WriteSession(lb);
-        StringSerializer.writeUTF8VarDelimited(str, session, lb);
-
-        byte[] buf = session.toByteArray();
-
-        assertTrue(buf.length == stringLen + size);
-
-        int len = readRawVarint32(lb.buffer, 0);
-        assertTrue(len == stringLen);
-
-        print("total len: " + buf.length);
-    }
-
-    static void checkFixedDelimited(String str) throws Exception
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(getShortStringLengthInBytes(str));
-        OutputStreamWriter writer = new OutputStreamWriter(out, "UTF-8");
-        writer.write(str, 0, str.length());
-        writer.close();
-
-        LinkedBuffer lb = new LinkedBuffer(512);
-        WriteSession session = new WriteSession(lb);
-        StringSerializer.writeUTF8FixedDelimited(str, session, lb);
-
-        byte[] b1 = out.toByteArray();
-        byte[] b2 = session.toByteArray();
-
-        assertEquals(b1, b2);
-    }
-
-    static byte[] getShortStringLengthInBytes(String str) throws Exception
-    {
-        byte[] array = str.getBytes("UTF-8");
-        return new byte[] { (byte) ((array.length >> 8) & 0xff), (byte) (array.length & 0xff) };
-    }
-
-    static void assertEquals(byte[] b1, byte[] b2) throws Exception
-    {
-        assertTrue(Arrays.equals(b1, b2));
-    }
-
-    static void checkAscii(String str) throws Exception
-    {
-        byte[] builtin = str.getBytes(StandardCharsets.UTF_8);
-        LinkedBuffer lb = new LinkedBuffer(512);
-        WriteSession session = new WriteSession(lb);
-
-        StringSerializer.writeAscii(str, session, lb);
-
-        assertTrue(builtin.length == session.size);
-
-        byte[] buffered = session.toByteArray();
-
-        assertTrue(builtin.length == buffered.length);
-
-        String strBuiltin = new String(builtin, "ASCII");
-        String strBuffered = new String(buffered, "ASCII");
-
-        assertEquals(strBuiltin, strBuffered);
-        print(strBuiltin);
-        print("len: " + builtin.length);
-    }
-
-    static void check(String str) throws Exception
-    {
-        byte[] builtin = str.getBytes(StandardCharsets.UTF_8);
-        LinkedBuffer lb = new LinkedBuffer(512);
-        WriteSession session = new WriteSession(lb);
-
-        StringSerializer.writeUTF8(str, session, lb);
-
-        assertTrue(builtin.length == session.size);
-
-        byte[] buffered = session.toByteArray();
-
-        assertTrue(builtin.length == buffered.length);
-
-        String strBuiltin = new String(builtin, "UTF-8");
-        String strBuffered = new String(buffered, "UTF-8");
-
-        assertEquals(strBuiltin, strBuffered);
-        print(strBuiltin);
-        print("len: " + builtin.length);
-    }
-
-    static void print(String msg)
-    {
-        // System.err.println(msg);
-    }
-
-    /**
-     * Reads a var int 32 from the buffer.
-     */
-    static int readRawVarint32(final byte[] buffer, int offset) throws IOException
-    {
-        byte tmp = buffer[offset++];
-        if (tmp >= 0)
-        {
-            return tmp;
-        }
-        int result = tmp & 0x7f;
-        if ((tmp = buffer[offset++]) >= 0)
-        {
-            result |= tmp << 7;
-        }
-        else
-        {
-            result |= (tmp & 0x7f) << 7;
-            if ((tmp = buffer[offset++]) >= 0)
-            {
-                result |= tmp << 14;
-            }
-            else
-            {
-                result |= (tmp & 0x7f) << 14;
-                if ((tmp = buffer[offset++]) >= 0)
-                {
-                    result |= tmp << 21;
-                }
-                else
-                {
-                    result |= (tmp & 0x7f) << 21;
-                    result |= (tmp = buffer[offset++]) << 28;
-                    if (tmp < 0)
-                    {
-                        // Discard upper 32 bits.
-                        for (int i = 0; i < 5; i++)
-                        {
-                            if (buffer[offset++] >= 0)
-                            {
-                                return result;
-                            }
-                        }
-                        throw new RuntimeException("Malformed varint.");
-                    }
-                }
-            }
-        }
-        return result;
     }
 
 }

@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
 
@@ -32,225 +29,12 @@ import io.protostuff.Schema;
  * Test for polymorphic serialization.
  * <p>
  * See {@link RuntimeDerivativeField} for details.
- * 
+ *
  * @author David Yu
  */
-public class PolymorphicSerializationTest extends AbstractTest
-{
+public class PolymorphicSerializationTest extends AbstractTest {
 
-    public static abstract class Animal
-    {
-        protected String properName;
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((properName == null) ? 0 : properName.hashCode());
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Animal other = (Animal) obj;
-            if (properName == null)
-            {
-                if (other.properName != null)
-                    return false;
-            }
-            else if (!properName.equals(other.properName))
-                return false;
-            return true;
-        }
-
-    }
-
-    public static class Zoo
-    {
-        protected Animal largestAnimal;
-        protected List<Animal> animals = new ArrayList<>();
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((animals == null) ? 0 : animals.hashCode());
-            result = prime * result
-                    + ((largestAnimal == null) ? 0 : largestAnimal.hashCode());
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Zoo other = (Zoo) obj;
-            if (animals == null)
-            {
-                if (other.animals != null)
-                    return false;
-            }
-            else if (!animals.equals(other.animals))
-                return false;
-            if (largestAnimal == null)
-            {
-                if (other.largestAnimal != null)
-                    return false;
-            }
-            else if (!largestAnimal.equals(other.largestAnimal))
-                return false;
-            return true;
-        }
-
-    }
-
-    public static abstract class Mammal extends Animal
-    {
-        protected float normalBodyTemperature;
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result
-                    + Float.floatToIntBits(normalBodyTemperature);
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Mammal other = (Mammal) obj;
-            return Float.floatToIntBits(normalBodyTemperature) == Float
-                    .floatToIntBits(other.normalBodyTemperature);
-        }
-
-    }
-
-    public static class Bear extends Mammal
-    {
-        protected String someBearField;
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result
-                    + ((someBearField == null) ? 0 : someBearField.hashCode());
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Bear other = (Bear) obj;
-            if (someBearField == null)
-            {
-                if (other.someBearField != null)
-                    return false;
-            }
-            else if (!someBearField.equals(other.someBearField))
-                return false;
-            return true;
-        }
-
-    }
-
-    public static class Tiger extends Mammal
-    {
-        protected String someTigerField;
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime
-                    * result
-                    + ((someTigerField == null) ? 0 : someTigerField.hashCode());
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Tiger other = (Tiger) obj;
-            if (someTigerField == null)
-            {
-                if (other.someTigerField != null)
-                    return false;
-            }
-            else if (!someTigerField.equals(other.someTigerField))
-                return false;
-            return true;
-        }
-
-    }
-
-    public static class Elephant extends Mammal
-    {
-        protected String someElephantField;
-
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime
-                    * result
-                    + ((someElephantField == null) ? 0 : someElephantField
-                            .hashCode());
-            return result;
-        }
-
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Elephant other = (Elephant) obj;
-            if (someElephantField == null)
-            {
-                if (other.someElephantField != null)
-                    return false;
-            }
-            else if (!someElephantField.equals(other.someElephantField))
-                return false;
-            return true;
-        }
-
-    }
-
-    public static Bear filledBear()
-    {
+    public static Bear filledBear() {
         Bear bear = new Bear();
         bear.someBearField = "bearField";
         bear.normalBodyTemperature = 20f;
@@ -258,8 +42,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         return bear;
     }
 
-    public static Tiger filledTiger()
-    {
+    public static Tiger filledTiger() {
         Tiger tiger = new Tiger();
         tiger.someTigerField = "tigerField";
         tiger.normalBodyTemperature = 30f;
@@ -267,8 +50,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         return tiger;
     }
 
-    public static Elephant filledElephant()
-    {
+    public static Elephant filledElephant() {
         Elephant elephant = new Elephant();
         elephant.someElephantField = "elephantField";
         elephant.normalBodyTemperature = 25f;
@@ -276,8 +58,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         return elephant;
     }
 
-    public static Zoo filledZoo()
-    {
+    public static Zoo filledZoo() {
         Zoo zoo = new Zoo();
 
         Elephant elephant = filledElephant();
@@ -293,8 +74,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         return zoo;
     }
 
-    public void testProtobuf() throws Exception
-    {
+    public void testProtobuf() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
         Zoo p = filledZoo();
 
@@ -320,8 +100,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         assertEquals(list, parsedList);
     }
 
-    public void testProtostuff() throws Exception
-    {
+    public void testProtostuff() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
         Zoo p = filledZoo();
 
@@ -347,8 +126,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         assertEquals(list, parsedList);
     }
 
-    public void testPipe() throws Exception
-    {
+    public void testPipe() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
         Pipe.Schema<Zoo> pipeSchema = ((RuntimeSchema<Zoo>) schema).getPipeSchema();
         Zoo p = filledZoo();
@@ -356,8 +134,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         ProtostuffPipeTest.roundTrip(p, schema, pipeSchema);
     }
 
-    public void testMerge() throws Exception
-    {
+    public void testMerge() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
 
         final String properName = "elephant";
@@ -395,8 +172,7 @@ public class PolymorphicSerializationTest extends AbstractTest
         assertTrue(properName == elephant.properName);
     }
 
-    public void testOverwrite() throws Exception
-    {
+    public void testOverwrite() throws Exception {
         Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
 
         Zoo zoo = new Zoo();
@@ -414,6 +190,187 @@ public class PolymorphicSerializationTest extends AbstractTest
 
         // test that it was overwritten
         assertTrue(zoo.largestAnimal instanceof Tiger);
+    }
+
+    public static abstract class Animal {
+        protected String properName;
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result
+                    + ((properName == null) ? 0 : properName.hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Animal other = (Animal) obj;
+            if (properName == null) {
+                if (other.properName != null)
+                    return false;
+            } else if (!properName.equals(other.properName))
+                return false;
+            return true;
+        }
+
+    }
+
+    public static class Zoo {
+        protected Animal largestAnimal;
+        protected List<Animal> animals = new ArrayList<>();
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result
+                    + ((animals == null) ? 0 : animals.hashCode());
+            result = prime * result
+                    + ((largestAnimal == null) ? 0 : largestAnimal.hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Zoo other = (Zoo) obj;
+            if (animals == null) {
+                if (other.animals != null)
+                    return false;
+            } else if (!animals.equals(other.animals))
+                return false;
+            if (largestAnimal == null) {
+                if (other.largestAnimal != null)
+                    return false;
+            } else if (!largestAnimal.equals(other.largestAnimal))
+                return false;
+            return true;
+        }
+
+    }
+
+    public static abstract class Mammal extends Animal {
+        protected float normalBodyTemperature;
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result
+                    + Float.floatToIntBits(normalBodyTemperature);
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Mammal other = (Mammal) obj;
+            return Float.floatToIntBits(normalBodyTemperature) == Float
+                    .floatToIntBits(other.normalBodyTemperature);
+        }
+
+    }
+
+    public static class Bear extends Mammal {
+        protected String someBearField;
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result
+                    + ((someBearField == null) ? 0 : someBearField.hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Bear other = (Bear) obj;
+            if (someBearField == null) {
+                if (other.someBearField != null)
+                    return false;
+            } else if (!someBearField.equals(other.someBearField))
+                return false;
+            return true;
+        }
+
+    }
+
+    public static class Tiger extends Mammal {
+        protected String someTigerField;
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime
+                    * result
+                    + ((someTigerField == null) ? 0 : someTigerField.hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Tiger other = (Tiger) obj;
+            if (someTigerField == null) {
+                if (other.someTigerField != null)
+                    return false;
+            } else if (!someTigerField.equals(other.someTigerField))
+                return false;
+            return true;
+        }
+
+    }
+
+    public static class Elephant extends Mammal {
+        protected String someElephantField;
+
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime
+                    * result
+                    + ((someElephantField == null) ? 0 : someElephantField
+                    .hashCode());
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Elephant other = (Elephant) obj;
+            if (someElephantField == null) {
+                if (other.someElephantField != null)
+                    return false;
+            } else if (!someElephantField.equals(other.someElephantField))
+                return false;
+            return true;
+        }
+
     }
 
 }

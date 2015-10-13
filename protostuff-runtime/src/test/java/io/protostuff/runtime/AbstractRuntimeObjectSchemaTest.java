@@ -1,22 +1,17 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff.runtime;
-
-import static io.protostuff.runtime.SampleDelegates.SINGLETON_DELEGATE;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,16 +42,16 @@ import io.protostuff.Schema;
 import io.protostuff.runtime.SampleDelegates.ShortArrayDelegate;
 import io.protostuff.runtime.SampleDelegates.Singleton;
 
+import static io.protostuff.runtime.SampleDelegates.SINGLETON_DELEGATE;
+
 /**
  * Ser/deser tests for {@link ObjectSchema}.
- * 
+ *
  * @author David Yu
  */
-public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
-{
+public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
 
-    static
-    {
+    static {
         // to test varios runtime strategies, run:
         // mvn -Dtest_id_strategy=$1 -DforkMode=never
         // -Dtest=*RuntimeObjectSchemaTest -DfailIfNoTests=false test
@@ -66,28 +61,21 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         // check if the protostuff-runtime-registry test module is on the
         // classpath
         boolean registryTestModuleExists = false;
-        try
-        {
+        try {
             registryTestModuleExists = null != Class.forName(
                     "io.protostuff.runtime.TestDummy", false,
                     Thread.currentThread().getContextClassLoader());
-        }
-        catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             // ignore
         }
 
-        if (registryTestModuleExists)
-        {
+        if (registryTestModuleExists) {
             String strategy = System.getProperty("test_id_strategy");
-            if ("incremental".equals(strategy))
-            {
+            if ("incremental".equals(strategy)) {
                 System.setProperty(
                         "protostuff.runtime.id_strategy_factory",
                         "io.protostuff.runtime.IncrementalRuntimeObjectSchemaTest$IdStrategyFactory");
-            }
-            else if ("explicit".equals(strategy))
-            {
+            } else if ("explicit".equals(strategy)) {
                 System.setProperty(
                         "protostuff.runtime.id_strategy_factory",
                         "io.protostuff.runtime.ExplicitRuntimeObjectSchemaTest$IdStrategyFactory");
@@ -95,44 +83,50 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
     }
 
-    static class CustomArrayList<T> extends ArrayList<T>
-    {
-        private static final long serialVersionUID = 1L;
+    static <T> ArrayList<T> newList(T... args) {
+        ArrayList<T> list = new ArrayList<>();
 
-        static final CollectionSchema.MessageFactory MESSAGE_FACTORY = new CollectionSchema.MessageFactory()
-        {
-            @Override
-            public <V> Collection<V> newMessage()
-            {
-                return new CustomArrayList<>();
-            }
+        for (T v : args)
+            list.add(v);
 
-            @Override
-            public Class<?> typeClass()
-            {
-                return CustomArrayList.class;
-            }
-        };
+        return list;
     }
 
-    static class CustomHashMap<K, V> extends HashMap<K, V>
-    {
-        private static final long serialVersionUID = 1L;
+    static <K, V> HashMap<K, V> newMap() {
+        return new HashMap<>();
+    }
 
-        static final MapSchema.MessageFactory MESSAGE_FACTORY = new MapSchema.MessageFactory()
-        {
-            @Override
-            public <K, V> Map<K, V> newMessage()
-            {
-                return new CustomHashMap<>();
-            }
+    static boolean isEquals(byte[][] b1, byte[][] b2) {
+        if (b1.length != b2.length)
+            return false;
 
-            @Override
-            public Class<?> typeClass()
-            {
-                return CustomHashMap.class;
-            }
-        };
+        for (int i = 0; i < b1.length; i++) {
+            if (!Arrays.equals(b1[i], b2[i]))
+                return false;
+        }
+        return true;
+    }
+
+    static boolean isEquals(int[][] b1, int[][] b2) {
+        if (b1.length != b2.length)
+            return false;
+
+        for (int i = 0; i < b1.length; i++) {
+            if (!Arrays.equals(b1[i], b2[i]))
+                return false;
+        }
+        return true;
+    }
+
+    static boolean isEquals(Object[][] b1, Object[][] b2) {
+        if (b1.length != b2.length)
+            return false;
+
+        for (int i = 0; i < b1.length; i++) {
+            if (!Arrays.equals(b1[i], b2[i]))
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -141,86 +135,477 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
     protected abstract <T> byte[] toByteArray(T message, Schema<T> schema);
 
     protected abstract <T> void writeTo(OutputStream out, T message,
-            Schema<T> schema) throws IOException;
+                                        Schema<T> schema) throws IOException;
 
     /**
      * Deserializes from the byte array.
      */
     protected abstract <T> void mergeFrom(byte[] data, int offset, int length,
-            T message, Schema<T> schema) throws IOException;
+                                          T message, Schema<T> schema) throws IOException;
 
     /**
      * Deserializes from the inputstream.
      */
     protected abstract <T> void mergeFrom(InputStream in, T message,
-            Schema<T> schema) throws IOException;
+                                          Schema<T> schema) throws IOException;
 
     protected abstract <T> void roundTrip(T message, Schema<T> schema,
-            Pipe.Schema<T> pipeSchema) throws Exception;
+                                          Pipe.Schema<T> pipeSchema) throws Exception;
 
-    public interface HasType
-    {
-        int getType();
+    public void testPojo() throws Exception {
+        Schema<Pojo> schema = RuntimeSchema.getSchema(Pojo.class);
+        Pipe.Schema<Pojo> pipeSchema = ((RuntimeSchema<Pojo>) schema).getPipeSchema();
+
+        Pojo p = new Pojo().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        Pojo pFromByteArray = new Pojo();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        Pojo pFromStream = new Pojo();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
     }
 
-    public enum Size implements HasType
-    {
-        SMALL
-        {
+    public void testPojoWithArray() throws Exception {
+        Schema<PojoWithArray> schema = RuntimeSchema
+                .getSchema(PojoWithArray.class);
+        Pipe.Schema<PojoWithArray> pipeSchema = ((RuntimeSchema<PojoWithArray>) schema).getPipeSchema();
+
+        PojoWithArray p = new PojoWithArray().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithArray pFromByteArray = new PojoWithArray();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithArray pFromStream = new PojoWithArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithArray2D() throws Exception {
+        Schema<PojoWithArray2D> schema = RuntimeSchema
+                .getSchema(PojoWithArray2D.class);
+        Pipe.Schema<PojoWithArray2D> pipeSchema = ((RuntimeSchema<PojoWithArray2D>) schema).getPipeSchema();
+
+        PojoWithArray2D p = new PojoWithArray2D().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithArray2D pFromByteArray = new PojoWithArray2D();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithArray2D pFromStream = new PojoWithArray2D();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithCollection() throws Exception {
+        Schema<PojoWithCollection> schema = RuntimeSchema
+                .getSchema(PojoWithCollection.class);
+        Pipe.Schema<PojoWithCollection> pipeSchema = ((RuntimeSchema<PojoWithCollection>) schema).getPipeSchema();
+
+        PojoWithCollection p = new PojoWithCollection().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithCollection pFromByteArray = new PojoWithCollection();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithCollection pFromStream = new PojoWithCollection();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithMap() throws Exception {
+        Schema<PojoWithMap> schema = RuntimeSchema.getSchema(PojoWithMap.class);
+        Pipe.Schema<PojoWithMap> pipeSchema = ((RuntimeSchema<PojoWithMap>) schema).getPipeSchema();
+
+        PojoWithMap p = new PojoWithMap().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithMap pFromByteArray = new PojoWithMap();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithMap pFromStream = new PojoWithMap();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testBat() throws Exception {
+        Schema<WrapsBat> schema = RuntimeSchema.getSchema(WrapsBat.class);
+        Pipe.Schema<WrapsBat> pipeSchema = ((RuntimeSchema<WrapsBat>) schema).getPipeSchema();
+
+        WrapsBat p = new WrapsBat().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        WrapsBat pFromByteArray = new WrapsBat();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        WrapsBat pFromStream = new WrapsBat();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithCustomArrayListAndHashMapAndHashMap()
+            throws Exception {
+        Schema<PojoWithCustomArrayListAndHashMap> schema = RuntimeSchema
+                .getSchema(PojoWithCustomArrayListAndHashMap.class);
+        Pipe.Schema<PojoWithCustomArrayListAndHashMap> pipeSchema = ((RuntimeSchema<PojoWithCustomArrayListAndHashMap>) schema)
+                .getPipeSchema();
+
+        PojoWithCustomArrayListAndHashMap p = new PojoWithCustomArrayListAndHashMap()
+                .fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithCustomArrayListAndHashMap pFromByteArray = new PojoWithCustomArrayListAndHashMap();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithCustomArrayListAndHashMap pFromStream = new PojoWithCustomArrayListAndHashMap();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithClassFields() throws Exception {
+        Schema<PojoWithClassFields> schema = RuntimeSchema
+                .getSchema(PojoWithClassFields.class);
+        Pipe.Schema<PojoWithClassFields> pipeSchema = ((RuntimeSchema<PojoWithClassFields>) schema).getPipeSchema();
+
+        PojoWithClassFields p = new PojoWithClassFields().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithClassFields pFromByteArray = new PojoWithClassFields();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithClassFields pFromStream = new PojoWithClassFields();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithObjectCollectionFields() throws Exception {
+        Schema<PojoWithObjectCollectionFields> schema = RuntimeSchema
+                .getSchema(PojoWithObjectCollectionFields.class);
+        Pipe.Schema<PojoWithObjectCollectionFields> pipeSchema = ((RuntimeSchema<PojoWithObjectCollectionFields>) schema)
+                .getPipeSchema();
+
+        PojoWithObjectCollectionFields p = new PojoWithObjectCollectionFields()
+                .fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithObjectCollectionFields pFromByteArray = new PojoWithObjectCollectionFields();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithObjectCollectionFields pFromStream = new PojoWithObjectCollectionFields();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+        PojoWithObjectCollectionFields.verify(pFromByteArray, pFromStream);
+    }
+
+    public void testPojoWithObjectCollectionNullKV() throws Exception {
+        Schema<PojoWithObjectCollectionNullKV> schema = RuntimeSchema
+                .getSchema(PojoWithObjectCollectionNullKV.class);
+        Pipe.Schema<PojoWithObjectCollectionNullKV> pipeSchema = ((RuntimeSchema<PojoWithObjectCollectionNullKV>) schema)
+                .getPipeSchema();
+
+        PojoWithObjectCollectionNullKV p = new PojoWithObjectCollectionNullKV()
+                .fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithObjectCollectionNullKV pFromByteArray = new PojoWithObjectCollectionNullKV();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithObjectCollectionNullKV pFromStream = new PojoWithObjectCollectionNullKV();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithObjectMapFields() throws Exception {
+        Schema<PojoWithObjectMapFields> schema = RuntimeSchema
+                .getSchema(PojoWithObjectMapFields.class);
+        Pipe.Schema<PojoWithObjectMapFields> pipeSchema = ((RuntimeSchema<PojoWithObjectMapFields>) schema)
+                .getPipeSchema();
+
+        PojoWithObjectMapFields p = new PojoWithObjectMapFields().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithObjectMapFields pFromByteArray = new PojoWithObjectMapFields();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithObjectMapFields pFromStream = new PojoWithObjectMapFields();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+
+        PojoWithObjectMapFields.verify(pFromByteArray, pFromStream);
+    }
+
+    public void testPojoWithSingletonMapNullKV() throws Exception {
+        Schema<PojoWithSingletonMapNullKV> schema = RuntimeSchema
+                .getSchema(PojoWithSingletonMapNullKV.class);
+        Pipe.Schema<PojoWithSingletonMapNullKV> pipeSchema = ((RuntimeSchema<PojoWithSingletonMapNullKV>) schema)
+                .getPipeSchema();
+
+        PojoWithSingletonMapNullKV p = new PojoWithSingletonMapNullKV().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithSingletonMapNullKV pFromByteArray = new PojoWithSingletonMapNullKV();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithSingletonMapNullKV pFromStream = new PojoWithSingletonMapNullKV();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithThrowable() throws Exception {
+        Schema<PojoWithThrowable> schema = RuntimeSchema
+                .getSchema(PojoWithThrowable.class);
+        Pipe.Schema<PojoWithThrowable> pipeSchema = ((RuntimeSchema<PojoWithThrowable>) schema).getPipeSchema();
+
+        PojoWithThrowable p = new PojoWithThrowable().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithThrowable pFromByteArray = new PojoWithThrowable();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithThrowable pFromStream = new PojoWithThrowable();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithThrowableArray() throws Exception {
+        Schema<PojoWithThrowableArray> schema = RuntimeSchema
+                .getSchema(PojoWithThrowableArray.class);
+        Pipe.Schema<PojoWithThrowableArray> pipeSchema = ((RuntimeSchema<PojoWithThrowableArray>) schema)
+                .getPipeSchema();
+
+        PojoWithThrowableArray p = new PojoWithThrowableArray().fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithThrowableArray pFromByteArray = new PojoWithThrowableArray();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithThrowableArray pFromStream = new PojoWithThrowableArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithSingletonAsDelegate() throws Exception {
+        if (RuntimeEnv.ID_STRATEGY instanceof DefaultIdStrategy) {
+            ((DefaultIdStrategy) RuntimeEnv.ID_STRATEGY)
+                    .registerDelegate(SINGLETON_DELEGATE);
+        }
+
+        Schema<PojoWithSingletonAsDelegate> schema = RuntimeSchema
+                .getSchema(PojoWithSingletonAsDelegate.class);
+        Pipe.Schema<PojoWithSingletonAsDelegate> pipeSchema = ((RuntimeSchema<PojoWithSingletonAsDelegate>) schema)
+                .getPipeSchema();
+
+        PojoWithSingletonAsDelegate p = new PojoWithSingletonAsDelegate()
+                .fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithSingletonAsDelegate pFromByteArray = new PojoWithSingletonAsDelegate();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithSingletonAsDelegate pFromStream = new PojoWithSingletonAsDelegate();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+    }
+
+    public void testPojoWithShortArrayAsDelegate() throws Exception {
+        ShortArrayDelegate delegate = null;
+        if (RuntimeEnv.ID_STRATEGY instanceof DefaultIdStrategy) {
+            if (!((DefaultIdStrategy) RuntimeEnv.ID_STRATEGY)
+                    .registerDelegate(delegate = new ShortArrayDelegate())) {
+                // couldn't register
+                delegate = null;
+            }
+        }
+
+        Schema<PojoWithShortArrayAsDelegate> schema = RuntimeSchema
+                .getSchema(PojoWithShortArrayAsDelegate.class);
+        Pipe.Schema<PojoWithShortArrayAsDelegate> pipeSchema = ((RuntimeSchema<PojoWithShortArrayAsDelegate>) schema)
+                .getPipeSchema();
+
+        PojoWithShortArrayAsDelegate p = new PojoWithShortArrayAsDelegate()
+                .fill();
+
+        byte[] data = toByteArray(p, schema);
+
+        PojoWithShortArrayAsDelegate pFromByteArray = new PojoWithShortArrayAsDelegate();
+        mergeFrom(data, 0, data.length, pFromByteArray, schema);
+        assertEquals(p, pFromByteArray);
+
+        PojoWithShortArrayAsDelegate pFromStream = new PojoWithShortArrayAsDelegate();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        mergeFrom(in, pFromStream, schema);
+        assertEquals(p, pFromStream);
+
+        roundTrip(p, schema, pipeSchema);
+
+        if (delegate != null) {
+            System.err.println("registered short array delegate.");
+            assertTrue(delegate.writes != 0);
+            assertTrue(delegate.reads != 0);
+            assertTrue(delegate.transfers != 0);
+        }
+    }
+
+    public enum Size implements HasType {
+        SMALL {
             @Override
-            public int getType()
-            {
+            public int getType() {
                 return 1;
             }
         },
-        MEDIUM
-        {
+        MEDIUM {
             @Override
-            public int getType()
-            {
+            public int getType() {
                 return 2;
             }
         },
-        LARGE
-        {
+        LARGE {
             @Override
-            public int getType()
-            {
+            public int getType() {
                 return 3;
             }
         }
     }
 
-    public interface Instrument
-    {
+    public enum GuitarPickup {
+        UNDER_THE_SADDLE, SOUNDHOLE, CONTACT, MICROPHONE
+    }
+
+    public interface HasType {
+        int getType();
+    }
+
+    public interface Instrument {
 
         String getName();
 
     }
 
-    public static abstract class AbstractInstrument implements Instrument
-    {
+    static class CustomArrayList<T> extends ArrayList<T> {
+        static final CollectionSchema.MessageFactory MESSAGE_FACTORY = new CollectionSchema.MessageFactory() {
+            @Override
+            public <V> Collection<V> newMessage() {
+                return new CustomArrayList<>();
+            }
+
+            @Override
+            public Class<?> typeClass() {
+                return CustomArrayList.class;
+            }
+        };
+        private static final long serialVersionUID = 1L;
+    }
+
+    static class CustomHashMap<K, V> extends HashMap<K, V> {
+        static final MapSchema.MessageFactory MESSAGE_FACTORY = new MapSchema.MessageFactory() {
+            @Override
+            public <K, V> Map<K, V> newMessage() {
+                return new CustomHashMap<>();
+            }
+
+            @Override
+            public Class<?> typeClass() {
+                return CustomHashMap.class;
+            }
+        };
+        private static final long serialVersionUID = 1L;
+    }
+
+    public static abstract class AbstractInstrument implements Instrument {
         protected String name;
 
-        public AbstractInstrument()
-        {
+        public AbstractInstrument() {
 
         }
 
-        public AbstractInstrument(String name)
-        {
+        public AbstractInstrument(String name) {
             this.name = name;
         }
 
         @Override
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -228,8 +613,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -237,36 +621,30 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             AbstractInstrument other = (AbstractInstrument) obj;
-            if (name == null)
-            {
+            if (name == null) {
                 if (other.name != null)
                     return false;
-            }
-            else if (!name.equals(other.name))
+            } else if (!name.equals(other.name))
                 return false;
             return true;
         }
 
     }
 
-    public static abstract class Guitar extends AbstractInstrument
-    {
+    public static abstract class Guitar extends AbstractInstrument {
         protected int stringCount;
 
-        public Guitar()
-        {
+        public Guitar() {
 
         }
 
-        public Guitar(String name, int stringCount)
-        {
+        public Guitar(String name, int stringCount) {
             super(name);
             this.stringCount = stringCount;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = super.hashCode();
             result = prime * result + stringCount;
@@ -274,8 +652,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (!super.equals(obj))
@@ -288,29 +665,20 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public enum GuitarPickup
-    {
-        UNDER_THE_SADDLE, SOUNDHOLE, CONTACT, MICROPHONE
-    }
-
-    public static final class AcousticGuitar extends Guitar
-    {
+    public static final class AcousticGuitar extends Guitar {
         protected GuitarPickup guitarPickup;
 
-        public AcousticGuitar()
-        {
+        public AcousticGuitar() {
 
         }
 
-        public AcousticGuitar(GuitarPickup guitarPickup)
-        {
+        public AcousticGuitar(GuitarPickup guitarPickup) {
             super("guitar", 6);
             this.guitarPickup = guitarPickup;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = super.hashCode();
             result = prime * result
@@ -319,8 +687,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (!super.equals(obj))
@@ -328,36 +695,30 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             AcousticGuitar other = (AcousticGuitar) obj;
-            if (guitarPickup == null)
-            {
+            if (guitarPickup == null) {
                 if (other.guitarPickup != null)
                     return false;
-            }
-            else if (!guitarPickup.equals(other.guitarPickup))
+            } else if (!guitarPickup.equals(other.guitarPickup))
                 return false;
             return true;
         }
 
     }
 
-    public static final class BassGuitar extends Guitar
-    {
+    public static final class BassGuitar extends Guitar {
         protected boolean active;
 
-        public BassGuitar()
-        {
+        public BassGuitar() {
 
         }
 
-        public BassGuitar(int stringCount, boolean active)
-        {
+        public BassGuitar(int stringCount, boolean active) {
             super("bass guitar", stringCount);
             this.active = active;
         }
     }
 
-    public static class Pojo
-    {
+    public static class Pojo {
         Object expectBoolean;
         Object expectByte;
         Object expectCharacter;
@@ -390,8 +751,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Object expectMapGuitarCollectionKStringCollectionV;
         Object expectMapStringEnumKMapDateGuitarV;
 
-        Pojo fill()
-        {
+        Pojo fill() {
             expectBoolean = Boolean.TRUE;
             expectByte = Byte.valueOf((byte) 0);
             expectCharacter = Character.valueOf('c');
@@ -465,8 +825,8 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
             expectMapGuitarKEnumCollectionV = mapGuitarKEnumCollectionV;
 
-            List<Guitar> guitarK1 = newList(new Guitar[] { new BassGuitar(4,
-                    true) });
+            List<Guitar> guitarK1 = newList(new Guitar[]{new BassGuitar(4,
+                    true)});
 
             List<Guitar> guitarK2 = newList(new AcousticGuitar(GuitarPickup.UNDER_THE_SADDLE),
                     new BassGuitar(5, false));
@@ -506,22 +866,21 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime
                     * result
                     + ((expectBassGuitar == null) ? 0 : expectBassGuitar
-                            .hashCode());
+                    .hashCode());
             result = prime
                     * result
                     + ((expectBigDecimal == null) ? 0 : expectBigDecimal
-                            .hashCode());
+                    .hashCode());
             result = prime
                     * result
                     + ((expectBigInteger == null) ? 0 : expectBigInteger
-                            .hashCode());
+                    .hashCode());
             result = prime * result
                     + ((expectBoolean == null) ? 0 : expectBoolean.hashCode());
             result = prime * result
@@ -529,35 +888,35 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             result = prime
                     * result
                     + ((expectByteString == null) ? 0 : expectByteString
-                            .hashCode());
+                    .hashCode());
             result = prime
                     * result
                     + ((expectCharacter == null) ? 0 : expectCharacter
-                            .hashCode());
+                    .hashCode());
             result = prime
                     * result
                     + ((expectCollectionEnumCollectionV == null) ? 0
-                            : expectCollectionEnumCollectionV.hashCode());
+                    : expectCollectionEnumCollectionV.hashCode());
             result = prime
                     * result
                     + ((expectCollectionEnumV == null) ? 0
-                            : expectCollectionEnumV.hashCode());
+                    : expectCollectionEnumV.hashCode());
             result = prime
                     * result
                     + ((expectCollectionGuitarCollectionV == null) ? 0
-                            : expectCollectionGuitarCollectionV.hashCode());
+                    : expectCollectionGuitarCollectionV.hashCode());
             result = prime
                     * result
                     + ((expectCollectionGuitarV == null) ? 0
-                            : expectCollectionGuitarV.hashCode());
+                    : expectCollectionGuitarV.hashCode());
             result = prime
                     * result
                     + ((expectCollectionIntegerCollectionV == null) ? 0
-                            : expectCollectionIntegerCollectionV.hashCode());
+                    : expectCollectionIntegerCollectionV.hashCode());
             result = prime
                     * result
                     + ((expectCollectionStringV == null) ? 0
-                            : expectCollectionStringV.hashCode());
+                    : expectCollectionStringV.hashCode());
             result = prime * result
                     + ((expectDate == null) ? 0 : expectDate.hashCode());
             result = prime * result
@@ -573,24 +932,24 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             result = prime
                     * result
                     + ((expectMapEnumKGuitarV == null) ? 0
-                            : expectMapEnumKGuitarV.hashCode());
+                    : expectMapEnumKGuitarV.hashCode());
             result = prime
                     * result
                     + ((expectMapGuitarCollectionKStringCollectionV == null) ? 0
-                            : expectMapGuitarCollectionKStringCollectionV
-                                    .hashCode());
+                    : expectMapGuitarCollectionKStringCollectionV
+                    .hashCode());
             result = prime
                     * result
                     + ((expectMapGuitarKEnumCollectionV == null) ? 0
-                            : expectMapGuitarKEnumCollectionV.hashCode());
+                    : expectMapGuitarKEnumCollectionV.hashCode());
             result = prime
                     * result
                     + ((expectMapIntegerKStringV == null) ? 0
-                            : expectMapIntegerKStringV.hashCode());
+                    : expectMapIntegerKStringV.hashCode());
             result = prime
                     * result
                     + ((expectMapStringEnumKMapDateGuitarV == null) ? 0
-                            : expectMapStringEnumKMapDateGuitarV.hashCode());
+                    : expectMapStringEnumKMapDateGuitarV.hashCode());
             result = prime * result
                     + ((expectObject == null) ? 0 : expectObject.hashCode());
             result = prime * result
@@ -601,8 +960,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -610,212 +968,157 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             Pojo other = (Pojo) obj;
-            if (expectBassGuitar == null)
-            {
+            if (expectBassGuitar == null) {
                 if (other.expectBassGuitar != null)
                     return false;
-            }
-            else if (!expectBassGuitar.equals(other.expectBassGuitar))
+            } else if (!expectBassGuitar.equals(other.expectBassGuitar))
                 return false;
-            if (expectBigDecimal == null)
-            {
+            if (expectBigDecimal == null) {
                 if (other.expectBigDecimal != null)
                     return false;
-            }
-            else if (!expectBigDecimal.equals(other.expectBigDecimal))
+            } else if (!expectBigDecimal.equals(other.expectBigDecimal))
                 return false;
-            if (expectBigInteger == null)
-            {
+            if (expectBigInteger == null) {
                 if (other.expectBigInteger != null)
                     return false;
-            }
-            else if (!expectBigInteger.equals(other.expectBigInteger))
+            } else if (!expectBigInteger.equals(other.expectBigInteger))
                 return false;
-            if (expectBoolean == null)
-            {
+            if (expectBoolean == null) {
                 if (other.expectBoolean != null)
                     return false;
-            }
-            else if (!expectBoolean.equals(other.expectBoolean))
+            } else if (!expectBoolean.equals(other.expectBoolean))
                 return false;
-            if (expectByte == null)
-            {
+            if (expectByte == null) {
                 if (other.expectByte != null)
                     return false;
-            }
-            else if (!expectByte.equals(other.expectByte))
+            } else if (!expectByte.equals(other.expectByte))
                 return false;
-            if (expectByteString == null)
-            {
+            if (expectByteString == null) {
                 if (other.expectByteString != null)
                     return false;
-            }
-            else if (!expectByteString.equals(other.expectByteString))
+            } else if (!expectByteString.equals(other.expectByteString))
                 return false;
-            if (expectCharacter == null)
-            {
+            if (expectCharacter == null) {
                 if (other.expectCharacter != null)
                     return false;
-            }
-            else if (!expectCharacter.equals(other.expectCharacter))
+            } else if (!expectCharacter.equals(other.expectCharacter))
                 return false;
-            if (expectCollectionEnumCollectionV == null)
-            {
+            if (expectCollectionEnumCollectionV == null) {
                 if (other.expectCollectionEnumCollectionV != null)
                     return false;
-            }
-            else if (!expectCollectionEnumCollectionV
+            } else if (!expectCollectionEnumCollectionV
                     .equals(other.expectCollectionEnumCollectionV))
                 return false;
-            if (expectCollectionEnumV == null)
-            {
+            if (expectCollectionEnumV == null) {
                 if (other.expectCollectionEnumV != null)
                     return false;
-            }
-            else if (!expectCollectionEnumV
+            } else if (!expectCollectionEnumV
                     .equals(other.expectCollectionEnumV))
                 return false;
-            if (expectCollectionGuitarCollectionV == null)
-            {
+            if (expectCollectionGuitarCollectionV == null) {
                 if (other.expectCollectionGuitarCollectionV != null)
                     return false;
-            }
-            else if (!expectCollectionGuitarCollectionV
+            } else if (!expectCollectionGuitarCollectionV
                     .equals(other.expectCollectionGuitarCollectionV))
                 return false;
-            if (expectCollectionGuitarV == null)
-            {
+            if (expectCollectionGuitarV == null) {
                 if (other.expectCollectionGuitarV != null)
                     return false;
-            }
-            else if (!expectCollectionGuitarV
+            } else if (!expectCollectionGuitarV
                     .equals(other.expectCollectionGuitarV))
                 return false;
-            if (expectCollectionIntegerCollectionV == null)
-            {
+            if (expectCollectionIntegerCollectionV == null) {
                 if (other.expectCollectionIntegerCollectionV != null)
                     return false;
-            }
-            else if (!expectCollectionIntegerCollectionV
+            } else if (!expectCollectionIntegerCollectionV
                     .equals(other.expectCollectionIntegerCollectionV))
                 return false;
-            if (expectCollectionStringV == null)
-            {
+            if (expectCollectionStringV == null) {
                 if (other.expectCollectionStringV != null)
                     return false;
-            }
-            else if (!expectCollectionStringV
+            } else if (!expectCollectionStringV
                     .equals(other.expectCollectionStringV))
                 return false;
-            if (expectDate == null)
-            {
+            if (expectDate == null) {
                 if (other.expectDate != null)
                     return false;
-            }
-            else if (!expectDate.equals(other.expectDate))
+            } else if (!expectDate.equals(other.expectDate))
                 return false;
-            if (expectDouble == null)
-            {
+            if (expectDouble == null) {
                 if (other.expectDouble != null)
                     return false;
-            }
-            else if (!expectDouble.equals(other.expectDouble))
+            } else if (!expectDouble.equals(other.expectDouble))
                 return false;
-            if (expectEnum == null)
-            {
+            if (expectEnum == null) {
                 if (other.expectEnum != null)
                     return false;
-            }
-            else if (!expectEnum.equals(other.expectEnum))
+            } else if (!expectEnum.equals(other.expectEnum))
                 return false;
-            if (expectFloat == null)
-            {
+            if (expectFloat == null) {
                 if (other.expectFloat != null)
                     return false;
-            }
-            else if (!expectFloat.equals(other.expectFloat))
+            } else if (!expectFloat.equals(other.expectFloat))
                 return false;
-            if (expectInteger == null)
-            {
+            if (expectInteger == null) {
                 if (other.expectInteger != null)
                     return false;
-            }
-            else if (!expectInteger.equals(other.expectInteger))
+            } else if (!expectInteger.equals(other.expectInteger))
                 return false;
-            if (expectLong == null)
-            {
+            if (expectLong == null) {
                 if (other.expectLong != null)
                     return false;
-            }
-            else if (!expectLong.equals(other.expectLong))
+            } else if (!expectLong.equals(other.expectLong))
                 return false;
-            if (expectMapEnumKGuitarV == null)
-            {
+            if (expectMapEnumKGuitarV == null) {
                 if (other.expectMapEnumKGuitarV != null)
                     return false;
-            }
-            else if (!expectMapEnumKGuitarV
+            } else if (!expectMapEnumKGuitarV
                     .equals(other.expectMapEnumKGuitarV))
                 return false;
-            if (expectMapGuitarCollectionKStringCollectionV == null)
-            {
+            if (expectMapGuitarCollectionKStringCollectionV == null) {
                 if (other.expectMapGuitarCollectionKStringCollectionV != null)
                     return false;
-            }
-            else if (!expectMapGuitarCollectionKStringCollectionV
+            } else if (!expectMapGuitarCollectionKStringCollectionV
                     .equals(other.expectMapGuitarCollectionKStringCollectionV))
                 return false;
-            if (expectMapGuitarKEnumCollectionV == null)
-            {
+            if (expectMapGuitarKEnumCollectionV == null) {
                 if (other.expectMapGuitarKEnumCollectionV != null)
                     return false;
-            }
-            else if (!expectMapGuitarKEnumCollectionV
+            } else if (!expectMapGuitarKEnumCollectionV
                     .equals(other.expectMapGuitarKEnumCollectionV))
                 return false;
-            if (expectMapIntegerKStringV == null)
-            {
+            if (expectMapIntegerKStringV == null) {
                 if (other.expectMapIntegerKStringV != null)
                     return false;
-            }
-            else if (!expectMapIntegerKStringV
+            } else if (!expectMapIntegerKStringV
                     .equals(other.expectMapIntegerKStringV))
                 return false;
-            if (expectMapStringEnumKMapDateGuitarV == null)
-            {
+            if (expectMapStringEnumKMapDateGuitarV == null) {
                 if (other.expectMapStringEnumKMapDateGuitarV != null)
                     return false;
-            }
-            else if (!expectMapStringEnumKMapDateGuitarV
+            } else if (!expectMapStringEnumKMapDateGuitarV
                     .equals(other.expectMapStringEnumKMapDateGuitarV))
                 return false;
-            if (expectObject == null)
-            {
+            if (expectObject == null) {
                 if (other.expectObject != null)
                     return false;
-            }
-            else if (!expectObject.equals(other.expectObject))
+            } else if (!expectObject.equals(other.expectObject))
                 return false;
-            if (expectShort == null)
-            {
+            if (expectShort == null) {
                 if (other.expectShort != null)
                     return false;
-            }
-            else if (!expectShort.equals(other.expectShort))
+            } else if (!expectShort.equals(other.expectShort))
                 return false;
-            if (expectString == null)
-            {
+            if (expectString == null) {
                 if (other.expectString != null)
                     return false;
-            }
-            else if (!expectString.equals(other.expectString))
+            } else if (!expectString.equals(other.expectString))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "Pojo [expectBassGuitar=" + expectBassGuitar
                     + ", expectBigDecimal=" + expectBigDecimal
                     + ", expectBigInteger=" + expectBigInteger
@@ -849,23 +1152,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    static <T> ArrayList<T> newList(T... args)
-    {
-        ArrayList<T> list = new ArrayList<>();
-
-        for (T v : args)
-            list.add(v);
-
-        return list;
-    }
-
-    static <K, V> HashMap<K, V> newMap()
-    {
-        return new HashMap<>();
-    }
-
-    public static class PojoWithArray
-    {
+    public static class PojoWithArray {
         Object expectByteArray;
         Object expectPrimitiveFloatArray;
         Object expectStringArray;
@@ -886,38 +1173,37 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Object expectMapGuitarKPojoVArray;
         Object expectMapObjectKObjectVArray;
 
-        PojoWithArray fill()
-        {
-            expectByteArray = new byte[] { 100, 101 };
+        PojoWithArray fill() {
+            expectByteArray = new byte[]{100, 101};
 
-            expectPrimitiveFloatArray = new float[] { 3.3f, 4.4f };
+            expectPrimitiveFloatArray = new float[]{3.3f, 4.4f};
 
-            expectStringArray = new String[] { "1", "2", "3" };
+            expectStringArray = new String[]{"1", "2", "3"};
 
-            expectEnumArray = new GuitarPickup[] { GuitarPickup.CONTACT,
-                    GuitarPickup.MICROPHONE };
+            expectEnumArray = new GuitarPickup[]{GuitarPickup.CONTACT,
+                    GuitarPickup.MICROPHONE};
 
-            expectPojoArray = new Pojo[] { new Pojo().fill() };
+            expectPojoArray = new Pojo[]{new Pojo().fill()};
 
-            expectGuitarArray = new Guitar[] { new BassGuitar(5, true),
-                    new AcousticGuitar(GuitarPickup.SOUNDHOLE) };
+            expectGuitarArray = new Guitar[]{new BassGuitar(5, true),
+                    new AcousticGuitar(GuitarPickup.SOUNDHOLE)};
 
-            expectListStringVArray = new List[] {
+            expectListStringVArray = new List[]{
                     newList("foo", "bar", "baz"),
                     newList("1", "2"),
-                    newList("3") };
+                    newList("3")};
 
-            expectListPojoVArray = new List[] { newList(new Pojo()
-                    .fill()) };
+            expectListPojoVArray = new List[]{newList(new Pojo()
+                    .fill())};
 
-            expectListGuitarVArray = new List[] {
+            expectListGuitarVArray = new List[]{
                     newList(new BassGuitar(6, true),
                             new AcousticGuitar(GuitarPickup.UNDER_THE_SADDLE)),
-                    newList(new BassGuitar(5, false)) };
+                    newList(new BassGuitar(5, false))};
 
-            expectListObjectVArray = new List[] { newList(new Pojo().fill(),
+            expectListObjectVArray = new List[]{newList(new Pojo().fill(),
                     new AcousticGuitar(GuitarPickup.CONTACT),
-                    new BassGuitar(4, true)) };
+                    new BassGuitar(4, true))};
 
             Map<Size, String> mapEnumKStringVFirst = newMap();
             mapEnumKStringVFirst.put(Size.SMALL, "s");
@@ -927,8 +1213,8 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             mapEnumKStringVSecond.put(Size.LARGE, "l");
             mapEnumKStringVSecond.put(null, "m");
 
-            expectMapEnumKStringVArray = new Map[] { mapEnumKStringVFirst,
-                    mapEnumKStringVSecond };
+            expectMapEnumKStringVArray = new Map[]{mapEnumKStringVFirst,
+                    mapEnumKStringVSecond};
 
             Map<Guitar, Pojo> mapGuitarKPojoVFirst = newMap();
             mapGuitarKPojoVFirst.put(
@@ -937,8 +1223,8 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             Map<Guitar, Pojo> mapGuitarKPojoVSecond = newMap();
             mapGuitarKPojoVSecond.put(null, new Pojo().fill());
 
-            expectMapGuitarKPojoVArray = new Map[] { mapGuitarKPojoVFirst,
-                    mapGuitarKPojoVSecond };
+            expectMapGuitarKPojoVArray = new Map[]{mapGuitarKPojoVFirst,
+                    mapGuitarKPojoVSecond};
 
             Map<Object, Object> mapObjectKObjectVFirst = newMap();
             mapObjectKObjectVFirst.put("foo", null);
@@ -949,75 +1235,73 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             mapObjectKObjectVSecond.put(null, new Date());
             mapObjectKObjectVSecond.put(Size.MEDIUM, "m");
 
-            expectMapObjectKObjectVArray = new Map[] { mapObjectKObjectVFirst,
-                    mapObjectKObjectVSecond };
+            expectMapObjectKObjectVArray = new Map[]{mapObjectKObjectVFirst,
+                    mapObjectKObjectVSecond};
 
             return this;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime
                     * result
                     + ((expectByteArray == null) ? 0 : Arrays
-                            .hashCode((byte[]) expectByteArray));
+                    .hashCode((byte[]) expectByteArray));
             result = prime
                     * result
                     + ((expectPrimitiveFloatArray == null) ? 0 : Arrays
-                            .hashCode((float[]) expectPrimitiveFloatArray));
+                    .hashCode((float[]) expectPrimitiveFloatArray));
             result = prime
                     * result
                     + ((expectEnumArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectEnumArray));
+                    .hashCode((Object[]) expectEnumArray));
             result = prime
                     * result
                     + ((expectStringArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectStringArray));
+                    .hashCode((Object[]) expectStringArray));
             result = prime
                     * result
                     + ((expectPojoArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectPojoArray));
+                    .hashCode((Object[]) expectPojoArray));
             result = prime
                     * result
                     + ((expectGuitarArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectGuitarArray));
+                    .hashCode((Object[]) expectGuitarArray));
             result = prime
                     * result
                     + ((expectListStringVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectListStringVArray));
+                    .hashCode((Object[]) expectListStringVArray));
             result = prime
                     * result
                     + ((expectListPojoVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectListPojoVArray));
+                    .hashCode((Object[]) expectListPojoVArray));
             result = prime
                     * result
                     + ((expectListGuitarVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectListGuitarVArray));
+                    .hashCode((Object[]) expectListGuitarVArray));
             result = prime
                     * result
                     + ((expectListObjectVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectListObjectVArray));
+                    .hashCode((Object[]) expectListObjectVArray));
             result = prime
                     * result
                     + ((expectMapEnumKStringVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectMapEnumKStringVArray));
+                    .hashCode((Object[]) expectMapEnumKStringVArray));
             result = prime
                     * result
                     + ((expectMapGuitarKPojoVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectMapGuitarKPojoVArray));
+                    .hashCode((Object[]) expectMapGuitarKPojoVArray));
             result = prime
                     * result
                     + ((expectMapObjectKObjectVArray == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectMapObjectKObjectVArray));
+                    .hashCode((Object[]) expectMapObjectKObjectVArray));
             return result;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -1025,116 +1309,89 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithArray other = (PojoWithArray) obj;
-            if (expectByteArray == null)
-            {
+            if (expectByteArray == null) {
                 if (other.expectByteArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((byte[]) expectByteArray,
+            } else if (!Arrays.equals((byte[]) expectByteArray,
                     (byte[]) other.expectByteArray))
                 return false;
-            if (expectPrimitiveFloatArray == null)
-            {
+            if (expectPrimitiveFloatArray == null) {
                 if (other.expectPrimitiveFloatArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((float[]) expectPrimitiveFloatArray,
+            } else if (!Arrays.equals((float[]) expectPrimitiveFloatArray,
                     (float[]) other.expectPrimitiveFloatArray))
                 return false;
-            if (expectStringArray == null)
-            {
+            if (expectStringArray == null) {
                 if (other.expectStringArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectStringArray,
+            } else if (!Arrays.equals((Object[]) expectStringArray,
                     (Object[]) other.expectStringArray))
                 return false;
-            if (expectEnumArray == null)
-            {
+            if (expectEnumArray == null) {
                 if (other.expectEnumArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectEnumArray,
+            } else if (!Arrays.equals((Object[]) expectEnumArray,
                     (Object[]) other.expectEnumArray))
                 return false;
-            if (expectPojoArray == null)
-            {
+            if (expectPojoArray == null) {
                 if (other.expectPojoArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectPojoArray,
+            } else if (!Arrays.equals((Object[]) expectPojoArray,
                     (Object[]) other.expectPojoArray))
                 return false;
-            if (expectGuitarArray == null)
-            {
+            if (expectGuitarArray == null) {
                 if (other.expectGuitarArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectGuitarArray,
+            } else if (!Arrays.equals((Object[]) expectGuitarArray,
                     (Object[]) other.expectGuitarArray))
                 return false;
-            if (expectListStringVArray == null)
-            {
+            if (expectListStringVArray == null) {
                 if (other.expectListStringVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectListStringVArray,
+            } else if (!Arrays.equals((Object[]) expectListStringVArray,
                     (Object[]) other.expectListStringVArray))
                 return false;
-            if (expectListPojoVArray == null)
-            {
+            if (expectListPojoVArray == null) {
                 if (other.expectListPojoVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectListPojoVArray,
+            } else if (!Arrays.equals((Object[]) expectListPojoVArray,
                     (Object[]) other.expectListPojoVArray))
                 return false;
-            if (expectListGuitarVArray == null)
-            {
+            if (expectListGuitarVArray == null) {
                 if (other.expectListGuitarVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectListGuitarVArray,
+            } else if (!Arrays.equals((Object[]) expectListGuitarVArray,
                     (Object[]) other.expectListGuitarVArray))
                 return false;
-            if (expectListObjectVArray == null)
-            {
+            if (expectListObjectVArray == null) {
                 if (other.expectListObjectVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectListObjectVArray,
+            } else if (!Arrays.equals((Object[]) expectListObjectVArray,
                     (Object[]) other.expectListObjectVArray))
                 return false;
-            if (expectMapEnumKStringVArray == null)
-            {
+            if (expectMapEnumKStringVArray == null) {
                 if (other.expectMapEnumKStringVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectMapEnumKStringVArray,
+            } else if (!Arrays.equals((Object[]) expectMapEnumKStringVArray,
                     (Object[]) other.expectMapEnumKStringVArray))
                 return false;
-            if (expectMapGuitarKPojoVArray == null)
-            {
+            if (expectMapGuitarKPojoVArray == null) {
                 if (other.expectMapGuitarKPojoVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectMapGuitarKPojoVArray,
+            } else if (!Arrays.equals((Object[]) expectMapGuitarKPojoVArray,
                     (Object[]) other.expectMapGuitarKPojoVArray))
                 return false;
-            if (expectMapObjectKObjectVArray == null)
-            {
+            if (expectMapObjectKObjectVArray == null) {
                 if (other.expectMapObjectKObjectVArray != null)
                     return false;
-            }
-            else if (!Arrays.equals((Object[]) expectMapObjectKObjectVArray,
+            } else if (!Arrays.equals((Object[]) expectMapObjectKObjectVArray,
                     (Object[]) other.expectMapObjectKObjectVArray))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithArray [expectByteArray=" + expectByteArray
                     + ", expectEnumArray=" + expectEnumArray
                     + ", expectGuitarArray=" + expectGuitarArray
@@ -1155,30 +1412,28 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public static class PojoWithArray2D
-    {
+    public static class PojoWithArray2D {
         Object expectByteArray2D;
         Object expectPrimitiveIntArray2D;
         Object expectDateArray2D;
 
-        PojoWithArray2D fill()
-        {
-            byte[][] byteArray2D = new byte[][] { new byte[] { 70, 71 },
-                    new byte[] { 80, 81 } };
+        PojoWithArray2D fill() {
+            byte[][] byteArray2D = new byte[][]{new byte[]{70, 71},
+                    new byte[]{80, 81}};
 
             expectByteArray2D = byteArray2D;
 
-            int[][] intArray2D = new int[][] { new int[] { 00, 01 },
-                    new int[] { 10, 11 }, new int[] { 20, 21 } };
+            int[][] intArray2D = new int[][]{new int[]{00, 01},
+                    new int[]{10, 11}, new int[]{20, 21}};
 
             expectPrimitiveIntArray2D = intArray2D;
 
             long now = System.currentTimeMillis();
 
-            Date[][] dateArray2D = new Date[][] {
-                    new Date[] { new Date(now - 1000) },
-                    new Date[] { new Date(now) },
-                    new Date[] { new Date(now + 1000) } };
+            Date[][] dateArray2D = new Date[][]{
+                    new Date[]{new Date(now - 1000)},
+                    new Date[]{new Date(now)},
+                    new Date[]{new Date(now + 1000)}};
 
             expectDateArray2D = dateArray2D;
 
@@ -1186,28 +1441,26 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime
                     * result
                     + ((expectByteArray2D == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectByteArray2D));
+                    .hashCode((Object[]) expectByteArray2D));
             result = prime
                     * result
                     + ((expectPrimitiveIntArray2D == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectPrimitiveIntArray2D));
+                    .hashCode((Object[]) expectPrimitiveIntArray2D));
             result = prime
                     * result
                     + ((expectDateArray2D == null) ? 0 : Arrays
-                            .hashCode((Object[]) expectDateArray2D));
+                    .hashCode((Object[]) expectDateArray2D));
             return result;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -1215,36 +1468,29 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithArray2D other = (PojoWithArray2D) obj;
-            if (expectByteArray2D == null)
-            {
+            if (expectByteArray2D == null) {
                 if (other.expectByteArray2D != null)
                     return false;
-            }
-            else if (!isEquals((byte[][]) expectByteArray2D,
+            } else if (!isEquals((byte[][]) expectByteArray2D,
                     (byte[][]) other.expectByteArray2D))
                 return false;
-            if (expectPrimitiveIntArray2D == null)
-            {
+            if (expectPrimitiveIntArray2D == null) {
                 if (other.expectPrimitiveIntArray2D != null)
                     return false;
-            }
-            else if (!isEquals((int[][]) expectPrimitiveIntArray2D,
+            } else if (!isEquals((int[][]) expectPrimitiveIntArray2D,
                     (int[][]) other.expectPrimitiveIntArray2D))
                 return false;
-            if (expectDateArray2D == null)
-            {
+            if (expectDateArray2D == null) {
                 if (other.expectDateArray2D != null)
                     return false;
-            }
-            else if (!isEquals((Object[][]) expectDateArray2D,
+            } else if (!isEquals((Object[][]) expectDateArray2D,
                     (Object[][]) other.expectDateArray2D))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithArray2D [expectByteArray2D=" + expectByteArray2D
                     + ", expectDateArray2D=" + expectDateArray2D
                     + ", expectPrimitiveIntArray2D="
@@ -1253,16 +1499,14 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public static class PojoWithCollection
-    {
+    public static class PojoWithCollection {
         Collection<Object> someCollectionObjectV;
         Collection<?> someCollectionWildcardV;
 
         List<Object> someListObjectV;
         List<?> someListWildcardV;
 
-        PojoWithCollection fill()
-        {
+        PojoWithCollection fill() {
             someCollectionObjectV = newList("foo", 1, 1.1f,
                     100.001d, System.currentTimeMillis(), new Date(),
                     Size.LARGE, new Pojo().fill(), new BassGuitar(4, true));
@@ -1284,32 +1528,30 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime
                     * result
                     + ((someCollectionObjectV == null) ? 0
-                            : someCollectionObjectV.hashCode());
+                    : someCollectionObjectV.hashCode());
             result = prime
                     * result
                     + ((someCollectionWildcardV == null) ? 0
-                            : someCollectionWildcardV.hashCode());
+                    : someCollectionWildcardV.hashCode());
             result = prime
                     * result
                     + ((someListObjectV == null) ? 0 : someListObjectV
-                            .hashCode());
+                    .hashCode());
             result = prime
                     * result
                     + ((someListWildcardV == null) ? 0 : someListWildcardV
-                            .hashCode());
+                    .hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -1317,42 +1559,33 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithCollection other = (PojoWithCollection) obj;
-            if (someCollectionObjectV == null)
-            {
+            if (someCollectionObjectV == null) {
                 if (other.someCollectionObjectV != null)
                     return false;
-            }
-            else if (!someCollectionObjectV
+            } else if (!someCollectionObjectV
                     .equals(other.someCollectionObjectV))
                 return false;
-            if (someCollectionWildcardV == null)
-            {
+            if (someCollectionWildcardV == null) {
                 if (other.someCollectionWildcardV != null)
                     return false;
-            }
-            else if (!someCollectionWildcardV
+            } else if (!someCollectionWildcardV
                     .equals(other.someCollectionWildcardV))
                 return false;
-            if (someListObjectV == null)
-            {
+            if (someListObjectV == null) {
                 if (other.someListObjectV != null)
                     return false;
-            }
-            else if (!someListObjectV.equals(other.someListObjectV))
+            } else if (!someListObjectV.equals(other.someListObjectV))
                 return false;
-            if (someListWildcardV == null)
-            {
+            if (someListWildcardV == null) {
                 if (other.someListWildcardV != null)
                     return false;
-            }
-            else if (!someListWildcardV.equals(other.someListWildcardV))
+            } else if (!someListWildcardV.equals(other.someListWildcardV))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithCollection [someCollectionObjectV="
                     + someCollectionObjectV + ", someCollectionWildcardV="
                     + someCollectionWildcardV + ", someListObjectV="
@@ -1362,8 +1595,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public static class PojoWithMap
-    {
+    public static class PojoWithMap {
         Map<String, Object> someMapStringKObjectV;
         Map<Guitar, ?> someMapGuitarKWildcardV;
 
@@ -1373,8 +1605,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Map<Object, Object> someMapObjectKObjectV;
         Map<?, ?> someMapWildcardKWildcardV;
 
-        PojoWithMap fill()
-        {
+        PojoWithMap fill() {
             someMapStringKObjectV = newMap();
             someMapStringKObjectV.put("1", new Pojo().fill());
             someMapStringKObjectV.put(null, Size.SMALL);
@@ -1417,40 +1648,38 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime
                     * result
                     + ((someMapGuitarKWildcardV == null) ? 0
-                            : someMapGuitarKWildcardV.hashCode());
+                    : someMapGuitarKWildcardV.hashCode());
             result = prime
                     * result
                     + ((someMapObjectKIntegerV == null) ? 0
-                            : someMapObjectKIntegerV.hashCode());
+                    : someMapObjectKIntegerV.hashCode());
             result = prime
                     * result
                     + ((someMapObjectKObjectV == null) ? 0
-                            : someMapObjectKObjectV.hashCode());
+                    : someMapObjectKObjectV.hashCode());
             result = prime
                     * result
                     + ((someMapStringKObjectV == null) ? 0
-                            : someMapStringKObjectV.hashCode());
+                    : someMapStringKObjectV.hashCode());
             result = prime
                     * result
                     + ((someMapWildcardKEnumV == null) ? 0
-                            : someMapWildcardKEnumV.hashCode());
+                    : someMapWildcardKEnumV.hashCode());
             result = prime
                     * result
                     + ((someMapWildcardKWildcardV == null) ? 0
-                            : someMapWildcardKWildcardV.hashCode());
+                    : someMapWildcardKWildcardV.hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -1458,60 +1687,47 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithMap other = (PojoWithMap) obj;
-            if (someMapGuitarKWildcardV == null)
-            {
+            if (someMapGuitarKWildcardV == null) {
                 if (other.someMapGuitarKWildcardV != null)
                     return false;
-            }
-            else if (!someMapGuitarKWildcardV
+            } else if (!someMapGuitarKWildcardV
                     .equals(other.someMapGuitarKWildcardV))
                 return false;
-            if (someMapObjectKIntegerV == null)
-            {
+            if (someMapObjectKIntegerV == null) {
                 if (other.someMapObjectKIntegerV != null)
                     return false;
-            }
-            else if (!someMapObjectKIntegerV
+            } else if (!someMapObjectKIntegerV
                     .equals(other.someMapObjectKIntegerV))
                 return false;
-            if (someMapObjectKObjectV == null)
-            {
+            if (someMapObjectKObjectV == null) {
                 if (other.someMapObjectKObjectV != null)
                     return false;
-            }
-            else if (!someMapObjectKObjectV
+            } else if (!someMapObjectKObjectV
                     .equals(other.someMapObjectKObjectV))
                 return false;
-            if (someMapStringKObjectV == null)
-            {
+            if (someMapStringKObjectV == null) {
                 if (other.someMapStringKObjectV != null)
                     return false;
-            }
-            else if (!someMapStringKObjectV
+            } else if (!someMapStringKObjectV
                     .equals(other.someMapStringKObjectV))
                 return false;
-            if (someMapWildcardKEnumV == null)
-            {
+            if (someMapWildcardKEnumV == null) {
                 if (other.someMapWildcardKEnumV != null)
                     return false;
-            }
-            else if (!someMapWildcardKEnumV
+            } else if (!someMapWildcardKEnumV
                     .equals(other.someMapWildcardKEnumV))
                 return false;
-            if (someMapWildcardKWildcardV == null)
-            {
+            if (someMapWildcardKWildcardV == null) {
                 if (other.someMapWildcardKWildcardV != null)
                     return false;
-            }
-            else if (!someMapWildcardKWildcardV
+            } else if (!someMapWildcardKWildcardV
                     .equals(other.someMapWildcardKWildcardV))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithMap [someMapGuitarKWildcardV="
                     + someMapGuitarKWildcardV + ", someMapObjectKIntegerV="
                     + someMapObjectKIntegerV + ", someMapObjectKObjectV="
@@ -1523,160 +1739,11 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    static boolean isEquals(byte[][] b1, byte[][] b2)
-    {
-        if (b1.length != b2.length)
-            return false;
-
-        for (int i = 0; i < b1.length; i++)
-        {
-            if (!Arrays.equals(b1[i], b2[i]))
-                return false;
-        }
-        return true;
-    }
-
-    static boolean isEquals(int[][] b1, int[][] b2)
-    {
-        if (b1.length != b2.length)
-            return false;
-
-        for (int i = 0; i < b1.length; i++)
-        {
-            if (!Arrays.equals(b1[i], b2[i]))
-                return false;
-        }
-        return true;
-    }
-
-    static boolean isEquals(Object[][] b1, Object[][] b2)
-    {
-        if (b1.length != b2.length)
-            return false;
-
-        for (int i = 0; i < b1.length; i++)
-        {
-            if (!Arrays.equals(b1[i], b2[i]))
-                return false;
-        }
-        return true;
-    }
-
-    public void testPojo() throws Exception
-    {
-        Schema<Pojo> schema = RuntimeSchema.getSchema(Pojo.class);
-        Pipe.Schema<Pojo> pipeSchema = ((RuntimeSchema<Pojo>) schema).getPipeSchema();
-
-        Pojo p = new Pojo().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        Pojo pFromByteArray = new Pojo();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        Pojo pFromStream = new Pojo();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    public void testPojoWithArray() throws Exception
-    {
-        Schema<PojoWithArray> schema = RuntimeSchema
-                .getSchema(PojoWithArray.class);
-        Pipe.Schema<PojoWithArray> pipeSchema = ((RuntimeSchema<PojoWithArray>) schema).getPipeSchema();
-
-        PojoWithArray p = new PojoWithArray().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithArray pFromByteArray = new PojoWithArray();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithArray pFromStream = new PojoWithArray();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    public void testPojoWithArray2D() throws Exception
-    {
-        Schema<PojoWithArray2D> schema = RuntimeSchema
-                .getSchema(PojoWithArray2D.class);
-        Pipe.Schema<PojoWithArray2D> pipeSchema = ((RuntimeSchema<PojoWithArray2D>) schema).getPipeSchema();
-
-        PojoWithArray2D p = new PojoWithArray2D().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithArray2D pFromByteArray = new PojoWithArray2D();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithArray2D pFromStream = new PojoWithArray2D();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    public void testPojoWithCollection() throws Exception
-    {
-        Schema<PojoWithCollection> schema = RuntimeSchema
-                .getSchema(PojoWithCollection.class);
-        Pipe.Schema<PojoWithCollection> pipeSchema = ((RuntimeSchema<PojoWithCollection>) schema).getPipeSchema();
-
-        PojoWithCollection p = new PojoWithCollection().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithCollection pFromByteArray = new PojoWithCollection();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithCollection pFromStream = new PojoWithCollection();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    public void testPojoWithMap() throws Exception
-    {
-        Schema<PojoWithMap> schema = RuntimeSchema.getSchema(PojoWithMap.class);
-        Pipe.Schema<PojoWithMap> pipeSchema = ((RuntimeSchema<PojoWithMap>) schema).getPipeSchema();
-
-        PojoWithMap p = new PojoWithMap().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithMap pFromByteArray = new PojoWithMap();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithMap pFromStream = new PojoWithMap();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    public static final class WrapsBat
-    {
+    public static final class WrapsBat {
         Bat bat;
         Object bat2;
 
-        WrapsBat fill()
-        {
+        WrapsBat fill() {
             bat = new Bat(500);
             bat2 = new Bat(1000);
 
@@ -1684,8 +1751,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((bat == null) ? 0 : bat.hashCode());
@@ -1694,8 +1760,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -1703,109 +1768,60 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             WrapsBat other = (WrapsBat) obj;
-            if (bat == null)
-            {
+            if (bat == null) {
                 if (other.bat != null)
                     return false;
-            }
-            else if (!bat.equals(other.bat))
+            } else if (!bat.equals(other.bat))
                 return false;
-            if (bat2 == null)
-            {
+            if (bat2 == null) {
                 if (other.bat2 != null)
                     return false;
-            }
-            else if (!bat2.equals(other.bat2))
+            } else if (!bat2.equals(other.bat2))
                 return false;
             return true;
         }
 
     }
 
-    static final class Bat implements Message<Bat>
-    {
+    static final class Bat implements Message<Bat> {
 
-        int id;
-
-        public Bat()
-        {
-
-        }
-
-        public Bat(int id)
-        {
-            this.id = id;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + id;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Bat other = (Bat) obj;
-            return id == other.id;
-        }
-
-        static final Schema<Bat> SCHEMA = new Schema<Bat>()
-        {
+        static final Schema<Bat> SCHEMA = new Schema<Bat>() {
 
             @Override
-            public String getFieldName(int number)
-            {
+            public String getFieldName(int number) {
                 return number == 1 ? "i" : null;
             }
 
             @Override
-            public int getFieldNumber(String name)
-            {
+            public int getFieldNumber(String name) {
                 return name.length() == 1 && name.charAt(0) == 'i' ? 1 : 0;
             }
 
             @Override
-            public Bat newMessage()
-            {
+            public Bat newMessage() {
                 return new Bat();
             }
 
             @Override
-            public String messageName()
-            {
+            public String messageName() {
                 return Bat.class.getSimpleName();
             }
 
             @Override
-            public String messageFullName()
-            {
+            public String messageFullName() {
                 return Bat.class.getName();
             }
 
             @Override
-            public Class<? super Bat> typeClass()
-            {
+            public Class<? super Bat> typeClass() {
                 return Bat.class;
             }
 
             @Override
-            public void mergeFrom(Input input, Bat message) throws IOException
-            {
-                for (int number = input.readFieldNumber(this);; number = input
-                        .readFieldNumber(this))
-                {
-                    switch (number)
-                    {
+            public void mergeFrom(Input input, Bat message) throws IOException {
+                for (int number = input.readFieldNumber(this); ; number = input
+                        .readFieldNumber(this)) {
+                    switch (number) {
                         case 0:
                             return;
                         case 1:
@@ -1818,25 +1834,20 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             }
 
             @Override
-            public void writeTo(Output output, Bat message) throws IOException
-            {
+            public void writeTo(Output output, Bat message) throws IOException {
                 output.writeUInt32(1, message.id, false);
             }
 
         };
 
-        static final Pipe.Schema<Bat> PIPE_SCHEMA = new Pipe.Schema<Bat>(SCHEMA)
-        {
+        static final Pipe.Schema<Bat> PIPE_SCHEMA = new Pipe.Schema<Bat>(SCHEMA) {
 
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException
-            {
-                for (int number = input.readFieldNumber(wrappedSchema);; number = input
-                        .readFieldNumber(wrappedSchema))
-                {
-                    switch (number)
-                    {
+                    throws IOException {
+                for (int number = input.readFieldNumber(wrappedSchema); ; number = input
+                        .readFieldNumber(wrappedSchema)) {
+                    switch (number) {
                         case 0:
                             return;
                         case 1:
@@ -1849,46 +1860,51 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             }
         };
 
-        @Override
-        public Schema<Bat> cachedSchema()
-        {
+        private int id;
+
+        public Bat() {
+
+        }
+
+        public Bat(int id) {
+            this.id = id;
+        }
+
+        public static Schema<Bat> getSchema() {
             return SCHEMA;
         }
 
-        public static Schema<Bat> getSchema()
-        {
-            return SCHEMA;
-        }
-
-        public static Pipe.Schema<Bat> getPipeSchema()
-        {
+        public static Pipe.Schema<Bat> getPipeSchema() {
             return PIPE_SCHEMA;
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + id;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Bat other = (Bat) obj;
+            return id == other.id;
+        }
+
+        @Override
+        public Schema<Bat> cachedSchema() {
+            return SCHEMA;
+        }
     }
 
-    public void testBat() throws Exception
-    {
-        Schema<WrapsBat> schema = RuntimeSchema.getSchema(WrapsBat.class);
-        Pipe.Schema<WrapsBat> pipeSchema = ((RuntimeSchema<WrapsBat>) schema).getPipeSchema();
-
-        WrapsBat p = new WrapsBat().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        WrapsBat pFromByteArray = new WrapsBat();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        WrapsBat pFromStream = new WrapsBat();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    public static class PojoWithCustomArrayListAndHashMap
-    {
+    public static class PojoWithCustomArrayListAndHashMap {
         CustomArrayList<Size> one;
         List<Size> two;
         Object three;
@@ -1902,8 +1918,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Object osize;
         Serializable s;
 
-        PojoWithCustomArrayListAndHashMap fill()
-        {
+        PojoWithCustomArrayListAndHashMap fill() {
 
             one = new CustomArrayList<>();
             one.add(Size.SMALL);
@@ -1938,8 +1953,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result
@@ -1957,8 +1971,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -1966,103 +1979,59 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithCustomArrayListAndHashMap other = (PojoWithCustomArrayListAndHashMap) obj;
-            if (hasType == null)
-            {
+            if (hasType == null) {
                 if (other.hasType != null)
                     return false;
-            }
-            else if (!hasType.equals(other.hasType))
+            } else if (!hasType.equals(other.hasType))
                 return false;
-            if (map1 == null)
-            {
+            if (map1 == null) {
                 if (other.map1 != null)
                     return false;
-            }
-            else if (!map1.equals(other.map1))
+            } else if (!map1.equals(other.map1))
                 return false;
-            if (map2 == null)
-            {
+            if (map2 == null) {
                 if (other.map2 != null)
                     return false;
-            }
-            else if (!map2.equals(other.map2))
+            } else if (!map2.equals(other.map2))
                 return false;
-            if (map3 == null)
-            {
+            if (map3 == null) {
                 if (other.map3 != null)
                     return false;
-            }
-            else if (!map3.equals(other.map3))
+            } else if (!map3.equals(other.map3))
                 return false;
-            if (one == null)
-            {
+            if (one == null) {
                 if (other.one != null)
                     return false;
-            }
-            else if (!one.equals(other.one))
+            } else if (!one.equals(other.one))
                 return false;
-            if (osize == null)
-            {
+            if (osize == null) {
                 if (other.osize != null)
                     return false;
-            }
-            else if (!osize.equals(other.osize))
+            } else if (!osize.equals(other.osize))
                 return false;
-            if (s == null)
-            {
+            if (s == null) {
                 if (other.s != null)
                     return false;
-            }
-            else if (!s.equals(other.s))
+            } else if (!s.equals(other.s))
                 return false;
             if (size != other.size)
                 return false;
-            if (three == null)
-            {
+            if (three == null) {
                 if (other.three != null)
                     return false;
-            }
-            else if (!three.equals(other.three))
+            } else if (!three.equals(other.three))
                 return false;
-            if (two == null)
-            {
+            if (two == null) {
                 if (other.two != null)
                     return false;
-            }
-            else if (!two.equals(other.two))
+            } else if (!two.equals(other.two))
                 return false;
             return true;
         }
 
     }
 
-    public void testPojoWithCustomArrayListAndHashMapAndHashMap()
-            throws Exception
-    {
-        Schema<PojoWithCustomArrayListAndHashMap> schema = RuntimeSchema
-                .getSchema(PojoWithCustomArrayListAndHashMap.class);
-        Pipe.Schema<PojoWithCustomArrayListAndHashMap> pipeSchema = ((RuntimeSchema<PojoWithCustomArrayListAndHashMap>) schema)
-                .getPipeSchema();
-
-        PojoWithCustomArrayListAndHashMap p = new PojoWithCustomArrayListAndHashMap()
-                .fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithCustomArrayListAndHashMap pFromByteArray = new PojoWithCustomArrayListAndHashMap();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithCustomArrayListAndHashMap pFromStream = new PojoWithCustomArrayListAndHashMap();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithClassFields
-    {
+    static class PojoWithClassFields {
         Class<?> c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10;
         Object o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14;
 
@@ -2087,8 +2056,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         HashMap<Class, ?> cHashMap2;
 
         @SuppressWarnings("rawtypes")
-        PojoWithClassFields fill()
-        {
+        PojoWithClassFields fill() {
             c0 = int.class;
             c1 = Integer.class;
             c2 = Integer[].class;
@@ -2113,15 +2081,15 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             o9 = Size.class;
             o10 = GuitarPickup.class;
 
-            cArray = new Class<?>[] { Float.class, Double.class, float[].class,
+            cArray = new Class<?>[]{Float.class, Double.class, float[].class,
                     double[][].class, Float[].class, Double[][].class,
                     byte[].class, byte.class, Pojo.class, Instrument.class,
-                    AbstractInstrument.class, Size.class, GuitarPickup.class };
+                    AbstractInstrument.class, Size.class, GuitarPickup.class};
 
-            oArray = new Object[] { String.class, Boolean.class, float[].class,
+            oArray = new Object[]{String.class, Boolean.class, float[].class,
                     double[][].class, Float[].class, Double[][].class,
                     byte[].class, byte.class, Pojo.class, Instrument.class,
-                    AbstractInstrument.class, Size.class, GuitarPickup.class };
+                    AbstractInstrument.class, Size.class, GuitarPickup.class};
 
             cList = new ArrayList<>();
             cList.add(Character.class);
@@ -2247,8 +2215,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((c0 == null) ? 0 : c0.hashCode());
@@ -2294,8 +2261,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -2303,245 +2269,178 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithClassFields other = (PojoWithClassFields) obj;
-            if (c0 == null)
-            {
+            if (c0 == null) {
                 if (other.c0 != null)
                     return false;
-            }
-            else if (!c0.equals(other.c0))
+            } else if (!c0.equals(other.c0))
                 return false;
-            if (c1 == null)
-            {
+            if (c1 == null) {
                 if (other.c1 != null)
                     return false;
-            }
-            else if (!c1.equals(other.c1))
+            } else if (!c1.equals(other.c1))
                 return false;
-            if (c10 == null)
-            {
+            if (c10 == null) {
                 if (other.c10 != null)
                     return false;
-            }
-            else if (!c10.equals(other.c10))
+            } else if (!c10.equals(other.c10))
                 return false;
-            if (c2 == null)
-            {
+            if (c2 == null) {
                 if (other.c2 != null)
                     return false;
-            }
-            else if (!c2.equals(other.c2))
+            } else if (!c2.equals(other.c2))
                 return false;
-            if (c3 == null)
-            {
+            if (c3 == null) {
                 if (other.c3 != null)
                     return false;
-            }
-            else if (!c3.equals(other.c3))
+            } else if (!c3.equals(other.c3))
                 return false;
-            if (c4 == null)
-            {
+            if (c4 == null) {
                 if (other.c4 != null)
                     return false;
-            }
-            else if (!c4.equals(other.c4))
+            } else if (!c4.equals(other.c4))
                 return false;
-            if (c5 == null)
-            {
+            if (c5 == null) {
                 if (other.c5 != null)
                     return false;
-            }
-            else if (!c5.equals(other.c5))
+            } else if (!c5.equals(other.c5))
                 return false;
-            if (c6 == null)
-            {
+            if (c6 == null) {
                 if (other.c6 != null)
                     return false;
-            }
-            else if (!c6.equals(other.c6))
+            } else if (!c6.equals(other.c6))
                 return false;
-            if (c7 == null)
-            {
+            if (c7 == null) {
                 if (other.c7 != null)
                     return false;
-            }
-            else if (!c7.equals(other.c7))
+            } else if (!c7.equals(other.c7))
                 return false;
-            if (c8 == null)
-            {
+            if (c8 == null) {
                 if (other.c8 != null)
                     return false;
-            }
-            else if (!c8.equals(other.c8))
+            } else if (!c8.equals(other.c8))
                 return false;
-            if (c9 == null)
-            {
+            if (c9 == null) {
                 if (other.c9 != null)
                     return false;
-            }
-            else if (!c9.equals(other.c9))
+            } else if (!c9.equals(other.c9))
                 return false;
             if (!Arrays.equals(cArray, other.cArray))
                 return false;
-            if (cArrayList == null)
-            {
+            if (cArrayList == null) {
                 if (other.cArrayList != null)
                     return false;
-            }
-            else if (!cArrayList.equals(other.cArrayList))
+            } else if (!cArrayList.equals(other.cArrayList))
                 return false;
-            if (cHashMap == null)
-            {
+            if (cHashMap == null) {
                 if (other.cHashMap != null)
                     return false;
-            }
-            else if (!cHashMap.equals(other.cHashMap))
+            } else if (!cHashMap.equals(other.cHashMap))
                 return false;
-            if (cHashMap2 == null)
-            {
+            if (cHashMap2 == null) {
                 if (other.cHashMap2 != null)
                     return false;
-            }
-            else if (!cHashMap2.equals(other.cHashMap2))
+            } else if (!cHashMap2.equals(other.cHashMap2))
                 return false;
-            if (cList == null)
-            {
+            if (cList == null) {
                 if (other.cList != null)
                     return false;
-            }
-            else if (!cList.equals(other.cList))
+            } else if (!cList.equals(other.cList))
                 return false;
-            if (cList2 == null)
-            {
+            if (cList2 == null) {
                 if (other.cList2 != null)
                     return false;
-            }
-            else if (!cList2.equals(other.cList2))
+            } else if (!cList2.equals(other.cList2))
                 return false;
-            if (cMap == null)
-            {
+            if (cMap == null) {
                 if (other.cMap != null)
                     return false;
-            }
-            else if (!cMap.equals(other.cMap))
+            } else if (!cMap.equals(other.cMap))
                 return false;
-            if (cMap2 == null)
-            {
+            if (cMap2 == null) {
                 if (other.cMap2 != null)
                     return false;
-            }
-            else if (!cMap2.equals(other.cMap2))
+            } else if (!cMap2.equals(other.cMap2))
                 return false;
-            if (o0 == null)
-            {
+            if (o0 == null) {
                 if (other.o0 != null)
                     return false;
-            }
-            else if (!o0.equals(other.o0))
+            } else if (!o0.equals(other.o0))
                 return false;
-            if (o1 == null)
-            {
+            if (o1 == null) {
                 if (other.o1 != null)
                     return false;
-            }
-            else if (!o1.equals(other.o1))
+            } else if (!o1.equals(other.o1))
                 return false;
-            if (o10 == null)
-            {
+            if (o10 == null) {
                 if (other.o10 != null)
                     return false;
-            }
-            else if (!o10.equals(other.o10))
+            } else if (!o10.equals(other.o10))
                 return false;
-            if (o11 == null)
-            {
+            if (o11 == null) {
                 if (other.o11 != null)
                     return false;
-            }
-            else if (!o11.equals(other.o11))
+            } else if (!o11.equals(other.o11))
                 return false;
-            if (o12 == null)
-            {
+            if (o12 == null) {
                 if (other.o12 != null)
                     return false;
-            }
-            else if (!o12.equals(other.o12))
+            } else if (!o12.equals(other.o12))
                 return false;
-            if (o13 == null)
-            {
+            if (o13 == null) {
                 if (other.o13 != null)
                     return false;
-            }
-            else if (!o13.equals(other.o13))
+            } else if (!o13.equals(other.o13))
                 return false;
-            if (o14 == null)
-            {
+            if (o14 == null) {
                 if (other.o14 != null)
                     return false;
-            }
-            else if (!o14.equals(other.o14))
+            } else if (!o14.equals(other.o14))
                 return false;
-            if (o2 == null)
-            {
+            if (o2 == null) {
                 if (other.o2 != null)
                     return false;
-            }
-            else if (!o2.equals(other.o2))
+            } else if (!o2.equals(other.o2))
                 return false;
-            if (o3 == null)
-            {
+            if (o3 == null) {
                 if (other.o3 != null)
                     return false;
-            }
-            else if (!o3.equals(other.o3))
+            } else if (!o3.equals(other.o3))
                 return false;
-            if (o4 == null)
-            {
+            if (o4 == null) {
                 if (other.o4 != null)
                     return false;
-            }
-            else if (!o4.equals(other.o4))
+            } else if (!o4.equals(other.o4))
                 return false;
-            if (o5 == null)
-            {
+            if (o5 == null) {
                 if (other.o5 != null)
                     return false;
-            }
-            else if (!o5.equals(other.o5))
+            } else if (!o5.equals(other.o5))
                 return false;
-            if (o6 == null)
-            {
+            if (o6 == null) {
                 if (other.o6 != null)
                     return false;
-            }
-            else if (!o6.equals(other.o6))
+            } else if (!o6.equals(other.o6))
                 return false;
-            if (o7 == null)
-            {
+            if (o7 == null) {
                 if (other.o7 != null)
                     return false;
-            }
-            else if (!o7.equals(other.o7))
+            } else if (!o7.equals(other.o7))
                 return false;
-            if (o8 == null)
-            {
+            if (o8 == null) {
                 if (other.o8 != null)
                     return false;
-            }
-            else if (!o8.equals(other.o8))
+            } else if (!o8.equals(other.o8))
                 return false;
-            if (o9 == null)
-            {
+            if (o9 == null) {
                 if (other.o9 != null)
                     return false;
-            }
-            else if (!o9.equals(other.o9))
+            } else if (!o9.equals(other.o9))
                 return false;
             return Arrays.equals(oArray, other.oArray);
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithClassFields [c0=" + c0 + ", c1=" + c1 + ", c2="
                     + c2 + ", c3=" + c3 + ", c4=" + c4 + ", c5=" + c5 + ", c6="
                     + c6 + ", c7=" + c7 + ", c8=" + c8 + ", c9=" + c9
@@ -2558,30 +2457,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
     }
 
-    public void testPojoWithClassFields() throws Exception
-    {
-        Schema<PojoWithClassFields> schema = RuntimeSchema
-                .getSchema(PojoWithClassFields.class);
-        Pipe.Schema<PojoWithClassFields> pipeSchema = ((RuntimeSchema<PojoWithClassFields>) schema).getPipeSchema();
-
-        PojoWithClassFields p = new PojoWithClassFields().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithClassFields pFromByteArray = new PojoWithClassFields();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithClassFields pFromStream = new PojoWithClassFields();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithObjectCollectionFields
-    {
+    static class PojoWithObjectCollectionFields {
         Object emptySet, emptyList, singletonSet, singletonList, setFromMap,
                 copiesList, unmodifiableCollection, unmodifiableSet,
                 unmodifiableSortedSet, unmodifiableList,
@@ -2590,302 +2466,8 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
                 synchronizedRandomAccessList, checkedCollection, checkedSet,
                 checkedSortedSet, checkedList, checkedRandomAccessList;
 
-        PojoWithObjectCollectionFields fill()
-        {
-            LinkedList<String> ll = new LinkedList<>();
-            ll.add("zero");
-            HashMap<String, Boolean> empty = newMap();
-
-            TreeSet<String> ts = new TreeSet<>();
-            ts.add("two");
-
-            EnumSet<Size> es = EnumSet.allOf(Size.class);
-
-            emptySet = Collections.emptySet();
-            emptyList = Collections.emptyList();
-            singletonSet = Collections.singleton("three");
-            singletonList = Collections.singletonList("four");
-            setFromMap = Collections.newSetFromMap(empty);
-            copiesList = Collections.nCopies(1, "five");
-
-            unmodifiableCollection = Collections
-                    .unmodifiableCollection(Collections.emptyList()); // no
-            // equals
-            // impl
-            unmodifiableSet = Collections.unmodifiableSet(Collections
-                    .emptySet());
-            unmodifiableSortedSet = Collections.unmodifiableSortedSet(ts);
-            unmodifiableList = Collections.unmodifiableList(ll);
-            unmodifiableRandomAccessList = Collections
-                    .unmodifiableList(newList("six"));
-
-            assertTrue(unmodifiableRandomAccessList.getClass().getName()
-                    .endsWith("RandomAccessList"));
-
-            synchronizedCollection = Collections
-                    .synchronizedCollection(Collections.emptyList()); // no
-            // equals
-            // impl
-            synchronizedSet = Collections.synchronizedSet(es);
-            synchronizedSortedSet = Collections.synchronizedSortedSet(ts);
-            synchronizedList = Collections.synchronizedList(ll);
-            synchronizedRandomAccessList = Collections
-                    .synchronizedList(newList("seven"));
-
-            assertTrue(synchronizedRandomAccessList.getClass().getName()
-                    .endsWith("RandomAccessList"));
-
-            checkedCollection = Collections.checkedCollection(newList("eight"),
-                    String.class); // no equals impl
-            checkedSet = Collections.checkedSet(es, Size.class);
-            checkedSortedSet = Collections.checkedSortedSet(ts, String.class);
-            checkedList = Collections.checkedList(ll, String.class);
-            checkedRandomAccessList = Collections.checkedList(newList("nine"),
-                    String.class);
-
-            assertTrue(checkedRandomAccessList.getClass().getName()
-                    .endsWith("RandomAccessList"));
-
-            return this;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((checkedList == null) ? 0 : checkedList.hashCode());
-            result = prime
-                    * result
-                    + ((checkedRandomAccessList == null) ? 0
-                            : checkedRandomAccessList.hashCode());
-            result = prime * result
-                    + ((checkedSet == null) ? 0 : checkedSet.hashCode());
-            result = prime
-                    * result
-                    + ((checkedSortedSet == null) ? 0 : checkedSortedSet
-                            .hashCode());
-            result = prime * result
-                    + ((copiesList == null) ? 0 : copiesList.hashCode());
-            result = prime * result
-                    + ((emptyList == null) ? 0 : emptyList.hashCode());
-            result = prime * result
-                    + ((emptySet == null) ? 0 : emptySet.hashCode());
-            result = prime * result
-                    + ((setFromMap == null) ? 0 : setFromMap.hashCode());
-            result = prime * result
-                    + ((singletonList == null) ? 0 : singletonList.hashCode());
-            result = prime * result
-                    + ((singletonSet == null) ? 0 : singletonSet.hashCode());
-            result = prime
-                    * result
-                    + ((synchronizedList == null) ? 0 : synchronizedList
-                            .hashCode());
-            result = prime
-                    * result
-                    + ((synchronizedRandomAccessList == null) ? 0
-                            : synchronizedRandomAccessList.hashCode());
-            result = prime
-                    * result
-                    + ((synchronizedSet == null) ? 0 : synchronizedSet
-                            .hashCode());
-            result = prime
-                    * result
-                    + ((synchronizedSortedSet == null) ? 0
-                            : synchronizedSortedSet.hashCode());
-            result = prime
-                    * result
-                    + ((unmodifiableList == null) ? 0 : unmodifiableList
-                            .hashCode());
-            result = prime
-                    * result
-                    + ((unmodifiableRandomAccessList == null) ? 0
-                            : unmodifiableRandomAccessList.hashCode());
-            result = prime
-                    * result
-                    + ((unmodifiableSet == null) ? 0 : unmodifiableSet
-                            .hashCode());
-            result = prime
-                    * result
-                    + ((unmodifiableSortedSet == null) ? 0
-                            : unmodifiableSortedSet.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            PojoWithObjectCollectionFields other = (PojoWithObjectCollectionFields) obj;
-            if (checkedList == null)
-            {
-                if (other.checkedList != null)
-                    return false;
-            }
-            else if (!checkedList.equals(other.checkedList))
-                return false;
-            if (checkedRandomAccessList == null)
-            {
-                if (other.checkedRandomAccessList != null)
-                    return false;
-            }
-            else if (!checkedRandomAccessList
-                    .equals(other.checkedRandomAccessList))
-                return false;
-            if (checkedSet == null)
-            {
-                if (other.checkedSet != null)
-                    return false;
-            }
-            else if (!checkedSet.equals(other.checkedSet))
-                return false;
-            if (checkedSortedSet == null)
-            {
-                if (other.checkedSortedSet != null)
-                    return false;
-            }
-            else if (!checkedSortedSet.equals(other.checkedSortedSet))
-                return false;
-            if (copiesList == null)
-            {
-                if (other.copiesList != null)
-                    return false;
-            }
-            else if (!copiesList.equals(other.copiesList))
-                return false;
-            if (emptyList == null)
-            {
-                if (other.emptyList != null)
-                    return false;
-            }
-            else if (!emptyList.equals(other.emptyList))
-                return false;
-            if (emptySet == null)
-            {
-                if (other.emptySet != null)
-                    return false;
-            }
-            else if (!emptySet.equals(other.emptySet))
-                return false;
-            if (setFromMap == null)
-            {
-                if (other.setFromMap != null)
-                    return false;
-            }
-            else if (!setFromMap.equals(other.setFromMap))
-                return false;
-            if (singletonList == null)
-            {
-                if (other.singletonList != null)
-                    return false;
-            }
-            else if (!singletonList.equals(other.singletonList))
-                return false;
-            if (singletonSet == null)
-            {
-                if (other.singletonSet != null)
-                    return false;
-            }
-            else if (!singletonSet.equals(other.singletonSet))
-                return false;
-            if (synchronizedList == null)
-            {
-                if (other.synchronizedList != null)
-                    return false;
-            }
-            else if (!synchronizedList.equals(other.synchronizedList))
-                return false;
-            if (synchronizedRandomAccessList == null)
-            {
-                if (other.synchronizedRandomAccessList != null)
-                    return false;
-            }
-            else if (!synchronizedRandomAccessList
-                    .equals(other.synchronizedRandomAccessList))
-                return false;
-            if (synchronizedSet == null)
-            {
-                if (other.synchronizedSet != null)
-                    return false;
-            }
-            else if (!synchronizedSet.equals(other.synchronizedSet))
-                return false;
-            if (synchronizedSortedSet == null)
-            {
-                if (other.synchronizedSortedSet != null)
-                    return false;
-            }
-            else if (!synchronizedSortedSet
-                    .equals(other.synchronizedSortedSet))
-                return false;
-            if (unmodifiableList == null)
-            {
-                if (other.unmodifiableList != null)
-                    return false;
-            }
-            else if (!unmodifiableList.equals(other.unmodifiableList))
-                return false;
-            if (unmodifiableRandomAccessList == null)
-            {
-                if (other.unmodifiableRandomAccessList != null)
-                    return false;
-            }
-            else if (!unmodifiableRandomAccessList
-                    .equals(other.unmodifiableRandomAccessList))
-                return false;
-            if (unmodifiableSet == null)
-            {
-                if (other.unmodifiableSet != null)
-                    return false;
-            }
-            else if (!unmodifiableSet.equals(other.unmodifiableSet))
-                return false;
-            if (unmodifiableSortedSet == null)
-            {
-                if (other.unmodifiableSortedSet != null)
-                    return false;
-            }
-            else if (!unmodifiableSortedSet
-                    .equals(other.unmodifiableSortedSet))
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "PojoWithObjectCollectionFields [emptySet=" + emptySet
-                    + ", emptyList=" + emptyList + ", singletonSet="
-                    + singletonSet + ", singletonList=" + singletonList
-                    + ", setFromMap=" + setFromMap + ", copiesList="
-                    + copiesList + ", unmodifiableCollection="
-                    + unmodifiableCollection + ", unmodifiableSet="
-                    + unmodifiableSet + ", unmodifiableSortedSet="
-                    + unmodifiableSortedSet + ", unmodifiableList="
-                    + unmodifiableList + ", unmodifiableRandomAccessList="
-                    + unmodifiableRandomAccessList
-                    + ", synchronizedCollection=" + synchronizedCollection
-                    + ", synchronizedSet=" + synchronizedSet
-                    + ", synchronizedSortedSet=" + synchronizedSortedSet
-                    + ", synchronizedList=" + synchronizedList
-                    + ", synchronizedRandomAccessList="
-                    + synchronizedRandomAccessList + ", checkedCollection="
-                    + checkedCollection + ", checkedSet=" + checkedSet
-                    + ", checkedSortedSet=" + checkedSortedSet
-                    + ", checkedList=" + checkedList
-                    + ", checkedRandomAccessList=" + checkedRandomAccessList
-                    + "]";
-        }
-
         static void verify(PojoWithObjectCollectionFields p1,
-                PojoWithObjectCollectionFields p2)
-        {
+                           PojoWithObjectCollectionFields p2) {
             assertEquals("EmptySet", p1.emptySet.getClass().getSimpleName());
             assertEquals("EmptySet", p2.emptySet.getClass().getSimpleName());
 
@@ -2981,41 +2563,267 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             assertEquals("CheckedRandomAccessList", p2.checkedRandomAccessList
                     .getClass().getSimpleName());
         }
+
+        PojoWithObjectCollectionFields fill() {
+            LinkedList<String> ll = new LinkedList<>();
+            ll.add("zero");
+            HashMap<String, Boolean> empty = newMap();
+
+            TreeSet<String> ts = new TreeSet<>();
+            ts.add("two");
+
+            EnumSet<Size> es = EnumSet.allOf(Size.class);
+
+            emptySet = Collections.emptySet();
+            emptyList = Collections.emptyList();
+            singletonSet = Collections.singleton("three");
+            singletonList = Collections.singletonList("four");
+            setFromMap = Collections.newSetFromMap(empty);
+            copiesList = Collections.nCopies(1, "five");
+
+            unmodifiableCollection = Collections
+                    .unmodifiableCollection(Collections.emptyList()); // no
+            // equals
+            // impl
+            unmodifiableSet = Collections.unmodifiableSet(Collections
+                    .emptySet());
+            unmodifiableSortedSet = Collections.unmodifiableSortedSet(ts);
+            unmodifiableList = Collections.unmodifiableList(ll);
+            unmodifiableRandomAccessList = Collections
+                    .unmodifiableList(newList("six"));
+
+            assertTrue(unmodifiableRandomAccessList.getClass().getName()
+                    .endsWith("RandomAccessList"));
+
+            synchronizedCollection = Collections
+                    .synchronizedCollection(Collections.emptyList()); // no
+            // equals
+            // impl
+            synchronizedSet = Collections.synchronizedSet(es);
+            synchronizedSortedSet = Collections.synchronizedSortedSet(ts);
+            synchronizedList = Collections.synchronizedList(ll);
+            synchronizedRandomAccessList = Collections
+                    .synchronizedList(newList("seven"));
+
+            assertTrue(synchronizedRandomAccessList.getClass().getName()
+                    .endsWith("RandomAccessList"));
+
+            checkedCollection = Collections.checkedCollection(newList("eight"),
+                    String.class); // no equals impl
+            checkedSet = Collections.checkedSet(es, Size.class);
+            checkedSortedSet = Collections.checkedSortedSet(ts, String.class);
+            checkedList = Collections.checkedList(ll, String.class);
+            checkedRandomAccessList = Collections.checkedList(newList("nine"),
+                    String.class);
+
+            assertTrue(checkedRandomAccessList.getClass().getName()
+                    .endsWith("RandomAccessList"));
+
+            return this;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result
+                    + ((checkedList == null) ? 0 : checkedList.hashCode());
+            result = prime
+                    * result
+                    + ((checkedRandomAccessList == null) ? 0
+                    : checkedRandomAccessList.hashCode());
+            result = prime * result
+                    + ((checkedSet == null) ? 0 : checkedSet.hashCode());
+            result = prime
+                    * result
+                    + ((checkedSortedSet == null) ? 0 : checkedSortedSet
+                    .hashCode());
+            result = prime * result
+                    + ((copiesList == null) ? 0 : copiesList.hashCode());
+            result = prime * result
+                    + ((emptyList == null) ? 0 : emptyList.hashCode());
+            result = prime * result
+                    + ((emptySet == null) ? 0 : emptySet.hashCode());
+            result = prime * result
+                    + ((setFromMap == null) ? 0 : setFromMap.hashCode());
+            result = prime * result
+                    + ((singletonList == null) ? 0 : singletonList.hashCode());
+            result = prime * result
+                    + ((singletonSet == null) ? 0 : singletonSet.hashCode());
+            result = prime
+                    * result
+                    + ((synchronizedList == null) ? 0 : synchronizedList
+                    .hashCode());
+            result = prime
+                    * result
+                    + ((synchronizedRandomAccessList == null) ? 0
+                    : synchronizedRandomAccessList.hashCode());
+            result = prime
+                    * result
+                    + ((synchronizedSet == null) ? 0 : synchronizedSet
+                    .hashCode());
+            result = prime
+                    * result
+                    + ((synchronizedSortedSet == null) ? 0
+                    : synchronizedSortedSet.hashCode());
+            result = prime
+                    * result
+                    + ((unmodifiableList == null) ? 0 : unmodifiableList
+                    .hashCode());
+            result = prime
+                    * result
+                    + ((unmodifiableRandomAccessList == null) ? 0
+                    : unmodifiableRandomAccessList.hashCode());
+            result = prime
+                    * result
+                    + ((unmodifiableSet == null) ? 0 : unmodifiableSet
+                    .hashCode());
+            result = prime
+                    * result
+                    + ((unmodifiableSortedSet == null) ? 0
+                    : unmodifiableSortedSet.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            PojoWithObjectCollectionFields other = (PojoWithObjectCollectionFields) obj;
+            if (checkedList == null) {
+                if (other.checkedList != null)
+                    return false;
+            } else if (!checkedList.equals(other.checkedList))
+                return false;
+            if (checkedRandomAccessList == null) {
+                if (other.checkedRandomAccessList != null)
+                    return false;
+            } else if (!checkedRandomAccessList
+                    .equals(other.checkedRandomAccessList))
+                return false;
+            if (checkedSet == null) {
+                if (other.checkedSet != null)
+                    return false;
+            } else if (!checkedSet.equals(other.checkedSet))
+                return false;
+            if (checkedSortedSet == null) {
+                if (other.checkedSortedSet != null)
+                    return false;
+            } else if (!checkedSortedSet.equals(other.checkedSortedSet))
+                return false;
+            if (copiesList == null) {
+                if (other.copiesList != null)
+                    return false;
+            } else if (!copiesList.equals(other.copiesList))
+                return false;
+            if (emptyList == null) {
+                if (other.emptyList != null)
+                    return false;
+            } else if (!emptyList.equals(other.emptyList))
+                return false;
+            if (emptySet == null) {
+                if (other.emptySet != null)
+                    return false;
+            } else if (!emptySet.equals(other.emptySet))
+                return false;
+            if (setFromMap == null) {
+                if (other.setFromMap != null)
+                    return false;
+            } else if (!setFromMap.equals(other.setFromMap))
+                return false;
+            if (singletonList == null) {
+                if (other.singletonList != null)
+                    return false;
+            } else if (!singletonList.equals(other.singletonList))
+                return false;
+            if (singletonSet == null) {
+                if (other.singletonSet != null)
+                    return false;
+            } else if (!singletonSet.equals(other.singletonSet))
+                return false;
+            if (synchronizedList == null) {
+                if (other.synchronizedList != null)
+                    return false;
+            } else if (!synchronizedList.equals(other.synchronizedList))
+                return false;
+            if (synchronizedRandomAccessList == null) {
+                if (other.synchronizedRandomAccessList != null)
+                    return false;
+            } else if (!synchronizedRandomAccessList
+                    .equals(other.synchronizedRandomAccessList))
+                return false;
+            if (synchronizedSet == null) {
+                if (other.synchronizedSet != null)
+                    return false;
+            } else if (!synchronizedSet.equals(other.synchronizedSet))
+                return false;
+            if (synchronizedSortedSet == null) {
+                if (other.synchronizedSortedSet != null)
+                    return false;
+            } else if (!synchronizedSortedSet
+                    .equals(other.synchronizedSortedSet))
+                return false;
+            if (unmodifiableList == null) {
+                if (other.unmodifiableList != null)
+                    return false;
+            } else if (!unmodifiableList.equals(other.unmodifiableList))
+                return false;
+            if (unmodifiableRandomAccessList == null) {
+                if (other.unmodifiableRandomAccessList != null)
+                    return false;
+            } else if (!unmodifiableRandomAccessList
+                    .equals(other.unmodifiableRandomAccessList))
+                return false;
+            if (unmodifiableSet == null) {
+                if (other.unmodifiableSet != null)
+                    return false;
+            } else if (!unmodifiableSet.equals(other.unmodifiableSet))
+                return false;
+            if (unmodifiableSortedSet == null) {
+                if (other.unmodifiableSortedSet != null)
+                    return false;
+            } else if (!unmodifiableSortedSet
+                    .equals(other.unmodifiableSortedSet))
+                return false;
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "PojoWithObjectCollectionFields [emptySet=" + emptySet
+                    + ", emptyList=" + emptyList + ", singletonSet="
+                    + singletonSet + ", singletonList=" + singletonList
+                    + ", setFromMap=" + setFromMap + ", copiesList="
+                    + copiesList + ", unmodifiableCollection="
+                    + unmodifiableCollection + ", unmodifiableSet="
+                    + unmodifiableSet + ", unmodifiableSortedSet="
+                    + unmodifiableSortedSet + ", unmodifiableList="
+                    + unmodifiableList + ", unmodifiableRandomAccessList="
+                    + unmodifiableRandomAccessList
+                    + ", synchronizedCollection=" + synchronizedCollection
+                    + ", synchronizedSet=" + synchronizedSet
+                    + ", synchronizedSortedSet=" + synchronizedSortedSet
+                    + ", synchronizedList=" + synchronizedList
+                    + ", synchronizedRandomAccessList="
+                    + synchronizedRandomAccessList + ", checkedCollection="
+                    + checkedCollection + ", checkedSet=" + checkedSet
+                    + ", checkedSortedSet=" + checkedSortedSet
+                    + ", checkedList=" + checkedList
+                    + ", checkedRandomAccessList=" + checkedRandomAccessList
+                    + "]";
+        }
     }
 
-    public void testPojoWithObjectCollectionFields() throws Exception
-    {
-        Schema<PojoWithObjectCollectionFields> schema = RuntimeSchema
-                .getSchema(PojoWithObjectCollectionFields.class);
-        Pipe.Schema<PojoWithObjectCollectionFields> pipeSchema = ((RuntimeSchema<PojoWithObjectCollectionFields>) schema)
-                .getPipeSchema();
-
-        PojoWithObjectCollectionFields p = new PojoWithObjectCollectionFields()
-                .fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithObjectCollectionFields pFromByteArray = new PojoWithObjectCollectionFields();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithObjectCollectionFields pFromStream = new PojoWithObjectCollectionFields();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-        PojoWithObjectCollectionFields.verify(pFromByteArray, pFromStream);
-    }
-
-    static class PojoWithObjectCollectionNullKV
-    {
+    static class PojoWithObjectCollectionNullKV {
 
         Object singletonSetNullValue, singletonListNullValue,
                 copiesListNullValue;
 
-        PojoWithObjectCollectionNullKV fill()
-        {
+        PojoWithObjectCollectionNullKV fill() {
             String v = null;
 
             singletonSetNullValue = Collections.singleton(v);
@@ -3026,28 +2834,26 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime
                     * result
                     + ((copiesListNullValue == null) ? 0 : copiesListNullValue
-                            .hashCode());
+                    .hashCode());
             result = prime
                     * result
                     + ((singletonListNullValue == null) ? 0
-                            : singletonListNullValue.hashCode());
+                    : singletonListNullValue.hashCode());
             result = prime
                     * result
                     + ((singletonSetNullValue == null) ? 0
-                            : singletonSetNullValue.hashCode());
+                    : singletonSetNullValue.hashCode());
             return result;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3055,35 +2861,28 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithObjectCollectionNullKV other = (PojoWithObjectCollectionNullKV) obj;
-            if (copiesListNullValue == null)
-            {
+            if (copiesListNullValue == null) {
                 if (other.copiesListNullValue != null)
                     return false;
-            }
-            else if (!copiesListNullValue.equals(other.copiesListNullValue))
+            } else if (!copiesListNullValue.equals(other.copiesListNullValue))
                 return false;
-            if (singletonListNullValue == null)
-            {
+            if (singletonListNullValue == null) {
                 if (other.singletonListNullValue != null)
                     return false;
-            }
-            else if (!singletonListNullValue
+            } else if (!singletonListNullValue
                     .equals(other.singletonListNullValue))
                 return false;
-            if (singletonSetNullValue == null)
-            {
+            if (singletonSetNullValue == null) {
                 if (other.singletonSetNullValue != null)
                     return false;
-            }
-            else if (!singletonSetNullValue
+            } else if (!singletonSetNullValue
                     .equals(other.singletonSetNullValue))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithObjectCollectionNullKV [singletonSetNullValue="
                     + singletonSetNullValue + ", singletonListNullValue="
                     + singletonListNullValue + ", copiesListNullValue="
@@ -3092,184 +2891,14 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public void testPojoWithObjectCollectionNullKV() throws Exception
-    {
-        Schema<PojoWithObjectCollectionNullKV> schema = RuntimeSchema
-                .getSchema(PojoWithObjectCollectionNullKV.class);
-        Pipe.Schema<PojoWithObjectCollectionNullKV> pipeSchema = ((RuntimeSchema<PojoWithObjectCollectionNullKV>) schema)
-                .getPipeSchema();
-
-        PojoWithObjectCollectionNullKV p = new PojoWithObjectCollectionNullKV()
-                .fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithObjectCollectionNullKV pFromByteArray = new PojoWithObjectCollectionNullKV();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithObjectCollectionNullKV pFromStream = new PojoWithObjectCollectionNullKV();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithObjectMapFields
-    {
+    static class PojoWithObjectMapFields {
 
         Object emptyMap, singletonMap, unmodifiableMap, unmodifiableSortedMap,
                 synchronizedMap, synchronizedSortedMap, checkedMap,
                 checkedSortedMap;
 
-        PojoWithObjectMapFields fill()
-        {
-            TreeMap<String, String> tm = new TreeMap<>();
-            tm.put("foo", "bar");
-
-            EnumMap<GuitarPickup, Size> em = new EnumMap<>(
-                    GuitarPickup.class);
-            em.put(GuitarPickup.CONTACT, Size.SMALL);
-
-            emptyMap = Collections.emptyMap();
-            singletonMap = Collections.singletonMap("key", "value");
-
-            unmodifiableMap = Collections.unmodifiableMap(Collections
-                    .emptyMap());
-            unmodifiableSortedMap = Collections.unmodifiableSortedMap(tm);
-
-            synchronizedMap = Collections.synchronizedMap(em);
-            synchronizedSortedMap = Collections.synchronizedSortedMap(tm);
-
-            checkedMap = Collections.checkedMap(em, GuitarPickup.class,
-                    Size.class);
-            checkedSortedMap = Collections.checkedSortedMap(tm, String.class,
-                    String.class);
-
-            return this;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((checkedMap == null) ? 0 : checkedMap.hashCode());
-            result = prime
-                    * result
-                    + ((checkedSortedMap == null) ? 0 : checkedSortedMap
-                            .hashCode());
-            result = prime * result
-                    + ((emptyMap == null) ? 0 : emptyMap.hashCode());
-            result = prime * result
-                    + ((singletonMap == null) ? 0 : singletonMap.hashCode());
-            result = prime
-                    * result
-                    + ((synchronizedMap == null) ? 0 : synchronizedMap
-                            .hashCode());
-            result = prime
-                    * result
-                    + ((synchronizedSortedMap == null) ? 0
-                            : synchronizedSortedMap.hashCode());
-            result = prime
-                    * result
-                    + ((unmodifiableMap == null) ? 0 : unmodifiableMap
-                            .hashCode());
-            result = prime
-                    * result
-                    + ((unmodifiableSortedMap == null) ? 0
-                            : unmodifiableSortedMap.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            PojoWithObjectMapFields other = (PojoWithObjectMapFields) obj;
-            if (checkedMap == null)
-            {
-                if (other.checkedMap != null)
-                    return false;
-            }
-            else if (!checkedMap.equals(other.checkedMap))
-                return false;
-            if (checkedSortedMap == null)
-            {
-                if (other.checkedSortedMap != null)
-                    return false;
-            }
-            else if (!checkedSortedMap.equals(other.checkedSortedMap))
-                return false;
-            if (emptyMap == null)
-            {
-                if (other.emptyMap != null)
-                    return false;
-            }
-            else if (!emptyMap.equals(other.emptyMap))
-                return false;
-            if (singletonMap == null)
-            {
-                if (other.singletonMap != null)
-                    return false;
-            }
-            else if (!singletonMap.equals(other.singletonMap))
-                return false;
-            if (synchronizedMap == null)
-            {
-                if (other.synchronizedMap != null)
-                    return false;
-            }
-            else if (!synchronizedMap.equals(other.synchronizedMap))
-                return false;
-            if (synchronizedSortedMap == null)
-            {
-                if (other.synchronizedSortedMap != null)
-                    return false;
-            }
-            else if (!synchronizedSortedMap
-                    .equals(other.synchronizedSortedMap))
-                return false;
-            if (unmodifiableMap == null)
-            {
-                if (other.unmodifiableMap != null)
-                    return false;
-            }
-            else if (!unmodifiableMap.equals(other.unmodifiableMap))
-                return false;
-            if (unmodifiableSortedMap == null)
-            {
-                if (other.unmodifiableSortedMap != null)
-                    return false;
-            }
-            else if (!unmodifiableSortedMap
-                    .equals(other.unmodifiableSortedMap))
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "PojoWithObjectMapFields [emptyMap=" + emptyMap
-                    + ", singletonMap=" + singletonMap + ", unmodifiableMap="
-                    + unmodifiableMap + ", unmodifiableSortedMap="
-                    + unmodifiableSortedMap + ", synchronizedMap="
-                    + synchronizedMap + ", synchronizedSortedMap="
-                    + synchronizedSortedMap + ", checkedMap=" + checkedMap
-                    + ", checkedSortedMap=" + checkedSortedMap + "]";
-        }
-
         static void verify(PojoWithObjectMapFields p1,
-                PojoWithObjectMapFields p2)
-        {
+                           PojoWithObjectMapFields p2) {
             assertEquals("EmptyMap", p1.emptyMap.getClass().getSimpleName());
             assertEquals("EmptyMap", p2.emptyMap.getClass().getSimpleName());
 
@@ -3306,40 +2935,137 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             assertEquals("CheckedSortedMap", p2.checkedSortedMap.getClass()
                     .getSimpleName());
         }
+
+        PojoWithObjectMapFields fill() {
+            TreeMap<String, String> tm = new TreeMap<>();
+            tm.put("foo", "bar");
+
+            EnumMap<GuitarPickup, Size> em = new EnumMap<>(
+                    GuitarPickup.class);
+            em.put(GuitarPickup.CONTACT, Size.SMALL);
+
+            emptyMap = Collections.emptyMap();
+            singletonMap = Collections.singletonMap("key", "value");
+
+            unmodifiableMap = Collections.unmodifiableMap(Collections
+                    .emptyMap());
+            unmodifiableSortedMap = Collections.unmodifiableSortedMap(tm);
+
+            synchronizedMap = Collections.synchronizedMap(em);
+            synchronizedSortedMap = Collections.synchronizedSortedMap(tm);
+
+            checkedMap = Collections.checkedMap(em, GuitarPickup.class,
+                    Size.class);
+            checkedSortedMap = Collections.checkedSortedMap(tm, String.class,
+                    String.class);
+
+            return this;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result
+                    + ((checkedMap == null) ? 0 : checkedMap.hashCode());
+            result = prime
+                    * result
+                    + ((checkedSortedMap == null) ? 0 : checkedSortedMap
+                    .hashCode());
+            result = prime * result
+                    + ((emptyMap == null) ? 0 : emptyMap.hashCode());
+            result = prime * result
+                    + ((singletonMap == null) ? 0 : singletonMap.hashCode());
+            result = prime
+                    * result
+                    + ((synchronizedMap == null) ? 0 : synchronizedMap
+                    .hashCode());
+            result = prime
+                    * result
+                    + ((synchronizedSortedMap == null) ? 0
+                    : synchronizedSortedMap.hashCode());
+            result = prime
+                    * result
+                    + ((unmodifiableMap == null) ? 0 : unmodifiableMap
+                    .hashCode());
+            result = prime
+                    * result
+                    + ((unmodifiableSortedMap == null) ? 0
+                    : unmodifiableSortedMap.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            PojoWithObjectMapFields other = (PojoWithObjectMapFields) obj;
+            if (checkedMap == null) {
+                if (other.checkedMap != null)
+                    return false;
+            } else if (!checkedMap.equals(other.checkedMap))
+                return false;
+            if (checkedSortedMap == null) {
+                if (other.checkedSortedMap != null)
+                    return false;
+            } else if (!checkedSortedMap.equals(other.checkedSortedMap))
+                return false;
+            if (emptyMap == null) {
+                if (other.emptyMap != null)
+                    return false;
+            } else if (!emptyMap.equals(other.emptyMap))
+                return false;
+            if (singletonMap == null) {
+                if (other.singletonMap != null)
+                    return false;
+            } else if (!singletonMap.equals(other.singletonMap))
+                return false;
+            if (synchronizedMap == null) {
+                if (other.synchronizedMap != null)
+                    return false;
+            } else if (!synchronizedMap.equals(other.synchronizedMap))
+                return false;
+            if (synchronizedSortedMap == null) {
+                if (other.synchronizedSortedMap != null)
+                    return false;
+            } else if (!synchronizedSortedMap
+                    .equals(other.synchronizedSortedMap))
+                return false;
+            if (unmodifiableMap == null) {
+                if (other.unmodifiableMap != null)
+                    return false;
+            } else if (!unmodifiableMap.equals(other.unmodifiableMap))
+                return false;
+            if (unmodifiableSortedMap == null) {
+                if (other.unmodifiableSortedMap != null)
+                    return false;
+            } else if (!unmodifiableSortedMap
+                    .equals(other.unmodifiableSortedMap))
+                return false;
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "PojoWithObjectMapFields [emptyMap=" + emptyMap
+                    + ", singletonMap=" + singletonMap + ", unmodifiableMap="
+                    + unmodifiableMap + ", unmodifiableSortedMap="
+                    + unmodifiableSortedMap + ", synchronizedMap="
+                    + synchronizedMap + ", synchronizedSortedMap="
+                    + synchronizedSortedMap + ", checkedMap=" + checkedMap
+                    + ", checkedSortedMap=" + checkedSortedMap + "]";
+        }
     }
 
-    public void testPojoWithObjectMapFields() throws Exception
-    {
-        Schema<PojoWithObjectMapFields> schema = RuntimeSchema
-                .getSchema(PojoWithObjectMapFields.class);
-        Pipe.Schema<PojoWithObjectMapFields> pipeSchema = ((RuntimeSchema<PojoWithObjectMapFields>) schema)
-                .getPipeSchema();
-
-        PojoWithObjectMapFields p = new PojoWithObjectMapFields().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithObjectMapFields pFromByteArray = new PojoWithObjectMapFields();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithObjectMapFields pFromStream = new PojoWithObjectMapFields();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-
-        PojoWithObjectMapFields.verify(pFromByteArray, pFromStream);
-    }
-
-    static class PojoWithSingletonMapNullKV
-    {
+    static class PojoWithSingletonMapNullKV {
 
         Object nullKey, nullValue, nullBoth;
 
-        PojoWithSingletonMapNullKV fill()
-        {
+        PojoWithSingletonMapNullKV fill() {
             String k1 = null, v1 = "v1";
             nullKey = Collections.singletonMap(k1, v1);
 
@@ -3353,8 +3079,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result
@@ -3367,8 +3092,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3376,33 +3100,26 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithSingletonMapNullKV other = (PojoWithSingletonMapNullKV) obj;
-            if (nullBoth == null)
-            {
+            if (nullBoth == null) {
                 if (other.nullBoth != null)
                     return false;
-            }
-            else if (!nullBoth.equals(other.nullBoth))
+            } else if (!nullBoth.equals(other.nullBoth))
                 return false;
-            if (nullKey == null)
-            {
+            if (nullKey == null) {
                 if (other.nullKey != null)
                     return false;
-            }
-            else if (!nullKey.equals(other.nullKey))
+            } else if (!nullKey.equals(other.nullKey))
                 return false;
-            if (nullValue == null)
-            {
+            if (nullValue == null) {
                 if (other.nullValue != null)
                     return false;
-            }
-            else if (!nullValue.equals(other.nullValue))
+            } else if (!nullValue.equals(other.nullValue))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithSingletonMapNullKV [nullKey=" + nullKey
                     + ", nullValue=" + nullValue + ", nullBoth=" + nullBoth
                     + "]";
@@ -3410,31 +3127,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public void testPojoWithSingletonMapNullKV() throws Exception
-    {
-        Schema<PojoWithSingletonMapNullKV> schema = RuntimeSchema
-                .getSchema(PojoWithSingletonMapNullKV.class);
-        Pipe.Schema<PojoWithSingletonMapNullKV> pipeSchema = ((RuntimeSchema<PojoWithSingletonMapNullKV>) schema)
-                .getPipeSchema();
-
-        PojoWithSingletonMapNullKV p = new PojoWithSingletonMapNullKV().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithSingletonMapNullKV pFromByteArray = new PojoWithSingletonMapNullKV();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithSingletonMapNullKV pFromStream = new PojoWithSingletonMapNullKV();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithThrowable
-    {
+    static class PojoWithThrowable {
         Object o1, o2;
         Throwable t1, t2;
         Exception e1, e2;
@@ -3449,8 +3142,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Map<Throwable, Throwable> m3;
         Object m4, m5, m6;
 
-        PojoWithThrowable fill()
-        {
+        PojoWithThrowable fill() {
             t1 = new Throwable("t1");
             t2 = new Exception("t2", t1);
 
@@ -3485,8 +3177,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             // Throwable does not implement Object.equals()
             if (this == obj)
                 return true;
@@ -3499,8 +3190,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithThrowable [o1=" + o1 + ", o2=" + o2 + ", t1=" + t1
                     + ", t2=" + t2 + ", e1=" + e1 + ", e2=" + e2 + ", re1="
                     + re1 + ", re2=" + re2 + ", l1=" + l1 + ", l2=" + l2
@@ -3511,56 +3201,31 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public void testPojoWithThrowable() throws Exception
-    {
-        Schema<PojoWithThrowable> schema = RuntimeSchema
-                .getSchema(PojoWithThrowable.class);
-        Pipe.Schema<PojoWithThrowable> pipeSchema = ((RuntimeSchema<PojoWithThrowable>) schema).getPipeSchema();
-
-        PojoWithThrowable p = new PojoWithThrowable().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithThrowable pFromByteArray = new PojoWithThrowable();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithThrowable pFromStream = new PojoWithThrowable();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithThrowableArray
-    {
+    static class PojoWithThrowableArray {
         Throwable[] t1, t2;
         Exception[] e1, e2;
         RuntimeException[] re1, re2;
 
         Object[] o1, o2;
 
-        PojoWithThrowableArray fill()
-        {
-            t1 = new Throwable[] { new Throwable("t1") };
-            t2 = new Throwable[] { new Exception("t2", t1[0]) };
+        PojoWithThrowableArray fill() {
+            t1 = new Throwable[]{new Throwable("t1")};
+            t2 = new Throwable[]{new Exception("t2", t1[0])};
 
-            e1 = new Exception[] { new Exception("e1") };
-            e2 = new Exception[] { new RuntimeException("e2", e1[0]) };
+            e1 = new Exception[]{new Exception("e1")};
+            e2 = new Exception[]{new RuntimeException("e2", e1[0])};
 
-            re1 = new RuntimeException[] { new RuntimeException("re1") };
-            re2 = new RuntimeException[] { new RuntimeException("re2", re1[0]) };
+            re1 = new RuntimeException[]{new RuntimeException("re1")};
+            re2 = new RuntimeException[]{new RuntimeException("re2", re1[0])};
 
-            o1 = new Object[] { t2[0] };
-            o2 = new Object[] { e2[0] };
+            o1 = new Object[]{t2[0]};
+            o2 = new Object[]{e2[0]};
 
             return this;
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3569,57 +3234,45 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
                 return false;
 
             PojoWithThrowableArray other = (PojoWithThrowableArray) obj;
-            if (t1 == null)
-            {
+            if (t1 == null) {
                 if (other.t1 != null)
                     return false;
-            }
-            else if (other.t1 == null || t1.length != other.t1.length
+            } else if (other.t1 == null || t1.length != other.t1.length
                     || !t1[0].toString().equals(other.t1[0].toString()))
                 return false;
 
-            if (t2 == null)
-            {
+            if (t2 == null) {
                 if (other.t2 != null)
                     return false;
-            }
-            else if (other.t2 == null || t2.length != other.t2.length
+            } else if (other.t2 == null || t2.length != other.t2.length
                     || !t2[0].toString().equals(other.t2[0].toString()))
                 return false;
 
-            if (e1 == null)
-            {
+            if (e1 == null) {
                 if (other.e1 != null)
                     return false;
-            }
-            else if (other.e1 == null || e1.length != other.e1.length
+            } else if (other.e1 == null || e1.length != other.e1.length
                     || !e1[0].toString().equals(other.e1[0].toString()))
                 return false;
 
-            if (e2 == null)
-            {
+            if (e2 == null) {
                 if (other.e2 != null)
                     return false;
-            }
-            else if (other.e2 == null || e2.length != other.e2.length
+            } else if (other.e2 == null || e2.length != other.e2.length
                     || !e2[0].toString().equals(other.e2[0].toString()))
                 return false;
 
-            if (re1 == null)
-            {
+            if (re1 == null) {
                 if (other.re1 != null)
                     return false;
-            }
-            else if (other.re1 == null || re1.length != other.re1.length
+            } else if (other.re1 == null || re1.length != other.re1.length
                     || !re1[0].toString().equals(other.re1[0].toString()))
                 return false;
 
-            if (re2 == null)
-            {
+            if (re2 == null) {
                 if (other.re2 != null)
                     return false;
-            }
-            else if (other.re2 == null || re2.length != other.re2.length
+            } else if (other.re2 == null || re2.length != other.re2.length
                     || !re2[0].toString().equals(other.re2[0].toString()))
                 return false;
 
@@ -3627,8 +3280,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithThrowableArray [t1=" + Arrays.toString(t1)
                     + ", t2=" + Arrays.toString(t2) + ", e1="
                     + Arrays.toString(e1) + ", e2=" + Arrays.toString(e2)
@@ -3639,31 +3291,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public void testPojoWithThrowableArray() throws Exception
-    {
-        Schema<PojoWithThrowableArray> schema = RuntimeSchema
-                .getSchema(PojoWithThrowableArray.class);
-        Pipe.Schema<PojoWithThrowableArray> pipeSchema = ((RuntimeSchema<PojoWithThrowableArray>) schema)
-                .getPipeSchema();
-
-        PojoWithThrowableArray p = new PojoWithThrowableArray().fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithThrowableArray pFromByteArray = new PojoWithThrowableArray();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithThrowableArray pFromStream = new PojoWithThrowableArray();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithSingletonAsDelegate
-    {
+    static class PojoWithSingletonAsDelegate {
         Singleton s1;
         Object s2;
 
@@ -3677,8 +3305,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Map<Object, Object> m4;
         Object m5, m6, m7, m8;
 
-        PojoWithSingletonAsDelegate fill()
-        {
+        PojoWithSingletonAsDelegate fill() {
             s2 = s1 = Singleton.INSTANCE;
 
             l3 = l1 = newList(Singleton.INSTANCE);
@@ -3708,8 +3335,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((l1 == null) ? 0 : l1.hashCode());
@@ -3730,8 +3356,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3739,110 +3364,81 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithSingletonAsDelegate other = (PojoWithSingletonAsDelegate) obj;
-            if (l1 == null)
-            {
+            if (l1 == null) {
                 if (other.l1 != null)
                     return false;
-            }
-            else if (!l1.equals(other.l1))
+            } else if (!l1.equals(other.l1))
                 return false;
-            if (l2 == null)
-            {
+            if (l2 == null) {
                 if (other.l2 != null)
                     return false;
-            }
-            else if (!l2.equals(other.l2))
+            } else if (!l2.equals(other.l2))
                 return false;
-            if (l3 == null)
-            {
+            if (l3 == null) {
                 if (other.l3 != null)
                     return false;
-            }
-            else if (!l3.equals(other.l3))
+            } else if (!l3.equals(other.l3))
                 return false;
-            if (l4 == null)
-            {
+            if (l4 == null) {
                 if (other.l4 != null)
                     return false;
-            }
-            else if (!l4.equals(other.l4))
+            } else if (!l4.equals(other.l4))
                 return false;
-            if (m1 == null)
-            {
+            if (m1 == null) {
                 if (other.m1 != null)
                     return false;
-            }
-            else if (!m1.equals(other.m1))
+            } else if (!m1.equals(other.m1))
                 return false;
-            if (m2 == null)
-            {
+            if (m2 == null) {
                 if (other.m2 != null)
                     return false;
-            }
-            else if (!m2.equals(other.m2))
+            } else if (!m2.equals(other.m2))
                 return false;
-            if (m3 == null)
-            {
+            if (m3 == null) {
                 if (other.m3 != null)
                     return false;
-            }
-            else if (!m3.equals(other.m3))
+            } else if (!m3.equals(other.m3))
                 return false;
-            if (m4 == null)
-            {
+            if (m4 == null) {
                 if (other.m4 != null)
                     return false;
-            }
-            else if (!m4.equals(other.m4))
+            } else if (!m4.equals(other.m4))
                 return false;
-            if (m5 == null)
-            {
+            if (m5 == null) {
                 if (other.m5 != null)
                     return false;
-            }
-            else if (!m5.equals(other.m5))
+            } else if (!m5.equals(other.m5))
                 return false;
-            if (m6 == null)
-            {
+            if (m6 == null) {
                 if (other.m6 != null)
                     return false;
-            }
-            else if (!m6.equals(other.m6))
+            } else if (!m6.equals(other.m6))
                 return false;
-            if (m7 == null)
-            {
+            if (m7 == null) {
                 if (other.m7 != null)
                     return false;
-            }
-            else if (!m7.equals(other.m7))
+            } else if (!m7.equals(other.m7))
                 return false;
-            if (m8 == null)
-            {
+            if (m8 == null) {
                 if (other.m8 != null)
                     return false;
-            }
-            else if (!m8.equals(other.m8))
+            } else if (!m8.equals(other.m8))
                 return false;
-            if (s1 == null)
-            {
+            if (s1 == null) {
                 if (other.s1 != null)
                     return false;
-            }
-            else if (!s1.equals(other.s1))
+            } else if (!s1.equals(other.s1))
                 return false;
-            if (s2 == null)
-            {
+            if (s2 == null) {
                 if (other.s2 != null)
                     return false;
-            }
-            else if (!s2.equals(other.s2))
+            } else if (!s2.equals(other.s2))
                 return false;
             return true;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PojoWithSingletonAsDelegate [s1=" + s1 + ", s2=" + s2
                     + ", l1=" + l1 + ", l2=" + l2 + ", l3=" + l3 + ", l4=" + l4
                     + ", m1=" + m1 + ", m2=" + m2 + ", m3=" + m3 + ", m4=" + m4
@@ -3852,38 +3448,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
 
     }
 
-    public void testPojoWithSingletonAsDelegate() throws Exception
-    {
-        if (RuntimeEnv.ID_STRATEGY instanceof DefaultIdStrategy)
-        {
-            ((DefaultIdStrategy) RuntimeEnv.ID_STRATEGY)
-                    .registerDelegate(SINGLETON_DELEGATE);
-        }
-
-        Schema<PojoWithSingletonAsDelegate> schema = RuntimeSchema
-                .getSchema(PojoWithSingletonAsDelegate.class);
-        Pipe.Schema<PojoWithSingletonAsDelegate> pipeSchema = ((RuntimeSchema<PojoWithSingletonAsDelegate>) schema)
-                .getPipeSchema();
-
-        PojoWithSingletonAsDelegate p = new PojoWithSingletonAsDelegate()
-                .fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithSingletonAsDelegate pFromByteArray = new PojoWithSingletonAsDelegate();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithSingletonAsDelegate pFromStream = new PojoWithSingletonAsDelegate();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-    }
-
-    static class PojoWithShortArrayAsDelegate
-    {
+    static class PojoWithShortArrayAsDelegate {
         short[] s1;
         Object s2;
 
@@ -3897,9 +3462,8 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         Map<Object, Object> m4;
         Object m5, m6, m7, m8;
 
-        PojoWithShortArrayAsDelegate fill()
-        {
-            short[] s = new short[] { 0x7f7f, 0x7e7e };
+        PojoWithShortArrayAsDelegate fill() {
+            short[] s = new short[]{0x7f7f, 0x7e7e};
 
             s2 = s1 = s;
 
@@ -3930,8 +3494,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + Arrays.hashCode(s1);
@@ -3939,8 +3502,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3948,60 +3510,15 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest
             if (getClass() != obj.getClass())
                 return false;
             PojoWithShortArrayAsDelegate other = (PojoWithShortArrayAsDelegate) obj;
-            if (s1 == null)
-            {
+            if (s1 == null) {
                 if (other.s1 != null)
                     return false;
-            }
-            else if (other.s1 == null || !Arrays.equals(s1, other.s1))
+            } else if (other.s1 == null || !Arrays.equals(s1, other.s1))
                 return false;
 
             return true;
         }
 
-    }
-
-    public void testPojoWithShortArrayAsDelegate() throws Exception
-    {
-        ShortArrayDelegate delegate = null;
-        if (RuntimeEnv.ID_STRATEGY instanceof DefaultIdStrategy)
-        {
-            if (!((DefaultIdStrategy) RuntimeEnv.ID_STRATEGY)
-                    .registerDelegate(delegate = new ShortArrayDelegate()))
-            {
-                // couldn't register
-                delegate = null;
-            }
-        }
-
-        Schema<PojoWithShortArrayAsDelegate> schema = RuntimeSchema
-                .getSchema(PojoWithShortArrayAsDelegate.class);
-        Pipe.Schema<PojoWithShortArrayAsDelegate> pipeSchema = ((RuntimeSchema<PojoWithShortArrayAsDelegate>) schema)
-                .getPipeSchema();
-
-        PojoWithShortArrayAsDelegate p = new PojoWithShortArrayAsDelegate()
-                .fill();
-
-        byte[] data = toByteArray(p, schema);
-
-        PojoWithShortArrayAsDelegate pFromByteArray = new PojoWithShortArrayAsDelegate();
-        mergeFrom(data, 0, data.length, pFromByteArray, schema);
-        assertEquals(p, pFromByteArray);
-
-        PojoWithShortArrayAsDelegate pFromStream = new PojoWithShortArrayAsDelegate();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        mergeFrom(in, pFromStream, schema);
-        assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
-
-        if (delegate != null)
-        {
-            System.err.println("registered short array delegate.");
-            assertTrue(delegate.writes != 0);
-            assertTrue(delegate.reads != 0);
-            assertTrue(delegate.transfers != 0);
-        }
     }
 
 }

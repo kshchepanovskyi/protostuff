@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -23,15 +20,13 @@ import io.protostuff.StringSerializer.STRING;
 
 /**
  * Test case for xml pipes.
- * 
+ *
  * @author David Yu
  */
-public class XmlPipeTest extends AbstractTest
-{
+public class XmlPipeTest extends AbstractTest {
 
     static <T> void protobufRoundTrip(T message, Schema<T> schema,
-            Pipe.Schema<T> pipeSchema) throws Exception
-    {
+                                      Pipe.Schema<T> pipeSchema) throws Exception {
         byte[] protobuf = ProtobufIOUtil.toByteArray(message, schema, buf());
 
         ByteArrayInputStream protobufStream = new ByteArrayInputStream(protobuf);
@@ -63,8 +58,7 @@ public class XmlPipeTest extends AbstractTest
     }
 
     static <T> void protostuffRoundTrip(T message, Schema<T> schema,
-            Pipe.Schema<T> pipeSchema) throws Exception
-    {
+                                        Pipe.Schema<T> pipeSchema) throws Exception {
         byte[] protostuff = ProtostuffIOUtil.toByteArray(message, schema, buf());
 
         ByteArrayInputStream protostuffStream = new ByteArrayInputStream(protostuff);
@@ -95,23 +89,20 @@ public class XmlPipeTest extends AbstractTest
         assertTrue(Arrays.equals(protostuffRoundTrip, protostuff));
     }
 
-    public void testFoo() throws Exception
-    {
+    public void testFoo() throws Exception {
         Foo foo = SerializableObjects.foo;
         protobufRoundTrip(foo, Foo.getSchema(), Foo.getPipeSchema());
         protostuffRoundTrip(foo, Foo.getSchema(), Foo.getPipeSchema());
 
     }
 
-    public void testBar() throws Exception
-    {
+    public void testBar() throws Exception {
         Bar bar = SerializableObjects.bar;
         protobufRoundTrip(bar, Bar.getSchema(), Bar.getPipeSchema());
         protostuffRoundTrip(bar, Bar.getSchema(), Bar.getPipeSchema());
     }
 
-    public void testBaz() throws Exception
-    {
+    public void testBaz() throws Exception {
         Baz baz = SerializableObjects.baz;
         protobufRoundTrip(baz, Baz.getSchema(), Baz.getPipeSchema());
         protostuffRoundTrip(baz, Baz.getSchema(), Baz.getPipeSchema());

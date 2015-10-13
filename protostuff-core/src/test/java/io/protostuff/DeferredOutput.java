@@ -1,65 +1,71 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
-
-import static io.protostuff.StringSerializer.STRING;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import static io.protostuff.StringSerializer.STRING;
+
 /**
  * A protobuf output where the writing of bytes is deferred (buffered chunks).
  * <p>
  * Once the message serialization is done, data can then be streamed to an {@link OutputStream} or a {@link ByteBuffer}.
- * 
+ *
  * @author David Yu
  */
-public final class DeferredOutput implements Output
-{
+public final class DeferredOutput implements Output {
 
     private final ByteArrayNode root = new ByteArrayNode(null);
+    private final boolean encodeNestedMessageAsGroup;
     private ByteArrayNode current = root;
     private int size = 0;
-    private final boolean encodeNestedMessageAsGroup;
 
-    public DeferredOutput()
-    {
+    public DeferredOutput() {
         this(false);
     }
 
-    public DeferredOutput(boolean encodeNestedMessageAsGroup)
-    {
+    public DeferredOutput(boolean encodeNestedMessageAsGroup) {
         this.encodeNestedMessageAsGroup = encodeNestedMessageAsGroup;
+    }
+
+    static byte[] getTagBytes(int tag) {
+        int tagSize = CodedOutput.computeRawVarint32Size(tag);
+        if (tagSize == 1)
+            return new byte[]{(byte) tag};
+
+        byte[] buffer = new byte[tagSize];
+        int offset = 0;
+        for (int i = 0, last = tagSize - 1; i < last; i++, tag >>>= 7)
+            buffer[offset++] = (byte) ((tag & 0x7F) | 0x80);
+
+        buffer[offset++] = (byte) tag;
+        return buffer;
     }
 
     /**
      * Gets the current size of this output.
      */
-    public int getSize()
-    {
+    public int getSize() {
         return size;
     }
 
     /**
      * Resets this output.
      */
-    public DeferredOutput reset()
-    {
+    public DeferredOutput reset() {
         root.next = null;
         current = root;
         size = 0;
@@ -69,8 +75,7 @@ public final class DeferredOutput implements Output
     /**
      * Writes the raw bytes into the {@link OutputStream}.
      */
-    public void streamTo(OutputStream out) throws IOException
-    {
+    public void streamTo(OutputStream out) throws IOException {
         for (ByteArrayNode node = root.next; node != null; node = node.next)
             out.write(node.bytes);
     }
@@ -78,12 +83,10 @@ public final class DeferredOutput implements Output
     /**
      * Returns the data written to this output as a single byte array.
      */
-    public byte[] toByteArray()
-    {
+    public byte[] toByteArray() {
         int start = 0;
         byte[] buffer = new byte[size];
-        for (ByteArrayNode node = root.next; node != null; node = node.next)
-        {
+        for (ByteArrayNode node = root.next; node != null; node = node.next) {
             byte[] bytes = node.bytes;
             System.arraycopy(bytes, 0, buffer, start, bytes.length);
             start += bytes.length;
@@ -92,8 +95,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeInt32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeInt32(int fieldNumber, int value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = value < 0 ? CodedOutput.getTagAndRawVarInt64Bytes(tag, value) :
                 CodedOutput.getTagAndRawVarInt32Bytes(tag, value);
@@ -102,8 +104,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeUInt32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeUInt32(int fieldNumber, int value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt32Bytes(tag, value);
         size += bytes.length;
@@ -111,8 +112,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeSInt32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeSInt32(int fieldNumber, int value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt32Bytes(tag, CodedOutput.encodeZigZag32(value));
         size += bytes.length;
@@ -120,8 +120,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeFixed32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeFixed32(int fieldNumber, int value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_FIXED32);
         byte[] bytes = CodedOutput.getTagAndRawLittleEndian32Bytes(tag, value);
         size += bytes.length;
@@ -129,8 +128,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeSFixed32(int fieldNumber, int value, boolean repeated) throws IOException
-    {
+    public void writeSFixed32(int fieldNumber, int value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_FIXED32);
         byte[] bytes = CodedOutput.getTagAndRawLittleEndian32Bytes(tag, value);
         size += bytes.length;
@@ -138,8 +136,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeInt64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeInt64(int fieldNumber, long value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt64Bytes(tag, value);
         size += bytes.length;
@@ -147,8 +144,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeUInt64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeUInt64(int fieldNumber, long value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt64Bytes(tag, value);
         size += bytes.length;
@@ -156,8 +152,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeSInt64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeSInt64(int fieldNumber, long value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt64Bytes(tag, value);
         size += bytes.length;
@@ -165,8 +160,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeFixed64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeFixed64(int fieldNumber, long value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_FIXED64);
         byte[] bytes = CodedOutput.getTagAndRawLittleEndian64Bytes(tag, value);
         size += bytes.length;
@@ -174,8 +168,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeSFixed64(int fieldNumber, long value, boolean repeated) throws IOException
-    {
+    public void writeSFixed64(int fieldNumber, long value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_FIXED64);
         byte[] bytes = CodedOutput.getTagAndRawLittleEndian64Bytes(tag, value);
         size += bytes.length;
@@ -183,8 +176,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeFloat(int fieldNumber, float value, boolean repeated) throws IOException
-    {
+    public void writeFloat(int fieldNumber, float value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_FIXED32);
         byte[] bytes = CodedOutput.getTagAndRawLittleEndian32Bytes(tag, Float.floatToRawIntBits(value));
         size += bytes.length;
@@ -192,8 +184,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeDouble(int fieldNumber, double value, boolean repeated) throws IOException
-    {
+    public void writeDouble(int fieldNumber, double value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_FIXED64);
         byte[] bytes = CodedOutput.getTagAndRawLittleEndian64Bytes(tag, Double.doubleToRawLongBits(value));
         size += bytes.length;
@@ -201,8 +192,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeBool(int fieldNumber, boolean value, boolean repeated) throws IOException
-    {
+    public void writeBool(int fieldNumber, boolean value, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt32Bytes(tag, value ? 1 : 0);
         size += bytes.length;
@@ -210,8 +200,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeEnum(int fieldNumber, int number, boolean repeated) throws IOException
-    {
+    public void writeEnum(int fieldNumber, int number, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_VARINT);
         byte[] bytes = CodedOutput.getTagAndRawVarInt32Bytes(tag, number);
         size += bytes.length;
@@ -219,8 +208,7 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeString(int fieldNumber, String value, boolean repeated) throws IOException
-    {
+    public void writeString(int fieldNumber, String value, boolean repeated) throws IOException {
         byte[] bytes = STRING.ser(value);
 
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_LENGTH_DELIMITED);
@@ -231,14 +219,12 @@ public final class DeferredOutput implements Output
     }
 
     @Override
-    public void writeBytes(int fieldNumber, ByteString value, boolean repeated) throws IOException
-    {
+    public void writeBytes(int fieldNumber, ByteString value, boolean repeated) throws IOException {
         writeByteArray(fieldNumber, value.getBytes(), repeated);
     }
 
     @Override
-    public void writeByteArray(int fieldNumber, byte[] bytes, boolean repeated) throws IOException
-    {
+    public void writeByteArray(int fieldNumber, byte[] bytes, boolean repeated) throws IOException {
         int tag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_LENGTH_DELIMITED);
         byte[] delimited = CodedOutput.getTagAndRawVarInt32Bytes(tag, bytes.length);
         size += delimited.length + bytes.length;
@@ -248,8 +234,7 @@ public final class DeferredOutput implements Output
 
     @Override
     public void writeByteRange(boolean utf8String, int fieldNumber, byte[] value,
-            int offset, int length, boolean repeated) throws IOException
-    {
+                               int offset, int length, boolean repeated) throws IOException {
         final byte[] bytes = new byte[length];
         System.arraycopy(value, offset, bytes, 0, length);
         writeByteArray(fieldNumber, bytes, repeated);
@@ -257,10 +242,8 @@ public final class DeferredOutput implements Output
 
     @Override
     public <T> void writeObject(int fieldNumber, T value, Schema<T> schema,
-            boolean repeated) throws IOException
-    {
-        if (encodeNestedMessageAsGroup)
-        {
+                                boolean repeated) throws IOException {
+        if (encodeNestedMessageAsGroup) {
             writeObjectEncodedAsGroup(fieldNumber, value, schema, repeated);
             return;
         }
@@ -289,8 +272,7 @@ public final class DeferredOutput implements Output
      * Write the nested message encoded as group.
      */
     <T> void writeObjectEncodedAsGroup(int fieldNumber, T value, Schema<T> schema,
-            boolean repeated) throws IOException
-    {
+                                       boolean repeated) throws IOException {
         int startTag = WireFormat.makeTag(fieldNumber, WireFormat.WIRETYPE_START_GROUP);
         byte[] startBytes = getTagBytes(startTag);
         current = new ByteArrayNode(startBytes, current);
@@ -304,27 +286,11 @@ public final class DeferredOutput implements Output
         size += (startBytes.length + endBytes.length);
     }
 
-    static byte[] getTagBytes(int tag)
-    {
-        int tagSize = CodedOutput.computeRawVarint32Size(tag);
-        if (tagSize == 1)
-            return new byte[] { (byte) tag };
-
-        byte[] buffer = new byte[tagSize];
-        int offset = 0;
-        for (int i = 0, last = tagSize - 1; i < last; i++, tag >>>= 7)
-            buffer[offset++] = (byte) ((tag & 0x7F) | 0x80);
-
-        buffer[offset++] = (byte) tag;
-        return buffer;
-    }
-
     /**
      * Writes a ByteBuffer field.
      */
     @Override
-    public void writeBytes(int fieldNumber, ByteBuffer value, boolean repeated) throws IOException
-    {
+    public void writeBytes(int fieldNumber, ByteBuffer value, boolean repeated) throws IOException {
         writeByteRange(false, fieldNumber, value.array(), value.arrayOffset() + value.position(),
                 value.remaining(), repeated);
     }

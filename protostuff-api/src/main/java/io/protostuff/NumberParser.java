@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -20,27 +17,23 @@ import io.protostuff.StringSerializer.STRING;
 
 /**
  * An IO utility for dealing with raw ascii bytes.
- * 
+ *
  * @author David Yu
  */
-public final class NumberParser
-{
+public final class NumberParser {
 
-    private NumberParser()
-    {
+    private NumberParser() {
     }
 
     /**
      * Parse an ascii int from a raw buffer.
      */
     public static int parseInt(final byte[] buffer, final int start, final int length,
-            final int radix) throws NumberFormatException
-    {
+                               final int radix) throws NumberFormatException {
         if (length == 0)
             throw new NumberFormatException(STRING.deser(buffer, start, length));
 
-        if (buffer[start] == '-')
-        {
+        if (buffer[start] == '-') {
             if (length == 1)
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
 
@@ -51,33 +44,26 @@ public final class NumberParser
     }
 
     static int parseInt(final byte[] buffer, int start, final int length,
-            final int radix, final boolean positive) throws NumberFormatException
-    {
+                        final int radix, final boolean positive) throws NumberFormatException {
         int max = Integer.MIN_VALUE / radix;
         int result = 0;
-        for (int offset = start, limit = start + length; offset < limit;)
-        {
+        for (int offset = start, limit = start + length; offset < limit; ) {
             int digit = Character.digit(buffer[offset++], radix);
-            if (digit == -1)
-            {
+            if (digit == -1) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
-            if (max > result)
-            {
+            if (max > result) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
             int next = result * radix - digit;
-            if (next > result)
-            {
+            if (next > result) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
             result = next;
         }
-        if (positive)
-        {
+        if (positive) {
             result = -result;
-            if (result < 0)
-            {
+            if (result < 0) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
         }
@@ -88,13 +74,11 @@ public final class NumberParser
      * Parse an ascii long from a raw buffer.
      */
     public static long parseLong(final byte[] buffer, final int start, final int length,
-            final int radix) throws NumberFormatException
-    {
+                                 final int radix) throws NumberFormatException {
         if (length == 0)
             throw new NumberFormatException(STRING.deser(buffer, start, length));
 
-        if (buffer[start] == '-')
-        {
+        if (buffer[start] == '-') {
             if (length == 1)
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
 
@@ -105,33 +89,26 @@ public final class NumberParser
     }
 
     static long parseLong(final byte[] buffer, final int start, final int length,
-            final int radix, final boolean positive) throws NumberFormatException
-    {
+                          final int radix, final boolean positive) throws NumberFormatException {
         long max = Long.MIN_VALUE / radix;
         long result = 0;
-        for (int offset = start, limit = start + length; offset < limit;)
-        {
+        for (int offset = start, limit = start + length; offset < limit; ) {
             int digit = Character.digit(buffer[offset++], radix);
-            if (digit == -1)
-            {
+            if (digit == -1) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
-            if (max > result)
-            {
+            if (max > result) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
             long next = result * radix - digit;
-            if (next > result)
-            {
+            if (next > result) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
             result = next;
         }
-        if (positive)
-        {
+        if (positive) {
             result = -result;
-            if (result < 0)
-            {
+            if (result < 0) {
                 throw new NumberFormatException(STRING.deser(buffer, start, length));
             }
         }

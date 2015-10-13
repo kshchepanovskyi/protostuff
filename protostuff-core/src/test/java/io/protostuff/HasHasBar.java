@@ -1,18 +1,15 @@
 /**
- * Copyright (C) 2007-2015 Protostuff
- * http://www.protostuff.io/
+ * Copyright (C) 2007-2015 Protostuff http://www.protostuff.io/
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.protostuff;
 
@@ -27,31 +24,51 @@ import java.io.ObjectOutputStream;
 
 /**
  * Ser/deser test object that wraps an object {@link HasBar} without any schema.
- * 
+ *
  * @author David Yu
  */
-public final class HasHasBar implements Message<HasHasBar>, Schema<HasHasBar>, Externalizable
-{
+public final class HasHasBar implements Message<HasHasBar>, Schema<HasHasBar>, Externalizable {
 
     private String name;
     private HasBar hasBar;
 
-    public HasHasBar()
-    {
+    public HasHasBar() {
 
     }
 
-    public HasHasBar(String name, HasBar hasBar)
-    {
+    public HasHasBar(String name, HasBar hasBar) {
         this.name = name;
         this.hasBar = hasBar;
+    }
+
+    static HasBar readHasBar(Input input) throws IOException {
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(
+                input.readByteArray()));
+        try {
+            return (HasBar) ois.readObject();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            ois.close();
+        }
+    }
+
+    static void writeHasBar(Output output, int fieldNumber, HasBar hasBar, boolean repeated)
+            throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        try {
+            oos.writeObject(hasBar);
+            output.writeByteArray(fieldNumber, baos.toByteArray(), repeated);
+        } finally {
+            oos.close();
+        }
     }
 
     /**
      * @return the name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
@@ -59,16 +76,14 @@ public final class HasHasBar implements Message<HasHasBar>, Schema<HasHasBar>, E
      * @param name
      *            the name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the hasBar
      */
-    public HasBar getHasBar()
-    {
+    public HasBar getHasBar() {
         return hasBar;
     }
 
@@ -76,60 +91,49 @@ public final class HasHasBar implements Message<HasHasBar>, Schema<HasHasBar>, E
      * @param hasBar
      *            the hasBar to set
      */
-    public void setHasBar(HasBar hasBar)
-    {
+    public void setHasBar(HasBar hasBar) {
         this.hasBar = hasBar;
     }
 
     @Override
-    public Schema<HasHasBar> cachedSchema()
-    {
+    public Schema<HasHasBar> cachedSchema() {
         return this;
     }
 
     @Override
-    public String getFieldName(int number)
-    {
+    public String getFieldName(int number) {
         return String.valueOf(number);
     }
 
     @Override
-    public int getFieldNumber(String name)
-    {
+    public int getFieldNumber(String name) {
         return Integer.parseInt(name);
     }
 
     @Override
-    public HasHasBar newMessage()
-    {
+    public HasHasBar newMessage() {
         return new HasHasBar();
     }
 
     @Override
-    public Class<HasHasBar> typeClass()
-    {
+    public Class<HasHasBar> typeClass() {
         return HasHasBar.class;
     }
 
     @Override
-    public String messageName()
-    {
+    public String messageName() {
         return getClass().getSimpleName();
     }
 
     @Override
-    public String messageFullName()
-    {
+    public String messageFullName() {
         return getClass().getName();
     }
 
     @Override
-    public void mergeFrom(Input input, HasHasBar message) throws IOException
-    {
-        for (int number = input.readFieldNumber(this);; number = input.readFieldNumber(this))
-        {
-            switch (number)
-            {
+    public void mergeFrom(Input input, HasHasBar message) throws IOException {
+        for (int number = input.readFieldNumber(this); ; number = input.readFieldNumber(this)) {
+            switch (number) {
                 case 0:
                     return;
                 case 1:
@@ -145,57 +149,20 @@ public final class HasHasBar implements Message<HasHasBar>, Schema<HasHasBar>, E
     }
 
     @Override
-    public void writeTo(Output output, HasHasBar message) throws IOException
-    {
+    public void writeTo(Output output, HasHasBar message) throws IOException {
         if (message.name != null)
             output.writeString(1, message.name, false);
         writeHasBar(output, 2, message.hasBar, false);
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException
-    {
+    public void readExternal(ObjectInput in) throws IOException {
         GraphIOUtil.mergeDelimitedFrom(in, this, this);
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
+    public void writeExternal(ObjectOutput out) throws IOException {
         GraphIOUtil.writeDelimitedTo(out, this, this);
-    }
-
-    static HasBar readHasBar(Input input) throws IOException
-    {
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(
-                input.readByteArray()));
-        try
-        {
-            return (HasBar) ois.readObject();
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-        finally
-        {
-            ois.close();
-        }
-    }
-
-    static void writeHasBar(Output output, int fieldNumber, HasBar hasBar, boolean repeated)
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        try
-        {
-            oos.writeObject(hasBar);
-            output.writeByteArray(fieldNumber, baos.toByteArray(), repeated);
-        }
-        finally
-        {
-            oos.close();
-        }
     }
 
 }
