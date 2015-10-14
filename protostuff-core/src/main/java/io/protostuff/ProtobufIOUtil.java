@@ -201,7 +201,7 @@ public final class ProtobufIOUtil {
 
         final ProtobufOutput output = new ProtobufOutput(buffer);
         schema.writeTo(output, message);
-        return LinkedBuffer.writeTo(out, buffer);
+        return buffer.writeTo(out);
     }
 
     /**
@@ -218,7 +218,7 @@ public final class ProtobufIOUtil {
         schema.writeTo(output, message);
         final int size = output.getSize();
         ProtobufOutput.writeRawVarInt32Bytes(out, size);
-        final int msgSize = LinkedBuffer.writeTo(out, buffer);
+        final int msgSize = buffer.writeTo(out);
 
         assert size == msgSize;
 
@@ -239,7 +239,7 @@ public final class ProtobufIOUtil {
         final int size = output.getSize();
         ProtobufOutput.writeRawVarInt32Bytes(out, size);
 
-        final int msgSize = LinkedBuffer.writeTo(out, buffer);
+        final int msgSize = buffer.writeTo(out);
 
         assert size == msgSize;
 
@@ -262,7 +262,7 @@ public final class ProtobufIOUtil {
             schema.writeTo(output, m);
             final int size = output.getSize();
             ProtobufOutput.writeRawVarInt32Bytes(out, size);
-            final int msgSize = LinkedBuffer.writeTo(out, buffer);
+            final int msgSize = buffer.writeTo(out);
 
             assert size == msgSize;
 
@@ -402,7 +402,7 @@ public final class ProtobufIOUtil {
 
         // flush remaining
         if (buffer.next != null)
-            LinkedBuffer.writeTo(out, buffer.next);
+            buffer.next.writeTo(out);
 
         return size;
     }

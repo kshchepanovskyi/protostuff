@@ -202,7 +202,7 @@ public final class ProtostuffIOUtil {
 
         final ProtostuffOutput output = new ProtostuffOutput(buffer, out);
         schema.writeTo(output, message);
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         return output.size;
     }
 
@@ -219,7 +219,7 @@ public final class ProtostuffIOUtil {
         final ProtostuffOutput output = new ProtostuffOutput(buffer);
         schema.writeTo(output, message);
         ProtobufOutput.writeRawVarInt32Bytes(out, output.size);
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         return output.size;
     }
 
@@ -235,7 +235,7 @@ public final class ProtostuffIOUtil {
         final ProtostuffOutput output = new ProtostuffOutput(buffer);
         schema.writeTo(output, message);
         ProtobufOutput.writeRawVarInt32Bytes(out, output.size);
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         return output.size;
     }
 
@@ -262,7 +262,7 @@ public final class ProtostuffIOUtil {
                     buffer);
         }
 
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
 
         return output.size;
     }
@@ -380,7 +380,7 @@ public final class ProtostuffIOUtil {
 
         // flush remaining
         if (buffer.next != null)
-            LinkedBuffer.writeTo(out, buffer.next);
+            buffer.next.writeTo(out);
 
         return size;
     }

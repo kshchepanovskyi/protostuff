@@ -112,7 +112,7 @@ public final class YamlIOUtil {
 
         schema.writeTo(output, message);
 
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
 
         return output.getSize();
     }
@@ -179,7 +179,7 @@ public final class YamlIOUtil {
             output.reset();
         }
 
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
 
         return output.getSize();
     }

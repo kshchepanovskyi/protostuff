@@ -230,7 +230,7 @@ public class CompareOutputsTest extends AbstractTest {
 
         try {
             schema.writeTo(output, message);
-            LinkedBuffer.writeTo(out, buffer);
+            buffer.writeTo(out);
         } catch (IOException e) {
             throw new RuntimeException("Serializing to a byte array threw an IOException " +
                     "(should never happen).", e);

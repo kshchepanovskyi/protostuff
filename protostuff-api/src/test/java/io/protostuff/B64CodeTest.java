@@ -60,7 +60,7 @@ public class B64CodeTest extends TestCase {
 
         assertTrue(tail == session.head);
 
-        LinkedBuffer.writeTo(out, tail);
+        tail.writeTo(out);
 
         byte[] dataFromStream = out.toByteArray();
         verifyB64(str, prefix, dataFromStream);

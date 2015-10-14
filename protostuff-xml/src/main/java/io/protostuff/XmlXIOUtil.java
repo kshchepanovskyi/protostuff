@@ -120,7 +120,7 @@ public final class XmlXIOUtil {
                 output.sink.writeStrAscii(name, output,
                         output.sink.writeByteArray(XmlXOutput.START_SLASH_TAG, output, output.tail)));
 
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
 
         return output.size;
     }

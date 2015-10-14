@@ -110,7 +110,7 @@ public class YamlSerTest extends AbstractTest {
         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
         LinkedBuffer buffer = new LinkedBuffer(512);
         int total2 = writeListTo(buffer, list, fooCompare.cachedSchema());
-        LinkedBuffer.writeTo(out2, buffer);
+        buffer.writeTo(out2);
 
         byte[] data = out.toByteArray();
         byte[] data2 = out2.toByteArray();
@@ -179,7 +179,7 @@ public class YamlSerTest extends AbstractTest {
         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
         LinkedBuffer buffer = new LinkedBuffer(512);
         int total2 = writeListTo(buffer, list, barCompare.cachedSchema());
-        LinkedBuffer.writeTo(out2, buffer);
+        buffer.writeTo(out2);
 
         byte[] data = out.toByteArray();
         byte[] data2 = out2.toByteArray();
@@ -247,7 +247,7 @@ public class YamlSerTest extends AbstractTest {
         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
         LinkedBuffer buffer = new LinkedBuffer(512);
         int total2 = writeListTo(buffer, list, bazCompare.cachedSchema());
-        LinkedBuffer.writeTo(out2, buffer);
+        buffer.writeTo(out2);
 
         byte[] data = out.toByteArray();
         byte[] data2 = out2.toByteArray();

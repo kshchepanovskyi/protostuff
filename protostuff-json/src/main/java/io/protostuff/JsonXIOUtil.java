@@ -107,7 +107,7 @@ public final class JsonXIOUtil {
 
         output.writeEndObject();
 
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
     }
 
     /**
@@ -185,7 +185,7 @@ public final class JsonXIOUtil {
         }
 
         output.writeEndArray();
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
     }
 
 }

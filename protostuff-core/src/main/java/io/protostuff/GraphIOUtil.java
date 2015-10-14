@@ -262,7 +262,7 @@ public final class GraphIOUtil {
         final ProtostuffOutput output = new ProtostuffOutput(buffer, out);
         final GraphProtostuffOutput graphOutput = new GraphProtostuffOutput(output);
         schema.writeTo(graphOutput, message);
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         return output.size;
     }
 
@@ -280,7 +280,7 @@ public final class GraphIOUtil {
         final GraphProtostuffOutput graphOutput = new GraphProtostuffOutput(output);
         schema.writeTo(graphOutput, message);
         ProtobufOutput.writeRawVarInt32Bytes(out, output.size);
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         return output.size;
     }
 
@@ -297,7 +297,7 @@ public final class GraphIOUtil {
         final GraphProtostuffOutput graphOutput = new GraphProtostuffOutput(output);
         schema.writeTo(graphOutput, message);
         ProtobufOutput.writeRawVarInt32Bytes(out, output.size);
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         return output.size;
     }
 
@@ -388,7 +388,7 @@ public final class GraphIOUtil {
 
         // flush remaining
         if (buffer.next != null)
-            LinkedBuffer.writeTo(out, buffer.next);
+            buffer.next.writeTo(out);
 
         return size;
     }

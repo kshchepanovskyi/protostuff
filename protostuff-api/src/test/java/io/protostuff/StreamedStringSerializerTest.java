@@ -58,7 +58,7 @@ public class StreamedStringSerializerTest extends TestCase {
         LinkedBuffer lb = new LinkedBuffer(BUF_SIZE);
         WriteSession session = new WriteSession(lb, out);
         StreamedStringSerializer.writeUTF8VarDelimited(str, session, lb);
-        LinkedBuffer.writeTo(out, lb);
+        lb.writeTo(out);
 
         byte[] buf = out.toByteArray();
 
@@ -81,7 +81,7 @@ public class StreamedStringSerializerTest extends TestCase {
         LinkedBuffer lb = new LinkedBuffer(BUF_SIZE);
         WriteSession session = new WriteSession(lb, out);
         StreamedStringSerializer.writeUTF8FixedDelimited(str, session, lb);
-        LinkedBuffer.writeTo(out, lb);
+        lb.writeTo(out);
 
         byte[] b1 = bout.toByteArray();
 
@@ -108,7 +108,7 @@ public class StreamedStringSerializerTest extends TestCase {
         WriteSession session = new WriteSession(lb, out);
 
         StreamedStringSerializer.writeAscii(str, session, lb);
-        LinkedBuffer.writeTo(out, lb);
+        lb.writeTo(out);
 
         assertTrue(builtin.length == session.size);
 
@@ -133,7 +133,7 @@ public class StreamedStringSerializerTest extends TestCase {
         WriteSession session = new WriteSession(lb, out);
 
         StreamedStringSerializer.writeUTF8(str, session, lb);
-        LinkedBuffer.writeTo(out, lb);
+        lb.writeTo(out);
 
         assertTrue(builtin.length == session.size);
 
@@ -247,13 +247,13 @@ public class StreamedStringSerializerTest extends TestCase {
             LinkedBuffer lb = new LinkedBuffer(BUF_SIZE);
             WriteSession session = new WriteSession(lb, out);
             StreamedStringSerializer.writeInt(i, session, lb);
-            LinkedBuffer.writeTo(out, lb);
+            lb.writeTo(out);
 
             ByteArrayOutputStream out2 = new ByteArrayOutputStream();
             LinkedBuffer lb2 = new LinkedBuffer(NUM_BUF_SIZE);
             WriteSession session2 = new WriteSession(lb2, out2);
             StreamedStringSerializer.writeInt(i, session2, lb2);
-            LinkedBuffer.writeTo(out2, lb2);
+            lb2.writeTo(out2);
 
             byte[] buffered = out.toByteArray();
             byte[] buffered_needed_to_flush = out2.toByteArray();
@@ -270,13 +270,13 @@ public class StreamedStringSerializerTest extends TestCase {
             LinkedBuffer lb = new LinkedBuffer(BUF_SIZE);
             WriteSession session = new WriteSession(lb, out);
             StreamedStringSerializer.writeLong(i, session, lb);
-            LinkedBuffer.writeTo(out, lb);
+            lb.writeTo(out);
 
             ByteArrayOutputStream out2 = new ByteArrayOutputStream();
             LinkedBuffer lb2 = new LinkedBuffer(NUM_BUF_SIZE);
             WriteSession session2 = new WriteSession(lb2, out2);
             StreamedStringSerializer.writeLong(i, session2, lb2);
-            LinkedBuffer.writeTo(out2, lb2);
+            lb2.writeTo(out2);
 
             byte[] buffered = out.toByteArray();
             byte[] buffered_needed_to_flush = out2.toByteArray();
@@ -293,13 +293,13 @@ public class StreamedStringSerializerTest extends TestCase {
             LinkedBuffer lb = new LinkedBuffer(BUF_SIZE);
             WriteSession session = new WriteSession(lb, out);
             StreamedStringSerializer.writeFloat(i, session, lb);
-            LinkedBuffer.writeTo(out, lb);
+            lb.writeTo(out);
 
             ByteArrayOutputStream out2 = new ByteArrayOutputStream();
             LinkedBuffer lb2 = new LinkedBuffer(NUM_BUF_SIZE);
             WriteSession session2 = new WriteSession(lb2, out2);
             StreamedStringSerializer.writeFloat(i, session2, lb2);
-            LinkedBuffer.writeTo(out2, lb2);
+            lb2.writeTo(out2);
 
             byte[] buffered = out.toByteArray();
             byte[] buffered_needed_to_flush = out2.toByteArray();
@@ -316,13 +316,13 @@ public class StreamedStringSerializerTest extends TestCase {
             LinkedBuffer lb = new LinkedBuffer(BUF_SIZE);
             WriteSession session = new WriteSession(lb, out);
             StreamedStringSerializer.writeDouble(i, session, lb);
-            LinkedBuffer.writeTo(out, lb);
+            lb.writeTo(out);
 
             ByteArrayOutputStream out2 = new ByteArrayOutputStream();
             LinkedBuffer lb2 = new LinkedBuffer(NUM_BUF_SIZE);
             WriteSession session2 = new WriteSession(lb2, out2);
             StreamedStringSerializer.writeDouble(i, session2, lb2);
-            LinkedBuffer.writeTo(out2, lb2);
+            lb2.writeTo(out2);
 
             byte[] buffered = out.toByteArray();
             byte[] buffered_needed_to_flush = out2.toByteArray();
@@ -490,7 +490,7 @@ public class StreamedStringSerializerTest extends TestCase {
         writeToSession(utf8OneByte, utf8TwoBytes, utf8ThreeBytes, session, false);
         assertTrue(session.tail == session.head);
         // flush remaining
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         // clear
         buffer.clear();
 
@@ -519,7 +519,7 @@ public class StreamedStringSerializerTest extends TestCase {
         // temporary buffers will remain
         assertTrue(session.tail.next != null);
         // flush remaining
-        LinkedBuffer.writeTo(out, buffer);
+        buffer.writeTo(out);
         // clear
         buffer.clear();
 

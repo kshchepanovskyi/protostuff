@@ -48,7 +48,7 @@ public abstract class AbstractKvpStreamTest extends NoNestedMessageTest {
         final KvpOutput output = new KvpOutput(buffer, out, schema, numeric);
         try {
             schema.writeTo(output, message);
-            LinkedBuffer.writeTo(out, buffer);
+            buffer.writeTo(out);
         } catch (IOException e) {
             throw new RuntimeException("Serializing to a byte array threw an IOException " +
                     "(should never happen).", e);
