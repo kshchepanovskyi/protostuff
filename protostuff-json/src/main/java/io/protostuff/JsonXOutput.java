@@ -105,14 +105,6 @@ public final class JsonXOutput extends WriteSession implements Output, StatefulO
         this.schema = schema;
     }
 
-    public JsonXOutput(LinkedBuffer head, OutputStream out,
-                       FlushHandler flushHandler, int nextBufferSize,
-                       boolean numeric, Schema<?> schema) {
-        super(head, out, flushHandler, nextBufferSize);
-        this.numeric = numeric;
-        this.schema = schema;
-    }
-
     public JsonXOutput(LinkedBuffer head, OutputStream out, boolean numeric,
                        Schema<?> schema) {
         super(head, out);

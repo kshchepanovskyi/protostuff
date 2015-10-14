@@ -67,13 +67,6 @@ public final class YamlOutput extends WriteSession implements Output, StatefulOu
         this.schema = schema;
     }
 
-    public YamlOutput(LinkedBuffer buffer, OutputStream out,
-                      FlushHandler flushHandler, int nextBufferSize,
-                      Schema<?> schema) {
-        super(buffer, out, flushHandler, nextBufferSize);
-        this.schema = schema;
-    }
-
     public YamlOutput(LinkedBuffer buffer, OutputStream out, Schema<?> schema) {
         super(buffer, out);
         this.schema = schema;

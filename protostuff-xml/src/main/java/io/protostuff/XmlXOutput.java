@@ -38,13 +38,6 @@ public final class XmlXOutput extends WriteSession implements Output, StatefulOu
         this.schema = schema;
     }
 
-    public XmlXOutput(LinkedBuffer head, OutputStream out,
-                      FlushHandler flushHandler, int nextBufferSize,
-                      Schema<?> schema) {
-        super(head, out, flushHandler, nextBufferSize);
-        this.schema = schema;
-    }
-
     public XmlXOutput(LinkedBuffer head, OutputStream out, Schema<?> schema) {
         super(head, out);
         this.schema = schema;

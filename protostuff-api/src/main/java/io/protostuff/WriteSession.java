@@ -37,7 +37,6 @@ public class WriteSession {
      * The sink of this buffer.
      */
     public final OutputStream out;
-    public final FlushHandler flushHandler;
     /**
      * The sink of this write session.
      */
@@ -60,18 +59,15 @@ public class WriteSession {
         this.head = head;
         this.nextBufferSize = nextBufferSize;
         out = null;
-        flushHandler = null;
-
         sink = WriteSink.BUFFERED;
     }
 
-    public WriteSession(LinkedBuffer head, OutputStream out, FlushHandler flushHandler,
+    public WriteSession(LinkedBuffer head, OutputStream out,
                         int nextBufferSize) {
         tail = head;
         this.head = head;
         this.nextBufferSize = nextBufferSize;
         this.out = out;
-        this.flushHandler = flushHandler;
 
         sink = WriteSink.STREAMED;
 
@@ -79,7 +75,7 @@ public class WriteSession {
     }
 
     public WriteSession(LinkedBuffer head, OutputStream out) {
-        this(head, out, null, LinkedBuffer.DEFAULT_BUFFER_SIZE);
+        this(head, out, LinkedBuffer.DEFAULT_BUFFER_SIZE);
     }
 
     /**
@@ -123,18 +119,12 @@ public class WriteSession {
     }
 
     protected int flush(byte[] buf, int offset, int len) throws IOException {
-        if (flushHandler != null)
-            return flushHandler.flush(this, buf, offset, len);
-
         out.write(buf, offset, len);
         return offset;
     }
 
     protected int flush(byte[] buf, int offset, int len,
                         byte[] next, int nextoffset, int nextlen) throws IOException {
-        if (flushHandler != null)
-            return flushHandler.flush(this, buf, offset, len, next, nextoffset, nextlen);
-
         out.write(buf, offset, len);
         out.write(next, nextoffset, nextlen);
         return offset;
@@ -142,24 +132,8 @@ public class WriteSession {
 
     protected int flush(LinkedBuffer lb,
                         byte[] buf, int offset, int len) throws IOException {
-        if (flushHandler != null)
-            return flushHandler.flush(this, lb, buf, offset, len);
-
         out.write(buf, offset, len);
         return lb.start;
-    }
-
-    public interface FlushHandler {
-        int flush(WriteSession session,
-                  byte[] buf, int offset, int len) throws IOException;
-
-        int flush(WriteSession session,
-                  byte[] buf, int offset, int len,
-                  byte[] next, int nextoffset, int nextlen) throws IOException;
-
-        int flush(WriteSession session,
-                  LinkedBuffer lb,
-                  byte[] buf, int offset, int len) throws IOException;
     }
 
 }
