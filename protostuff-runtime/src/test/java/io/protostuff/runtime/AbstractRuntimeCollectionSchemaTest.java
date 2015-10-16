@@ -58,7 +58,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import io.protostuff.AbstractTest;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
@@ -94,9 +93,6 @@ public abstract class AbstractRuntimeCollectionSchemaTest extends AbstractTest {
     protected abstract <T> void mergeFrom(InputStream in, T message,
                                           Schema<T> schema) throws IOException;
 
-    protected abstract <T> void roundTrip(T message, Schema<T> schema,
-                                          Pipe.Schema<T> pipeSchema) throws Exception;
-
     public void testCollectionAndMapSchema() throws Exception {
         if (!RuntimeEnv.COLLECTION_SCHEMA_ON_REPEATED_FIELDS) {
             System.err
@@ -105,7 +101,6 @@ public abstract class AbstractRuntimeCollectionSchemaTest extends AbstractTest {
         }
 
         Schema<PojoFoo> schema = RuntimeSchema.getSchema(PojoFoo.class);
-        Pipe.Schema<PojoFoo> pipeSchema = ((RuntimeSchema<PojoFoo>) schema).getPipeSchema();
 
         PojoFoo p = new PojoFoo().fill();
 
@@ -120,7 +115,6 @@ public abstract class AbstractRuntimeCollectionSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
     }
 
     public enum Gender {

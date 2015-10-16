@@ -20,14 +20,12 @@ import java.util.Map.Entry;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 
 /**
  * A schema for a {@link Map}. The key and value can be null (depending on the particular map impl).
- * <p>
- * The default {@link Map} message created will be an instance of {@link HashMap}.
+ * <p> The default {@link Map} message created will be an instance of {@link HashMap}.
  *
  * @author David Yu
  */
@@ -151,53 +149,6 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>> {
         }
 
     };
-    private final Pipe.Schema<Entry<K, V>> entryPipeSchema =
-            new Pipe.Schema<Entry<K, V>>(entrySchema) {
-
-                @Override
-                protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
-                    for (int number = input.readFieldNumber(entrySchema); ;
-                         number = input.readFieldNumber(entrySchema)) {
-                        switch (number) {
-                            case 0:
-                                return;
-                            case 1:
-                                transferKey(pipe, input, output, 1, false);
-                                break;
-                            case 2:
-                                transferValue(pipe, input, output, 2, false);
-                                break;
-                            default:
-                                throw new ProtostuffException("The map was incorrectly " +
-                                        "serialized.");
-                        }
-                    }
-                }
-
-            };
-    /**
-     * The pipe schema of the {@link Map}.
-     */
-    public final Pipe.Schema<Map<K, V>> pipeSchema =
-            new Pipe.Schema<Map<K, V>>(MapSchema.this) {
-                @Override
-                protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
-                    for (int number = input.readFieldNumber(MapSchema.this); ;
-                         number = input.readFieldNumber(MapSchema.this)) {
-                        switch (number) {
-                            case 0:
-                                return;
-                            case 1:
-                                output.writeObject(number, pipe, entryPipeSchema, true);
-                                break;
-                            default:
-                                throw new ProtostuffException("The map was incorrectly " +
-                                        "serialized.");
-                        }
-                    }
-                }
-
-            };
 
     public MapSchema() {
         this(MessageFactories.HashMap);
@@ -208,9 +159,8 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>> {
     }
 
     /**
-     * Reads the key from the input.
-     * <p>
-     * The extra wrapper arg is internally used as an object placeholder during polymorhic deserialization.
+     * Reads the key from the input. <p> The extra wrapper arg is internally used as an object
+     * placeholder during polymorhic deserialization.
      */
     protected abstract K readKeyFrom(Input input, MapWrapper<K, V> wrapper)
             throws IOException;
@@ -232,18 +182,6 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>> {
      */
     protected abstract void writeValueTo(Output output, int fieldNumber, V value,
                                          boolean repeated) throws IOException;
-
-    /**
-     * Transfers the key from the input to the output.
-     */
-    protected abstract void transferKey(Pipe pipe, Input input, Output output,
-                                        int number, boolean repeated) throws IOException;
-
-    /**
-     * Transfers the value from the input to the output.
-     */
-    protected abstract void transferValue(Pipe pipe, Input input, Output output,
-                                          int number, boolean repeated) throws IOException;
 
     @Override
     public final String getFieldName(int number) {
@@ -464,7 +402,8 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>> {
         }
 
         /**
-         * The key is provided as the last arg of {@link MapSchema#putValueFrom(Input, MapWrapper, Object)}.
+         * The key is provided as the last arg of {@link MapSchema#putValueFrom(Input, MapWrapper,
+         * Object)}.
          */
         @Override
         public K getKey() {
@@ -480,8 +419,8 @@ public abstract class MapSchema<K, V> implements Schema<Map<K, V>> {
         }
 
         /**
-         * Sets the new value and returns the old one. This method is useful for storage when deserializing cyclic
-         * object graphs.
+         * Sets the new value and returns the old one. This method is useful for storage when
+         * deserializing cyclic object graphs.
          */
         @Override
         public V setValue(V value) {

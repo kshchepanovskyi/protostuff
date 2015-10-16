@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.WireFormat.FieldType;
 
@@ -53,18 +52,13 @@ public final class SampleDelegates {
             return Singleton.INSTANCE;
         }
 
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeUInt32(number, input.readUInt32(), repeated);
-        }
     };
 
     private SampleDelegates() {
     }
 
     public static final class ShortArrayDelegate implements Delegate<short[]> {
-        int reads, writes, transfers;
+        int reads, writes;
 
         @Override
         public Class<?> typeClass() {
@@ -104,13 +98,6 @@ public final class SampleDelegates {
             return s;
         }
 
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            transfers++;
-
-            input.transferByteRangeTo(output, false, number, repeated);
-        }
     }
 
     public static final class Singleton {

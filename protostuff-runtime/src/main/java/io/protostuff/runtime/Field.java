@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat;
 
@@ -59,9 +58,4 @@ public abstract class Field<T> {
     protected abstract void mergeFrom(Input input, T message)
             throws IOException;
 
-    /**
-     * Transfer the input field to the output field.
-     */
-    protected abstract void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException;
 }

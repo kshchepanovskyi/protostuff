@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.protostuff.AbstractTest;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
@@ -74,14 +73,9 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
     protected abstract <T> void mergeFrom(InputStream in, T message,
                                           Schema<T> schema) throws IOException;
 
-    protected abstract <T> void roundTrip(T message, Schema<T> schema,
-                                          Pipe.Schema<T> pipeSchema) throws Exception;
-
     public void testInlineKEnumV() throws Exception {
         Schema<HasMapInlineKEnumV> schema = RuntimeSchema
                 .getSchema(HasMapInlineKEnumV.class);
-        Pipe.Schema<HasMapInlineKEnumV> pipeSchema = ((RuntimeSchema<HasMapInlineKEnumV>) schema).getPipeSchema();
-
         HasMapInlineKEnumV p = new HasMapInlineKEnumV().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -95,13 +89,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testInlineKInlineV() throws Exception {
         Schema<HasMapInlineKInlineV> schema = RuntimeSchema
                 .getSchema(HasMapInlineKInlineV.class);
-        Pipe.Schema<HasMapInlineKInlineV> pipeSchema = ((RuntimeSchema<HasMapInlineKInlineV>) schema).getPipeSchema();
 
         HasMapInlineKInlineV p = new HasMapInlineKInlineV().fill();
 
@@ -116,13 +109,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testInlineKPojoV() throws Exception {
         Schema<HasMapInlineKPojoV> schema = RuntimeSchema
                 .getSchema(HasMapInlineKPojoV.class);
-        Pipe.Schema<HasMapInlineKPojoV> pipeSchema = ((RuntimeSchema<HasMapInlineKPojoV>) schema).getPipeSchema();
 
         HasMapInlineKPojoV p = new HasMapInlineKPojoV().fill();
 
@@ -137,14 +129,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testInlineKPolymorphicV() throws Exception {
         Schema<HasMapInlineKPolymorphicV> schema = RuntimeSchema
                 .getSchema(HasMapInlineKPolymorphicV.class);
-        Pipe.Schema<HasMapInlineKPolymorphicV> pipeSchema = ((RuntimeSchema<HasMapInlineKPolymorphicV>) schema)
-                .getPipeSchema();
 
         HasMapInlineKPolymorphicV p = new HasMapInlineKPolymorphicV().fill();
 
@@ -159,13 +149,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testEnumKEnumV() throws Exception {
         Schema<HasMapEnumKEnumV> schema = RuntimeSchema
                 .getSchema(HasMapEnumKEnumV.class);
-        Pipe.Schema<HasMapEnumKEnumV> pipeSchema = ((RuntimeSchema<HasMapEnumKEnumV>) schema).getPipeSchema();
 
         HasMapEnumKEnumV p = new HasMapEnumKEnumV().fill();
 
@@ -180,13 +169,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testEnumKInlineV() throws Exception {
         Schema<HasMapEnumKInlineV> schema = RuntimeSchema
                 .getSchema(HasMapEnumKInlineV.class);
-        Pipe.Schema<HasMapEnumKInlineV> pipeSchema = ((RuntimeSchema<HasMapEnumKInlineV>) schema).getPipeSchema();
 
         HasMapEnumKInlineV p = new HasMapEnumKInlineV().fill();
 
@@ -201,13 +189,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testEnumKPojoV() throws Exception {
         Schema<HasMapEnumKPojoV> schema = RuntimeSchema
                 .getSchema(HasMapEnumKPojoV.class);
-        Pipe.Schema<HasMapEnumKPojoV> pipeSchema = ((RuntimeSchema<HasMapEnumKPojoV>) schema).getPipeSchema();
 
         HasMapEnumKPojoV p = new HasMapEnumKPojoV().fill();
 
@@ -222,14 +209,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testEnumKPolymorphicV() throws Exception {
         Schema<HasMapEnumKPolymorphicV> schema = RuntimeSchema
                 .getSchema(HasMapEnumKPolymorphicV.class);
-        Pipe.Schema<HasMapEnumKPolymorphicV> pipeSchema = ((RuntimeSchema<HasMapEnumKPolymorphicV>) schema)
-                .getPipeSchema();
 
         HasMapEnumKPolymorphicV p = new HasMapEnumKPolymorphicV().fill();
 
@@ -244,7 +229,7 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     // Root entities to test.
@@ -252,8 +237,6 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
     public void testPojoKEnumV() throws Exception {
         Schema<HasMapPojoKEnumV> schema = RuntimeSchema
                 .getSchema(HasMapPojoKEnumV.class);
-        Pipe.Schema<HasMapPojoKEnumV> pipeSchema = ((RuntimeSchema<HasMapPojoKEnumV>) schema).getPipeSchema();
-
         HasMapPojoKEnumV p = new HasMapPojoKEnumV().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -267,14 +250,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoKInlineV() throws Exception {
         Schema<HasMapPojoKInlineV> schema = RuntimeSchema
                 .getSchema(HasMapPojoKInlineV.class);
-        Pipe.Schema<HasMapPojoKInlineV> pipeSchema = ((RuntimeSchema<HasMapPojoKInlineV>) schema).getPipeSchema();
-
         HasMapPojoKInlineV p = new HasMapPojoKInlineV().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -288,13 +269,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoKPojoV() throws Exception {
         Schema<HasMapPojoKPojoV> schema = RuntimeSchema
                 .getSchema(HasMapPojoKPojoV.class);
-        Pipe.Schema<HasMapPojoKPojoV> pipeSchema = ((RuntimeSchema<HasMapPojoKPojoV>) schema).getPipeSchema();
 
         HasMapPojoKPojoV p = new HasMapPojoKPojoV().fill();
 
@@ -309,14 +289,12 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoKPolymorphicV() throws Exception {
         Schema<HasMapPojoKPolymorphicV> schema = RuntimeSchema
                 .getSchema(HasMapPojoKPolymorphicV.class);
-        Pipe.Schema<HasMapPojoKPolymorphicV> pipeSchema = ((RuntimeSchema<HasMapPojoKPolymorphicV>) schema)
-                .getPipeSchema();
 
         HasMapPojoKPolymorphicV p = new HasMapPojoKPolymorphicV().fill();
 
@@ -331,7 +309,7 @@ public abstract class AbstractRuntimeMapTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromByteArray);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public enum Gender {

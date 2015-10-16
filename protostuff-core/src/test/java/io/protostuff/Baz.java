@@ -27,31 +27,7 @@ import java.util.HashMap;
 public final class Baz implements Message<Baz>, Schema<Baz>, Externalizable {
 
     static final Baz DEFAULT_INSTANCE = new Baz();
-    static final Pipe.Schema<Baz> PIPE_SCHEMA = new Pipe.Schema<Baz>(DEFAULT_INSTANCE) {
 
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
-            for (int number = input.readFieldNumber(wrappedSchema); ; number = input.readFieldNumber(wrappedSchema)) {
-                switch (number) {
-                    case 0:
-                        return;
-                    case 1:
-                        output.writeInt32(number, input.readInt32(), false);
-                        break;
-                    case 2:
-                        input.transferByteRangeTo(output, true, number, false);
-                        break;
-                    case 3:
-                        output.writeInt64(number, input.readInt64(), false);
-                        break;
-                    default:
-                        input.handleUnknownField(number, wrappedSchema);
-                }
-            }
-
-        }
-
-    };
     private static final HashMap<String, Integer> __fieldMap = new HashMap<>();
 
     static {
@@ -79,10 +55,6 @@ public final class Baz implements Message<Baz>, Schema<Baz>, Externalizable {
 
     public static Schema<Baz> getSchema() {
         return DEFAULT_INSTANCE;
-    }
-
-    public static Pipe.Schema<Baz> getPipeSchema() {
-        return PIPE_SCHEMA;
     }
 
     /**

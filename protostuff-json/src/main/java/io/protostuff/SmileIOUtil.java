@@ -48,41 +48,8 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Creates a smile pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data, boolean numeric) throws IOException {
-        return newPipe(data, 0, data.length, numeric);
-    }
-
-    /**
-     * Creates a smile pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data, int offset, int length, boolean numeric)
-            throws IOException {
-        final IOContext context = new IOContext(DEFAULT_SMILE_FACTORY._getBufferRecycler(),
-                data, false);
-        final SmileParser parser = newSmileParser(null, data, offset, offset + length, false,
-                context);
-
-        return JsonIOUtil.newPipe(parser, numeric);
-        // return JsonIOUtil.newPipe(DEFAULT_SMILE_FACTORY.createJsonParser(data, offset, length), numeric);
-    }
-
-    /**
-     * Creates a smile pipe from an {@link InputStream}.
-     */
-    public static Pipe newPipe(InputStream in, boolean numeric) throws IOException {
-        final IOContext context = new IOContext(DEFAULT_SMILE_FACTORY._getBufferRecycler(),
-                in, false);
-        final SmileParser parser = newSmileParser(in, context.allocReadIOBuffer(), 0, 0,
-                true, context);
-
-        return JsonIOUtil.newPipe(parser, numeric);
-        // return JsonIOUtil.newPipe(DEFAULT_SMILE_FACTORY.createJsonParser(in), numeric);
-    }
-
-    /**
-     * Creates a {@link SmileParser} from the inputstream with the supplied buf {@code inBuffer} to use.
+     * Creates a {@link SmileParser} from the inputstream with the supplied buf {@code inBuffer} to
+     * use.
      */
     public static SmileParser newSmileParser(InputStream in, byte[] buf,
                                              int offset, int limit) throws IOException {
@@ -92,7 +59,8 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Creates a {@link SmileParser} from the inputstream with the supplied buf {@code inBuffer} to use.
+     * Creates a {@link SmileParser} from the inputstream with the supplied buf {@code inBuffer} to
+     * use.
      */
     static SmileParser newSmileParser(InputStream in, byte[] buf,
                                       int offset, int limit, boolean bufferRecyclable, IOContext context)
@@ -107,7 +75,8 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Creates a {@link SmileGenerator} for the outputstream with the supplied buf {@code outBuffer} to use.
+     * Creates a {@link SmileGenerator} for the outputstream with the supplied buf {@code outBuffer}
+     * to use.
      */
     public static SmileGenerator newSmileGenerator(OutputStream out, byte[] buf) {
         return newSmileGenerator(out, buf, 0, false, new IOContext(
@@ -115,7 +84,8 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Creates a {@link SmileGenerator} for the outputstream with the supplied buf {@code outBuffer} to use.
+     * Creates a {@link SmileGenerator} for the outputstream with the supplied buf {@code outBuffer}
+     * to use.
      */
     static SmileGenerator newSmileGenerator(OutputStream out, byte[] buf, int offset,
                                             boolean bufferRecyclable, IOContext context) {
@@ -174,8 +144,7 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Merges the {@code message} from the {@link InputStream} using the given {@code schema}.
-     * <p>
+     * Merges the {@code message} from the {@link InputStream} using the given {@code schema}. <p>
      * The {@link LinkedBuffer}'s internal byte array will be used when reading the message.
      */
     public static <T> void mergeFrom(InputStream in, T message, Schema<T> schema,
@@ -208,9 +177,9 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Serializes the {@code message} into a byte array using the given {@code schema}.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the message.
+     * Serializes the {@code message} into a byte array using the given {@code schema}. <p> The
+     * {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing
+     * the message.
      */
     public static <T> byte[] toByteArray(T message, Schema<T> schema, boolean numeric,
                                          LinkedBuffer buffer) {
@@ -246,8 +215,8 @@ public final class SmileIOUtil {
 
     /**
      * Serializes the {@code message} into an {@link OutputStream} using the given {@code schema}.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the message.
+     * <p> The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when
+     * writing the message.
      */
     public static <T> void writeTo(OutputStream out, T message, Schema<T> schema,
                                    boolean numeric, LinkedBuffer buffer) throws IOException {
@@ -285,9 +254,9 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Serializes the {@code messages} into the stream using the given schema.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the message.
+     * Serializes the {@code messages} into the stream using the given schema. <p> The {@link
+     * LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the
+     * message.
      */
     public static <T> void writeListTo(OutputStream out, List<T> messages,
                                        Schema<T> schema, boolean numeric, LinkedBuffer buffer) throws IOException {
@@ -324,9 +293,8 @@ public final class SmileIOUtil {
     }
 
     /**
-     * Parses the {@code messages} from the stream using the given {@code schema}.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used when reading the message.
+     * Parses the {@code messages} from the stream using the given {@code schema}. <p> The {@link
+     * LinkedBuffer}'s internal byte array will be used when reading the message.
      */
     public static <T> List<T> parseListFrom(InputStream in, Schema<T> schema,
                                             boolean numeric, LinkedBuffer buffer) throws IOException {

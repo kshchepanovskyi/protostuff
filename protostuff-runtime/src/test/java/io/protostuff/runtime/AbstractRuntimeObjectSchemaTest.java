@@ -37,7 +37,6 @@ import io.protostuff.ByteString;
 import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.runtime.SampleDelegates.ShortArrayDelegate;
 import io.protostuff.runtime.SampleDelegates.Singleton;
@@ -149,12 +148,8 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
     protected abstract <T> void mergeFrom(InputStream in, T message,
                                           Schema<T> schema) throws IOException;
 
-    protected abstract <T> void roundTrip(T message, Schema<T> schema,
-                                          Pipe.Schema<T> pipeSchema) throws Exception;
-
     public void testPojo() throws Exception {
         Schema<Pojo> schema = RuntimeSchema.getSchema(Pojo.class);
-        Pipe.Schema<Pojo> pipeSchema = ((RuntimeSchema<Pojo>) schema).getPipeSchema();
 
         Pojo p = new Pojo().fill();
 
@@ -168,15 +163,11 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testPojoWithArray() throws Exception {
         Schema<PojoWithArray> schema = RuntimeSchema
                 .getSchema(PojoWithArray.class);
-        Pipe.Schema<PojoWithArray> pipeSchema = ((RuntimeSchema<PojoWithArray>) schema).getPipeSchema();
-
         PojoWithArray p = new PojoWithArray().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -189,15 +180,11 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testPojoWithArray2D() throws Exception {
         Schema<PojoWithArray2D> schema = RuntimeSchema
                 .getSchema(PojoWithArray2D.class);
-        Pipe.Schema<PojoWithArray2D> pipeSchema = ((RuntimeSchema<PojoWithArray2D>) schema).getPipeSchema();
-
         PojoWithArray2D p = new PojoWithArray2D().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -210,15 +197,11 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testPojoWithCollection() throws Exception {
         Schema<PojoWithCollection> schema = RuntimeSchema
                 .getSchema(PojoWithCollection.class);
-        Pipe.Schema<PojoWithCollection> pipeSchema = ((RuntimeSchema<PojoWithCollection>) schema).getPipeSchema();
-
         PojoWithCollection p = new PojoWithCollection().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -231,14 +214,10 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testPojoWithMap() throws Exception {
         Schema<PojoWithMap> schema = RuntimeSchema.getSchema(PojoWithMap.class);
-        Pipe.Schema<PojoWithMap> pipeSchema = ((RuntimeSchema<PojoWithMap>) schema).getPipeSchema();
-
         PojoWithMap p = new PojoWithMap().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -252,13 +231,11 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testBat() throws Exception {
         Schema<WrapsBat> schema = RuntimeSchema.getSchema(WrapsBat.class);
-        Pipe.Schema<WrapsBat> pipeSchema = ((RuntimeSchema<WrapsBat>) schema).getPipeSchema();
-
         WrapsBat p = new WrapsBat().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -272,15 +249,13 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithCustomArrayListAndHashMapAndHashMap()
             throws Exception {
         Schema<PojoWithCustomArrayListAndHashMap> schema = RuntimeSchema
                 .getSchema(PojoWithCustomArrayListAndHashMap.class);
-        Pipe.Schema<PojoWithCustomArrayListAndHashMap> pipeSchema = ((RuntimeSchema<PojoWithCustomArrayListAndHashMap>) schema)
-                .getPipeSchema();
 
         PojoWithCustomArrayListAndHashMap p = new PojoWithCustomArrayListAndHashMap()
                 .fill();
@@ -296,14 +271,12 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithClassFields() throws Exception {
         Schema<PojoWithClassFields> schema = RuntimeSchema
                 .getSchema(PojoWithClassFields.class);
-        Pipe.Schema<PojoWithClassFields> pipeSchema = ((RuntimeSchema<PojoWithClassFields>) schema).getPipeSchema();
-
         PojoWithClassFields p = new PojoWithClassFields().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -317,14 +290,12 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithObjectCollectionFields() throws Exception {
         Schema<PojoWithObjectCollectionFields> schema = RuntimeSchema
                 .getSchema(PojoWithObjectCollectionFields.class);
-        Pipe.Schema<PojoWithObjectCollectionFields> pipeSchema = ((RuntimeSchema<PojoWithObjectCollectionFields>) schema)
-                .getPipeSchema();
 
         PojoWithObjectCollectionFields p = new PojoWithObjectCollectionFields()
                 .fill();
@@ -340,15 +311,13 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
         PojoWithObjectCollectionFields.verify(pFromByteArray, pFromStream);
     }
 
     public void testPojoWithObjectCollectionNullKV() throws Exception {
         Schema<PojoWithObjectCollectionNullKV> schema = RuntimeSchema
                 .getSchema(PojoWithObjectCollectionNullKV.class);
-        Pipe.Schema<PojoWithObjectCollectionNullKV> pipeSchema = ((RuntimeSchema<PojoWithObjectCollectionNullKV>) schema)
-                .getPipeSchema();
 
         PojoWithObjectCollectionNullKV p = new PojoWithObjectCollectionNullKV()
                 .fill();
@@ -364,14 +333,12 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithObjectMapFields() throws Exception {
         Schema<PojoWithObjectMapFields> schema = RuntimeSchema
                 .getSchema(PojoWithObjectMapFields.class);
-        Pipe.Schema<PojoWithObjectMapFields> pipeSchema = ((RuntimeSchema<PojoWithObjectMapFields>) schema)
-                .getPipeSchema();
 
         PojoWithObjectMapFields p = new PojoWithObjectMapFields().fill();
 
@@ -386,7 +353,6 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
 
         PojoWithObjectMapFields.verify(pFromByteArray, pFromStream);
     }
@@ -394,8 +360,6 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
     public void testPojoWithSingletonMapNullKV() throws Exception {
         Schema<PojoWithSingletonMapNullKV> schema = RuntimeSchema
                 .getSchema(PojoWithSingletonMapNullKV.class);
-        Pipe.Schema<PojoWithSingletonMapNullKV> pipeSchema = ((RuntimeSchema<PojoWithSingletonMapNullKV>) schema)
-                .getPipeSchema();
 
         PojoWithSingletonMapNullKV p = new PojoWithSingletonMapNullKV().fill();
 
@@ -410,14 +374,12 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithThrowable() throws Exception {
         Schema<PojoWithThrowable> schema = RuntimeSchema
                 .getSchema(PojoWithThrowable.class);
-        Pipe.Schema<PojoWithThrowable> pipeSchema = ((RuntimeSchema<PojoWithThrowable>) schema).getPipeSchema();
-
         PojoWithThrowable p = new PojoWithThrowable().fill();
 
         byte[] data = toByteArray(p, schema);
@@ -431,14 +393,12 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithThrowableArray() throws Exception {
         Schema<PojoWithThrowableArray> schema = RuntimeSchema
                 .getSchema(PojoWithThrowableArray.class);
-        Pipe.Schema<PojoWithThrowableArray> pipeSchema = ((RuntimeSchema<PojoWithThrowableArray>) schema)
-                .getPipeSchema();
 
         PojoWithThrowableArray p = new PojoWithThrowableArray().fill();
 
@@ -453,7 +413,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithSingletonAsDelegate() throws Exception {
@@ -464,8 +424,6 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
 
         Schema<PojoWithSingletonAsDelegate> schema = RuntimeSchema
                 .getSchema(PojoWithSingletonAsDelegate.class);
-        Pipe.Schema<PojoWithSingletonAsDelegate> pipeSchema = ((RuntimeSchema<PojoWithSingletonAsDelegate>) schema)
-                .getPipeSchema();
 
         PojoWithSingletonAsDelegate p = new PojoWithSingletonAsDelegate()
                 .fill();
@@ -481,7 +439,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
+
     }
 
     public void testPojoWithShortArrayAsDelegate() throws Exception {
@@ -496,8 +454,6 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
 
         Schema<PojoWithShortArrayAsDelegate> schema = RuntimeSchema
                 .getSchema(PojoWithShortArrayAsDelegate.class);
-        Pipe.Schema<PojoWithShortArrayAsDelegate> pipeSchema = ((RuntimeSchema<PojoWithShortArrayAsDelegate>) schema)
-                .getPipeSchema();
 
         PojoWithShortArrayAsDelegate p = new PojoWithShortArrayAsDelegate()
                 .fill();
@@ -513,13 +469,11 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
 
         if (delegate != null) {
             System.err.println("registered short array delegate.");
             assertTrue(delegate.writes != 0);
             assertTrue(delegate.reads != 0);
-            assertTrue(delegate.transfers != 0);
         }
     }
 
@@ -1840,25 +1794,7 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
 
         };
 
-        static final Pipe.Schema<Bat> PIPE_SCHEMA = new Pipe.Schema<Bat>(SCHEMA) {
-
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                for (int number = input.readFieldNumber(wrappedSchema); ; number = input
-                        .readFieldNumber(wrappedSchema)) {
-                    switch (number) {
-                        case 0:
-                            return;
-                        case 1:
-                            output.writeUInt32(number, input.readUInt32(), false);
-                            break;
-                        default:
-                            input.handleUnknownField(number, this);
-                    }
-                }
-            }
-        };
+        ;
 
         private int id;
 
@@ -1872,10 +1808,6 @@ public abstract class AbstractRuntimeObjectSchemaTest extends AbstractTest {
 
         public static Schema<Bat> getSchema() {
             return SCHEMA;
-        }
-
-        public static Pipe.Schema<Bat> getPipeSchema() {
-            return PIPE_SCHEMA;
         }
 
         @Override

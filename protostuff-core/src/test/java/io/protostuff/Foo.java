@@ -29,47 +29,7 @@ import java.util.List;
 public final class Foo implements Message<Foo>, Schema<Foo>, Externalizable {
 
     static final Foo DEFAULT_INSTANCE = new Foo();
-    static final Pipe.Schema<Foo> PIPE_SCHEMA = new Pipe.Schema<Foo>(DEFAULT_INSTANCE) {
 
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
-            for (int number = input.readFieldNumber(wrappedSchema); ; number = input.readFieldNumber(wrappedSchema)) {
-                switch (number) {
-                    case 0:
-                        return;
-                    case 1:
-                        output.writeInt32(number, input.readInt32(), true);
-                        break;
-                    case 2:
-                        input.transferByteRangeTo(output, true, number, true);
-                        break;
-                    case 3:
-                        output.writeObject(number, pipe, Bar.getPipeSchema(), true);
-                        break;
-                    case 4:
-                        output.writeEnum(number, input.readEnum(), true);
-                        break;
-                    case 5:
-                        input.transferByteRangeTo(output, false, number, true);
-                        break;
-                    case 6:
-                        output.writeBool(number, input.readBool(), true);
-                        break;
-                    case 7:
-                        output.writeFloat(number, input.readFloat(), true);
-                        break;
-                    case 8:
-                        output.writeDouble(number, input.readDouble(), true);
-                        break;
-                    case 9:
-                        output.writeInt64(number, input.readInt64(), true);
-                        break;
-                    default:
-                        input.handleUnknownField(number, wrappedSchema);
-                }
-            }
-        }
-    };
     private static final HashMap<String, Integer> __fieldMap = new HashMap<>();
 
     static {
@@ -120,10 +80,6 @@ public final class Foo implements Message<Foo>, Schema<Foo>, Externalizable {
 
     public static Foo getSchema() {
         return DEFAULT_INSTANCE;
-    }
-
-    public static Pipe.Schema<Foo> getPipeSchema() {
-        return PIPE_SCHEMA;
     }
 
     /**

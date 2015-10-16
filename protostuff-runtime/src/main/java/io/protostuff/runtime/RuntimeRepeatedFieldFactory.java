@@ -22,7 +22,6 @@ import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Morph;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
@@ -115,12 +114,6 @@ final class RuntimeRepeatedFieldFactory {
         }
 
         @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public Collection<?> readFrom(Input input) throws IOException {
             throw new UnsupportedOperationException();
         }
@@ -197,12 +190,6 @@ final class RuntimeRepeatedFieldFactory {
                     }
                 }
             }
-
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                inline.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -250,12 +237,6 @@ final class RuntimeRepeatedFieldFactory {
                     for (Enum<?> en : collection)
                         eio.writeTo(output, number, true, en);
                 }
-            }
-
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
         };
     }
@@ -310,12 +291,6 @@ final class RuntimeRepeatedFieldFactory {
                     }
                 }
             }
-
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, getPipeSchema(), repeated);
-            }
         };
     }
 
@@ -368,12 +343,6 @@ final class RuntimeRepeatedFieldFactory {
                             output.writeObject(number, o, schema, true);
                     }
                 }
-            }
-
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
             }
 
             @Override
@@ -454,13 +423,6 @@ final class RuntimeRepeatedFieldFactory {
                             output.writeObject(number, o, schema, true);
                     }
                 }
-            }
-
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.getPipeSchema(),
-                        repeated);
             }
 
             @Override

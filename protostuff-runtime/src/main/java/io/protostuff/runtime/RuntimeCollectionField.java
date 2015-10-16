@@ -18,7 +18,6 @@ import java.util.Collection;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
 import io.protostuff.runtime.CollectionSchema.MessageFactory;
@@ -31,8 +30,8 @@ import io.protostuff.runtime.CollectionSchema.MessageFactory;
 abstract class RuntimeCollectionField<T, V> extends Field<T> {
 
     /**
-     * Since we cannot inherit multiple classes, we create this Collection schema simply to delegate to the wrapping
-     * class' abstract methods.
+     * Since we cannot inherit multiple classes, we create this Collection schema simply to delegate
+     * to the wrapping class' abstract methods.
      */
     protected final CollectionSchema<V> schema;
 
@@ -53,12 +52,6 @@ abstract class RuntimeCollectionField<T, V> extends Field<T> {
                         value, repeated);
             }
 
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                RuntimeCollectionField.this.transferValue(pipe, input, output,
-                        number, repeated);
-            }
         };
     }
 
@@ -67,8 +60,5 @@ abstract class RuntimeCollectionField<T, V> extends Field<T> {
 
     protected abstract void writeValueTo(Output output, int fieldNumber,
                                          V value, boolean repeated) throws IOException;
-
-    protected abstract void transferValue(Pipe pipe, Input input,
-                                          Output output, int number, boolean repeated) throws IOException;
 
 }

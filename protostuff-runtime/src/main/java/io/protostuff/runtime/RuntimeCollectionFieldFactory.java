@@ -23,7 +23,6 @@ import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Morph;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
@@ -81,8 +80,7 @@ final class RuntimeCollectionFieldFactory {
             if (genericType == null) {
                 // the value is not a simple parameterized type.
                 return createCollectionObjectV(number, name, f, messageFactory,
-                        strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                        strategy.OBJECT_ELEMENT_SCHEMA, strategy);
             }
 
             final Delegate<Object> inline = getDelegateOrInline(genericType,
@@ -104,7 +102,7 @@ final class RuntimeCollectionFieldFactory {
                             strategy);
             if (ps != null) {
                 return createCollectionObjectV(number, name, f, messageFactory,
-                        ps, ps.getPipeSchema(), strategy);
+                        ps, strategy);
             }
 
             if (pojo(genericType, f.getAnnotation(Morph.class), strategy))
@@ -113,18 +111,11 @@ final class RuntimeCollectionFieldFactory {
 
             if (genericType.isInterface()) {
                 return createCollectionObjectV(number, name, f, messageFactory,
-                        strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                        strategy.OBJECT_ELEMENT_SCHEMA, strategy);
             }
 
             return createCollectionPolymorphicV(number, name, f,
                     messageFactory, genericType, strategy);
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -214,12 +205,6 @@ final class RuntimeCollectionFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected void addValueFrom(Input input,
                                         Collection<Object> collection) throws IOException {
                 collection.add(inline.readFrom(input));
@@ -231,11 +216,6 @@ final class RuntimeCollectionFieldFactory {
                 inline.writeTo(output, fieldNumber, value, repeated);
             }
 
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                inline.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -275,12 +255,6 @@ final class RuntimeCollectionFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected void addValueFrom(Input input,
                                         Collection<Enum<?>> collection) throws IOException {
                 collection.add(eio.readFrom(input));
@@ -292,11 +266,6 @@ final class RuntimeCollectionFieldFactory {
                 eio.writeTo(output, fieldNumber, repeated, value);
             }
 
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -338,12 +307,6 @@ final class RuntimeCollectionFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected void addValueFrom(Input input,
                                         Collection<Object> collection) throws IOException {
                 collection.add(input.mergeObject(null, schemaV.getSchema()));
@@ -356,12 +319,6 @@ final class RuntimeCollectionFieldFactory {
                         repeated);
             }
 
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaV.getPipeSchema(),
-                        repeated);
-            }
         };
     }
 
@@ -401,12 +358,6 @@ final class RuntimeCollectionFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected void addValueFrom(Input input,
                                         Collection<Object> collection) throws IOException {
                 final Object value = input.mergeObject(collection,
@@ -425,20 +376,13 @@ final class RuntimeCollectionFieldFactory {
                         strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA, repeated);
             }
 
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA.pipeSchema,
-                        repeated);
-            }
         };
     }
 
     private static <T> Field<T> createCollectionObjectV(int number,
                                                         String name, final java.lang.reflect.Field f,
                                                         MessageFactory messageFactory, final Schema<Object> valueSchema,
-                                                        final Pipe.Schema<Object> valuePipeSchema, final IdStrategy strategy) {
+                                                        final IdStrategy strategy) {
         return new RuntimeCollectionField<T, Object>(FieldType.MESSAGE, number,
                 name, f.getAnnotation(Tag.class), messageFactory) {
             {
@@ -471,12 +415,6 @@ final class RuntimeCollectionFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected void addValueFrom(Input input,
                                         Collection<Object> collection) throws IOException {
                 final Object value = input.mergeObject(collection, valueSchema);
@@ -493,11 +431,6 @@ final class RuntimeCollectionFieldFactory {
                 output.writeObject(fieldNumber, value, valueSchema, repeated);
             }
 
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, valuePipeSchema, repeated);
-            }
         };
     }
 

@@ -23,7 +23,6 @@ import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Morph;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
@@ -96,17 +95,7 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeUInt32(number, input.readUInt32(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeUInt32(number, input.readUInt32(), repeated);
         }
 
         @Override
@@ -173,19 +162,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                @Override
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeUInt32(number, input.readUInt32(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeUInt32(number, input.readUInt32(), repeated);
         }
 
         @Override
@@ -250,18 +227,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeUInt32(number, input.readUInt32(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeUInt32(number, input.readUInt32(), repeated);
         }
 
         @Override
@@ -325,17 +291,7 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeInt32(number, input.readInt32(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeInt32(number, input.readInt32(), repeated);
         }
 
         @Override
@@ -399,17 +355,7 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeInt64(number, input.readInt64(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeInt64(number, input.readInt64(), repeated);
         }
 
         @Override
@@ -473,18 +419,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeFloat(number, input.readFloat(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeFloat(number, input.readFloat(), repeated);
         }
 
         @Override
@@ -549,17 +484,7 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeDouble(number, input.readDouble(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeDouble(number, input.readDouble(), repeated);
         }
 
         @Override
@@ -625,17 +550,7 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeBool(number, input.readBool(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeBool(number, input.readBool(), repeated);
         }
 
         @Override
@@ -689,18 +604,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    input.transferByteRangeTo(output, true, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            input.transferByteRangeTo(output, true, number, repeated);
         }
 
         @Override
@@ -756,19 +660,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                @Override
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    input.transferByteRangeTo(output, false, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            input.transferByteRangeTo(output, false, number, repeated);
         }
 
         @Override
@@ -823,17 +715,7 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    input.transferByteRangeTo(output, false, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            input.transferByteRangeTo(output, false, number, repeated);
         }
 
         @Override
@@ -892,17 +774,7 @@ public final class RuntimeReflectionFieldFactory {
                         eio.writeTo(output, number, repeated, existing);
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    EnumIO.transfer(pipe, input, output, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -956,18 +828,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    input.transferByteRangeTo(output, true, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            input.transferByteRangeTo(output, true, number, repeated);
         }
 
         @Override
@@ -1024,18 +885,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    input.transferByteRangeTo(output, false, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            input.transferByteRangeTo(output, false, number, repeated);
         }
 
         @Override
@@ -1089,18 +939,7 @@ public final class RuntimeReflectionFieldFactory {
                         throw new RuntimeException(e);
                     }
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeFixed64(number, input.readFixed64(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            output.writeFixed64(number, input.readFixed64(), repeated);
         }
 
         @Override
@@ -1165,18 +1004,7 @@ public final class RuntimeReflectionFieldFactory {
                         delegate.writeTo(output, number, value, false);
                 }
 
-                @Override
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    delegate.transfer(pipe, input, output, number, repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -1236,18 +1064,7 @@ public final class RuntimeReflectionFieldFactory {
                     if (existing != null)
                         output.writeObject(number, existing, getSchema(), false);
                 }
-
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeObject(number, pipe, getPipeSchema(), repeated);
-                }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -1314,11 +1131,6 @@ public final class RuntimeReflectionFieldFactory {
                         output.writeObject(number, existing, schema, false);
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeObject(number, pipe, schema.pipeSchema, false);
-                }
-
                 public void doMergeFrom(Input input, Schema<Object> schema,
                                         Object message) throws IOException {
                     try {
@@ -1341,12 +1153,6 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -1415,12 +1221,6 @@ public final class RuntimeReflectionFieldFactory {
                         output.writeObject(number, existing, schema, false);
                 }
 
-                public void transfer(Pipe pipe, Input input, Output output,
-                                     boolean repeated) throws IOException {
-                    output.writeObject(number, pipe, schema.getPipeSchema(),
-                            false);
-                }
-
                 public void setValue(Object value, Object message) {
                     try {
                         f.set(message, value);
@@ -1429,12 +1229,6 @@ public final class RuntimeReflectionFieldFactory {
                     }
                 }
             };
-        }
-
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
         }
 
         @Override

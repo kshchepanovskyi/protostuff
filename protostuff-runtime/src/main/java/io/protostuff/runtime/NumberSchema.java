@@ -18,7 +18,6 @@ import java.io.IOException;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 import io.protostuff.StatefulOutput;
@@ -56,15 +55,6 @@ import static io.protostuff.runtime.RuntimeFieldFactory.STR_SHORT;
  * @author David Yu
  */
 public abstract class NumberSchema extends PolymorphicSchema {
-
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
 
     public NumberSchema(IdStrategy strategy) {
         super(strategy);
@@ -208,59 +198,6 @@ public abstract class NumberSchema extends PolymorphicSchema {
             throw new ProtostuffException("Corrupt input.");
 
         return value;
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy) throws IOException {
-        final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        if (number == ID_POJO) {
-            // AtomicInteger/AtomicLong
-            final Pipe.Schema<Object> derivedPipeSchema = strategy
-                    .transferPojoId(input, output, number).getPipeSchema();
-
-            if (output instanceof StatefulOutput) {
-                // update using the derived schema.
-                ((StatefulOutput) output).updateLast(derivedPipeSchema,
-                        pipeSchema);
-            }
-
-            Pipe.transferDirect(derivedPipeSchema, pipe, input, output);
-            return;
-        }
-
-        switch (number) {
-            case ID_BYTE:
-                BYTE.transfer(pipe, input, output, number, false);
-                break;
-            case ID_SHORT:
-                SHORT.transfer(pipe, input, output, number, false);
-                break;
-            case ID_INT32:
-                INT32.transfer(pipe, input, output, number, false);
-                break;
-            case ID_INT64:
-                INT64.transfer(pipe, input, output, number, false);
-                break;
-            case ID_FLOAT:
-                FLOAT.transfer(pipe, input, output, number, false);
-                break;
-            case ID_DOUBLE:
-                DOUBLE.transfer(pipe, input, output, number, false);
-                break;
-            case ID_BIGDECIMAL:
-                BIGDECIMAL.transfer(pipe, input, output, number, false);
-                break;
-            case ID_BIGINTEGER:
-                BIGINTEGER.transfer(pipe, input, output, number, false);
-                break;
-            default:
-                throw new ProtostuffException("Corrupt input.");
-        }
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

@@ -23,15 +23,14 @@ import java.util.Map;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Tag;
 import io.protostuff.runtime.PolymorphicSchema.Handler;
 
 import static io.protostuff.runtime.RuntimeEnv.ENUMS_BY_NAME;
 
 /**
- * Determines how enums are serialized/deserialized. Default is BY_NUMBER. To enable BY_NAME, set the property
- * "protostuff.runtime.enums_by_name=true".
+ * Determines how enums are serialized/deserialized. Default is BY_NUMBER. To enable BY_NAME, set
+ * the property "protostuff.runtime.enums_by_name=true".
  *
  * @author David Yu
  */
@@ -71,6 +70,7 @@ public abstract class EnumIO<E extends Enum<E>> implements
     private final Map<Integer, E> valueByTagMap;
     private volatile CollectionSchema.MessageFactory enumSetFactory;
     private volatile MapSchema.MessageFactory enumMapFactory;
+
     public EnumIO(Class<E> enumClass) {
         this.enumClass = enumClass;
         Field[] fields = enumClass.getFields();
@@ -102,7 +102,8 @@ public abstract class EnumIO<E extends Enum<E>> implements
     }
 
     /**
-     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link ObjectSchema}.
+     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link
+     * ObjectSchema}.
      */
     static Class<?> getKeyTypeFromEnumMap(Object enumMap) {
         if (__keyTypeFromEnumMap == null) {
@@ -119,7 +120,8 @@ public abstract class EnumIO<E extends Enum<E>> implements
     }
 
     /**
-     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link ObjectSchema}.
+     * Retrieves the enum key type from the EnumMap via reflection. This is used by {@link
+     * ObjectSchema}.
      */
     static Class<?> getElementTypeFromEnumSet(Object enumSet) {
         if (__elementTypeFromEnumSet == null) {
@@ -138,17 +140,6 @@ public abstract class EnumIO<E extends Enum<E>> implements
     @SuppressWarnings({"unchecked", "rawtypes"})
     static EnumIO<? extends Enum<?>> newEnumIO(Class<?> enumClass) {
         return ENUMS_BY_NAME ? new ByName(enumClass) : new ByNumber(enumClass);
-    }
-
-    /**
-     * Transfers the {@link Enum} from the input to the output.
-     */
-    public static void transfer(Pipe pipe, Input input, Output output,
-                                int number, boolean repeated) throws IOException {
-        if (ENUMS_BY_NAME)
-            input.transferByteRangeTo(output, true, number, repeated);
-        else
-            output.writeEnum(number, input.readEnum(), repeated);
     }
 
     private static <E extends Enum<E>> CollectionSchema.MessageFactory newEnumSetFactory(

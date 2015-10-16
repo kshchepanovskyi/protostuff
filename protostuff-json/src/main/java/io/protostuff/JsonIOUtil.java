@@ -54,85 +54,8 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Creates a json pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data, boolean numeric) throws IOException {
-        return newPipe(data, 0, data.length, numeric);
-    }
-
-    /**
-     * Creates a json pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data, int offset, int length, boolean numeric)
-            throws IOException {
-        final IOContext context = new IOContext(DEFAULT_JSON_FACTORY._getBufferRecycler(),
-                data, false);
-        final JsonParser parser = newJsonParser(null, data, offset, offset + length, false,
-                context);
-
-        return newPipe(parser, numeric);
-    }
-
-    /**
-     * Creates a json pipe from an {@link InputStream}.
-     */
-    public static Pipe newPipe(InputStream in, boolean numeric) throws IOException {
-        final IOContext context = new IOContext(DEFAULT_JSON_FACTORY._getBufferRecycler(),
-                in, false);
-        final JsonParser parser = newJsonParser(in, context.allocReadIOBuffer(), 0, 0,
-                true, context);
-
-        return newPipe(parser, numeric);
-    }
-
-    /**
-     * Creates a json pipe from a {@link Reader}.
-     */
-    public static Pipe newPipe(Reader reader, boolean numeric) throws IOException {
-        return newPipe(DEFAULT_JSON_FACTORY.createJsonParser(reader), numeric);
-    }
-
-    /**
-     * Creates a json pipe from a {@link JsonParser}.
-     */
-    public static Pipe newPipe(final JsonParser parser, boolean numeric) throws IOException {
-        final JsonInput jsonInput = new JsonInput(parser, numeric);
-        return new Pipe() {
-            @Override
-            protected Input begin(Pipe.Schema<?> pipeSchema) throws IOException {
-                if (parser.nextToken() != JsonToken.START_OBJECT) {
-                    throw new JsonInputException("Expected token: { but was " +
-                            parser.getCurrentToken() + " on message " +
-                            pipeSchema.wrappedSchema.messageFullName());
-                }
-
-                return jsonInput;
-            }
-
-            @Override
-            protected void end(Pipe.Schema<?> pipeSchema, Input input,
-                               boolean cleanupOnly) throws IOException {
-                if (cleanupOnly) {
-                    parser.close();
-                    return;
-                }
-
-                assert input == jsonInput;
-                final JsonToken token = parser.getCurrentToken();
-
-                parser.close();
-
-                if (token != JsonToken.END_OBJECT) {
-                    throw new JsonInputException("Expected token: } but was " +
-                            token + " on message " +
-                            pipeSchema.wrappedSchema.messageFullName());
-                }
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link UTF8StreamJsonParser} from the inputstream with the supplied buf {@code inBuffer} to use.
+     * Creates a {@link UTF8StreamJsonParser} from the inputstream with the supplied buf {@code
+     * inBuffer} to use.
      */
     public static UTF8StreamJsonParser newJsonParser(InputStream in, byte[] buf,
                                                      int offset, int limit) throws IOException {
@@ -142,7 +65,8 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Creates a {@link UTF8StreamJsonParser} from the inputstream with the supplied buf {@code inBuffer} to use.
+     * Creates a {@link UTF8StreamJsonParser} from the inputstream with the supplied buf {@code
+     * inBuffer} to use.
      */
     static UTF8StreamJsonParser newJsonParser(InputStream in, byte[] buf,
                                               int offset, int limit, boolean bufferRecyclable, IOContext context)
@@ -155,7 +79,8 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Creates a {@link UTF8JsonGenerator} for the outputstream with the supplied buf {@code outBuffer} to use.
+     * Creates a {@link UTF8JsonGenerator} for the outputstream with the supplied buf {@code
+     * outBuffer} to use.
      */
     public static UTF8JsonGenerator newJsonGenerator(OutputStream out, byte[] buf) {
         return newJsonGenerator(out, buf, 0, false, new IOContext(
@@ -163,7 +88,8 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Creates a {@link UTF8JsonGenerator} for the outputstream with the supplied buf {@code outBuffer} to use.
+     * Creates a {@link UTF8JsonGenerator} for the outputstream with the supplied buf {@code
+     * outBuffer} to use.
      */
     static UTF8JsonGenerator newJsonGenerator(OutputStream out, byte[] buf, int offset,
                                               boolean bufferRecyclable, IOContext context) {
@@ -223,8 +149,7 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Merges the {@code message} from the {@link InputStream} using the given {@code schema}.
-     * <p>
+     * Merges the {@code message} from the {@link InputStream} using the given {@code schema}. <p>
      * The {@link LinkedBuffer}'s internal byte array will be used when reading the message.
      */
     public static <T> void mergeFrom(InputStream in, T message, Schema<T> schema,
@@ -287,9 +212,9 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Serializes the {@code message} into a byte array using the given {@code schema}.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the message.
+     * Serializes the {@code message} into a byte array using the given {@code schema}. <p> The
+     * {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing
+     * the message.
      */
     public static <T> byte[] toByteArray(T message, Schema<T> schema, boolean numeric,
                                          LinkedBuffer buffer) {
@@ -326,8 +251,8 @@ public final class JsonIOUtil {
 
     /**
      * Serializes the {@code message} into an {@link OutputStream} using the given {@code schema}.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the message.
+     * <p> The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when
+     * writing the message.
      */
     public static <T> void writeTo(OutputStream out, T message, Schema<T> schema,
                                    boolean numeric, LinkedBuffer buffer) throws IOException {
@@ -392,9 +317,9 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Serializes the {@code messages} into the stream using the given schema.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the message.
+     * Serializes the {@code messages} into the stream using the given schema. <p> The {@link
+     * LinkedBuffer}'s internal byte array will be used as the primary buffer when writing the
+     * message.
      */
     public static <T> void writeListTo(OutputStream out, List<T> messages,
                                        Schema<T> schema, boolean numeric, LinkedBuffer buffer) throws IOException {
@@ -468,9 +393,8 @@ public final class JsonIOUtil {
     }
 
     /**
-     * Parses the {@code messages} from the stream using the given {@code schema}.
-     * <p>
-     * The {@link LinkedBuffer}'s internal byte array will be used when reading the message.
+     * Parses the {@code messages} from the stream using the given {@code schema}. <p> The {@link
+     * LinkedBuffer}'s internal byte array will be used when reading the message.
      */
     public static <T> List<T> parseListFrom(InputStream in, Schema<T> schema,
                                             boolean numeric, LinkedBuffer buffer) throws IOException {

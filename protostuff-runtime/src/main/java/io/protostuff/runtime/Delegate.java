@@ -17,12 +17,11 @@ import java.io.IOException;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.WireFormat.FieldType;
 
 /**
- * Controls how certain types are serialized and can even override the existing serializers because this has higher
- * priority when the fields are being built.
+ * Controls how certain types are serialized and can even override the existing serializers because
+ * this has higher priority when the fields are being built.
  *
  * @author David Yu
  */
@@ -43,12 +42,6 @@ public interface Delegate<V> {
      */
     void writeTo(Output output, int number, V value, boolean repeated)
             throws IOException;
-
-    /**
-     * Transfers the type from the input to the output.
-     */
-    void transfer(Pipe pipe, Input input, Output output, int number,
-                  boolean repeated) throws IOException;
 
     /**
      * The class of the target value.

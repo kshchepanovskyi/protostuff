@@ -13,7 +13,6 @@
  */
 package io.protostuff.runtime;
 
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
@@ -44,13 +43,6 @@ abstract class RuntimeMessageField<T, P> extends Field<T> {
      */
     public Schema<P> getSchema() {
         return hasSchema.getSchema();
-    }
-
-    /**
-     * Returns the lazy initialized pipe schema.
-     */
-    public Pipe.Schema<P> getPipeSchema() {
-        return hasSchema.getPipeSchema();
     }
 
 }

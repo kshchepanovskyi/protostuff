@@ -18,7 +18,6 @@ import java.util.Map;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
 import io.protostuff.runtime.MapSchema.MapWrapper;
@@ -32,8 +31,8 @@ import io.protostuff.runtime.MapSchema.MessageFactory;
 abstract class RuntimeMapField<T, K, V> extends Field<T> {
 
     /**
-     * Since we cannot inherit multiple classes, we create this Map schema simply to delegate to the wrapping class'
-     * abstract methods.
+     * Since we cannot inherit multiple classes, we create this Map schema simply to delegate to the
+     * wrapping class' abstract methods.
      */
     protected final MapSchema<K, V> schema;
 
@@ -65,17 +64,6 @@ abstract class RuntimeMapField<T, K, V> extends Field<T> {
                 vTo(output, fieldNumber, val, repeated);
             }
 
-            @Override
-            protected void transferKey(Pipe pipe, Input input, Output output,
-                                       int number, boolean repeated) throws IOException {
-                kTransfer(pipe, input, output, number, repeated);
-            }
-
-            @Override
-            protected void transferValue(Pipe pipe, Input input, Output output,
-                                         int number, boolean repeated) throws IOException {
-                vTransfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -90,11 +78,5 @@ abstract class RuntimeMapField<T, K, V> extends Field<T> {
 
     protected abstract void vTo(Output output, int fieldNumber, V value,
                                 boolean repeated) throws IOException;
-
-    protected abstract void kTransfer(Pipe pipe, Input input, Output output,
-                                      int number, boolean repeated) throws IOException;
-
-    protected abstract void vTransfer(Pipe pipe, Input input, Output output,
-                                      int number, boolean repeated) throws IOException;
 
 }

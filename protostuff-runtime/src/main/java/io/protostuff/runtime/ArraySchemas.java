@@ -24,7 +24,6 @@ import io.protostuff.ByteString;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.runtime.MapSchema.MapWrapper;
 import io.protostuff.runtime.PolymorphicSchema.Handler;
@@ -218,36 +217,6 @@ public final class ArraySchemas {
         }
     }
 
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy,
-                               Delegate<?> delegate) throws IOException {
-        if (ID_ARRAY_LEN != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-
-        final int len = input.readUInt32();
-        // write it back
-        output.writeUInt32(ID_ARRAY_LEN, len, false);
-
-        for (int i = 0, nullCount = 0; i < len; ) {
-            switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
-                case ID_ARRAY_DATA:
-                    i++;
-                    delegate.transfer(pipe, input, output, ID_ARRAY_DATA, true);
-                    break;
-                case ID_ARRAY_NULLCOUNT:
-                    nullCount = input.readUInt32();
-                    i += nullCount;
-                    output.writeUInt32(ID_ARRAY_NULLCOUNT, nullCount, false);
-                    break;
-                default:
-                    throw new ProtostuffException("Corrupt input.");
-            }
-        }
-
-        if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-    }
-
     public static abstract class Base extends PolymorphicSchema {
         protected final Handler handler;
 
@@ -306,26 +275,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.BOOL);
-            }
-        };
-
         final boolean primitive;
 
         BoolArray(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -431,26 +385,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.CHAR);
-            }
-        };
-
         final boolean primitive;
 
         CharArray(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -556,26 +495,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.SHORT);
-            }
-        };
-
         final boolean primitive;
 
         ShortArray(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -681,26 +605,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.INT32);
-            }
-        };
-
         final boolean primitive;
 
         Int32Array(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -806,26 +715,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.INT64);
-            }
-        };
-
         final boolean primitive;
 
         Int64Array(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -931,26 +825,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.FLOAT);
-            }
-        };
-
         final boolean primitive;
 
         FloatArray(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1056,26 +935,11 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.DOUBLE);
-            }
-        };
-
         final boolean primitive;
 
         DoubleArray(Handler handler, boolean primitive) {
             super(handler);
             this.primitive = primitive;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1178,23 +1042,8 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.STRING);
-            }
-        };
-
         StringArray(Handler handler) {
             super(handler);
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1268,23 +1117,8 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.BYTES);
-            }
-        };
-
         ByteStringArray(Handler handler) {
             super(handler);
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1358,23 +1192,8 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.BYTE_ARRAY);
-            }
-        };
-
         ByteArrayArray(Handler handler) {
             super(handler);
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1448,23 +1267,8 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.BIGDECIMAL);
-            }
-        };
-
         BigDecimalArray(Handler handler) {
             super(handler);
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1538,23 +1342,8 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.BIGINTEGER);
-            }
-        };
-
         BigIntegerArray(Handler handler) {
             super(handler);
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1627,23 +1416,8 @@ public final class ArraySchemas {
             }
         };
 
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy,
-                        RuntimeFieldFactory.DATE);
-            }
-        };
-
         DateArray(Handler handler) {
             super(handler);
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1706,23 +1480,10 @@ public final class ArraySchemas {
 
     public static class DelegateArray extends Base {
         final Delegate<Object> delegate;
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                transferObject(this, pipe, input, output, strategy, delegate);
-            }
-        };
 
         public DelegateArray(Handler handler, Delegate<Object> delegate) {
             super(handler);
             this.delegate = delegate;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1785,50 +1546,12 @@ public final class ArraySchemas {
     }
 
     public static class EnumArray extends Base {
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                if (ID_ARRAY_LEN != input
-                        .readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                final int len = input.readUInt32();
-                // write it back
-                output.writeUInt32(ID_ARRAY_LEN, len, false);
-
-                for (int i = 0, nullCount = 0; i < len; ) {
-                    switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
-                        case ID_ARRAY_DATA:
-                            i++;
-                            EnumIO.transfer(pipe, input, output, ID_ARRAY_DATA, true);
-                            break;
-                        case ID_ARRAY_NULLCOUNT:
-                            nullCount = input.readUInt32();
-                            i += nullCount;
-                            output.writeUInt32(ID_ARRAY_NULLCOUNT, nullCount, false);
-                            break;
-                        default:
-                            throw new ProtostuffException("Corrupt input.");
-                    }
-                }
-
-                if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-            }
-        };
 
         final EnumIO<?> eio;
 
         public EnumArray(Handler handler, EnumIO<?> eio) {
             super(handler);
             this.eio = eio;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override
@@ -1892,49 +1615,10 @@ public final class ArraySchemas {
 
     public static class PojoArray extends Base {
         final HasSchema<Object> hs;
-        protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-                this) {
-            @Override
-            protected void transfer(Pipe pipe, Input input, Output output)
-                    throws IOException {
-                if (ID_ARRAY_LEN != input
-                        .readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                final int len = input.readUInt32();
-                // write it back
-                output.writeUInt32(ID_ARRAY_LEN, len, false);
-
-                for (int i = 0, nullCount = 0; i < len; ) {
-                    switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
-                        case ID_ARRAY_DATA:
-                            i++;
-                            output.writeObject(ID_ARRAY_DATA, pipe, hs.getPipeSchema(),
-                                    true);
-                            break;
-                        case ID_ARRAY_NULLCOUNT:
-                            nullCount = input.readUInt32();
-                            i += nullCount;
-                            output.writeUInt32(ID_ARRAY_NULLCOUNT, nullCount, false);
-                            break;
-                        default:
-                            throw new ProtostuffException("Corrupt input.");
-                    }
-                }
-
-                if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-            }
-        };
 
         public PojoArray(Handler handler, HasSchema<Object> hs) {
             super(handler);
             this.hs = hs;
-        }
-
-        @Override
-        public Pipe.Schema<Object> getPipeSchema() {
-            return pipeSchema;
         }
 
         @Override

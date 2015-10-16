@@ -18,7 +18,6 @@ import java.io.IOException;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 
@@ -40,14 +39,6 @@ public abstract class ClassSchema extends PolymorphicSchema {
 
     static final int ID_ARRAY_DIMENSION = 2;
     static final String STR_ARRAY_DIMENSION = "b";
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
 
     public ClassSchema(IdStrategy strategy) {
         super(strategy);
@@ -146,43 +137,6 @@ public abstract class ClassSchema extends PolymorphicSchema {
             throw new ProtostuffException("Corrupt input.");
 
         return value;
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy) throws IOException {
-        final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        switch (number) {
-            case ID_CLASS:
-                ObjectSchema.transferClass(pipe, input, output, number, pipeSchema,
-                        false, false, strategy);
-                break;
-
-            case ID_CLASS_MAPPED:
-                ObjectSchema.transferClass(pipe, input, output, number, pipeSchema,
-                        true, false, strategy);
-                break;
-
-            case ID_CLASS_ARRAY:
-                ObjectSchema.transferClass(pipe, input, output, number, pipeSchema,
-                        false, true, strategy);
-                break;
-
-            case ID_CLASS_ARRAY_MAPPED:
-                ObjectSchema.transferClass(pipe, input, output, number, pipeSchema,
-                        true, true, strategy);
-                break;
-
-            default:
-                throw new ProtostuffException("Corrupt input.");
-        }
-
-        if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

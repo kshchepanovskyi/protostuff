@@ -29,7 +29,6 @@ import java.util.Map;
 import io.protostuff.ByteString;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
@@ -323,23 +322,18 @@ public abstract class NumericIdStrategy extends IdStrategy {
         /**
          * Pojo ids start at 1.
          */
-        <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
-                                  int id);
+        <T> Registry registerPojo(Schema<T> schema, int id);
 
         /**
-         * If you are sure that you are only using a single implementation of your interface/abstract class, then it
-         * makes sense to map it directly to its impl class to avoid writing the type.
-         * <p>
-         * Note that the type is always written when your field is {@link java.lang.Object}.
-         * <p>
-         * Pojo ids start at 1.
+         * If you are sure that you are only using a single implementation of your
+         * interface/abstract class, then it makes sense to map it directly to its impl class to
+         * avoid writing the type. <p> Note that the type is always written when your field is
+         * {@link java.lang.Object}. <p> Pojo ids start at 1.
          */
         <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass);
 
         /**
-         * Register a {@link Delegate} and assign an id.
-         * <p>
-         * Delegate ids start at 1.
+         * Register a {@link Delegate} and assign an id. <p> Delegate ids start at 1.
          */
         <T> Registry registerDelegate(Delegate<T> delegate, int id);
     }

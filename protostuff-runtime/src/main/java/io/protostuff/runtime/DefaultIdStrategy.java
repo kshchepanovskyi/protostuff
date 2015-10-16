@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 
@@ -36,8 +35,9 @@ import static io.protostuff.runtime.RuntimeFieldFactory.ID_INT64;
 import static io.protostuff.runtime.RuntimeFieldFactory.ID_SHORT;
 
 /**
- * The FQCN(fully qualified class name) will serve as the id (string). Does not need any registration in the user-code
- * (works out-of-the-box). The size of serialized representation may be not very efficient.
+ * The FQCN(fully qualified class name) will serve as the id (string). Does not need any
+ * registration in the user-code (works out-of-the-box). The size of serialized representation may
+ * be not very efficient.
  *
  * @author Leo Romanoff
  * @author David Yu
@@ -95,8 +95,8 @@ public final class DefaultIdStrategy extends IdStrategy {
     }
 
     /**
-     * Registers a pojo. Returns true if registration is successful or if the same exact schema was previously
-     * registered. Used by {@link RuntimeSchema#register(Class, Schema)}.
+     * Registers a pojo. Returns true if registration is successful or if the same exact schema was
+     * previously registered. Used by {@link RuntimeSchema#register(Class, Schema)}.
      */
     public <T> boolean registerPojo(Class<T> typeClass, Schema<T> schema) {
         assert typeClass != null && schema != null;
@@ -578,7 +578,6 @@ public final class DefaultIdStrategy extends IdStrategy {
         final IdStrategy strategy;
         final Class<T> typeClass;
         private volatile Schema<T> schema;
-        private volatile Pipe.Schema<T> pipeSchema;
 
         Lazy(Class<T> typeClass, IdStrategy strategy) {
             this.typeClass = typeClass;
@@ -613,19 +612,6 @@ public final class DefaultIdStrategy extends IdStrategy {
             return schema;
         }
 
-        @Override
-        public Pipe.Schema<T> getPipeSchema() {
-            Pipe.Schema<T> pipeSchema = this.pipeSchema;
-            if (pipeSchema == null) {
-                synchronized (this) {
-                    if ((pipeSchema = this.pipeSchema) == null) {
-                        this.pipeSchema = pipeSchema = RuntimeSchema
-                                .resolvePipeSchema(getSchema(), typeClass, true);
-                    }
-                }
-            }
-            return pipeSchema;
-        }
     }
 
     static final class Mapped<T> extends HasSchema<T> {
@@ -657,26 +643,10 @@ public final class DefaultIdStrategy extends IdStrategy {
             return wrapper.getSchema();
         }
 
-        @Override
-        public Pipe.Schema<T> getPipeSchema() {
-            HasSchema<T> wrapper = this.wrapper;
-            if (wrapper == null) {
-                synchronized (this) {
-                    if ((wrapper = this.wrapper) == null) {
-                        this.wrapper = wrapper = strategy.getSchemaWrapper(
-                                typeClass, true);
-                    }
-                }
-            }
-
-            return wrapper.getPipeSchema();
-        }
-
     }
 
     static final class Registered<T> extends HasSchema<T> {
         final Schema<T> schema;
-        private volatile Pipe.Schema<T> pipeSchema;
 
         Registered(Schema<T> schema) {
             this.schema = schema;
@@ -687,19 +657,5 @@ public final class DefaultIdStrategy extends IdStrategy {
             return schema;
         }
 
-        @Override
-        public Pipe.Schema<T> getPipeSchema() {
-            Pipe.Schema<T> pipeSchema = this.pipeSchema;
-            if (pipeSchema == null) {
-                synchronized (this) {
-                    if ((pipeSchema = this.pipeSchema) == null) {
-                        this.pipeSchema = pipeSchema = RuntimeSchema
-                                .resolvePipeSchema(schema, schema.typeClass(),
-                                        true);
-                    }
-                }
-            }
-            return pipeSchema;
-        }
     }
 }

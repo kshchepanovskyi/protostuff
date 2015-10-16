@@ -19,12 +19,11 @@ import java.util.Map;
 import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
- * A schema for a {@link Map} with {@link Message} or pojo keys. The key and value can be null (depending on the
- * particular map impl).
+ * A schema for a {@link Map} with {@link Message} or pojo keys. The key and value can be null
+ * (depending on the particular map impl).
  *
  * @author David Yu
  */
@@ -38,25 +37,10 @@ public final class MessageMapSchema<K, V> extends MapSchema<K, V> {
      * The schema of the message value.
      */
     public final Schema<V> vSchema;
-    /**
-     * The pipe schema of the message key.
-     */
-    public final Pipe.Schema<K> kPipeSchema;
-    /**
-     * The pipe schema of the message value.
-     */
-    public final Pipe.Schema<V> vPipeSchema;
 
     public MessageMapSchema(Schema<K> kSchema, Schema<V> vSchema) {
-        this(kSchema, vSchema, null, null);
-    }
-
-    public MessageMapSchema(Schema<K> kSchema, Schema<V> vSchema,
-                            Pipe.Schema<K> kPipeSchema, Pipe.Schema<V> vPipeSchema) {
         this.kSchema = kSchema;
         this.vSchema = vSchema;
-        this.kPipeSchema = kPipeSchema;
-        this.vPipeSchema = vPipeSchema;
     }
 
     @Override
@@ -80,28 +64,6 @@ public final class MessageMapSchema<K, V> extends MapSchema<K, V> {
     protected void writeValueTo(Output output, int fieldNumber, V value, boolean repeated)
             throws IOException {
         output.writeObject(fieldNumber, value, vSchema, repeated);
-    }
-
-    @Override
-    protected void transferKey(Pipe pipe, Input input, Output output, int number,
-                               boolean repeated) throws IOException {
-        if (kPipeSchema == null) {
-            throw new RuntimeException("No pipe schema for key: " +
-                    kSchema.typeClass().getName());
-        }
-
-        output.writeObject(number, pipe, kPipeSchema, repeated);
-    }
-
-    @Override
-    protected void transferValue(Pipe pipe, Input input, Output output, int number,
-                                 boolean repeated) throws IOException {
-        if (vPipeSchema == null) {
-            throw new RuntimeException("No pipe schema for value: " +
-                    vSchema.typeClass().getName());
-        }
-
-        output.writeObject(number, pipe, vPipeSchema, repeated);
     }
 
 }

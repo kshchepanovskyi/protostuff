@@ -19,16 +19,15 @@ import java.util.Collection;
 
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 
 /**
  * A schema for standard jdk {@link Collection collections}. Null values are not serialized/written.
- * <p>
- * If your application relies on {@link Object#equals(Object)}, it will fail when a serialized collection contains null
- * values (The deserialized collection will not contained the null value). {@link MapSchema} on the otherhand can
- * contain both null keys and null values and still succeeding on {@link Object#equals(Object)}.
+ * <p> If your application relies on {@link Object#equals(Object)}, it will fail when a serialized
+ * collection contains null values (The deserialized collection will not contained the null value).
+ * {@link MapSchema} on the otherhand can contain both null keys and null values and still
+ * succeeding on {@link Object#equals(Object)}.
  *
  * @author David Yu
  */
@@ -39,27 +38,6 @@ public abstract class CollectionSchema<V> implements Schema<Collection<V>> {
      * Factory for creating {@link Collection} messages.
      */
     public final MessageFactory messageFactory;
-    public final Pipe.Schema<Collection<V>> pipeSchema =
-            new Pipe.Schema<Collection<V>>(CollectionSchema.this) {
-
-                @Override
-                protected void transfer(Pipe pipe, Input input, Output output) throws IOException {
-                    for (int number = input.readFieldNumber(this); ;
-                         number = input.readFieldNumber(this)) {
-                        switch (number) {
-                            case 0:
-                                return;
-                            case 1:
-                                transferValue(pipe, input, output, 1, true);
-                                break;
-                            default:
-                                throw new ProtostuffException("The collection was incorrectly " +
-                                        "serialized.");
-                        }
-                    }
-                }
-
-            };
 
     public CollectionSchema() {
         this(MessageFactories.ArrayList);
@@ -80,12 +58,6 @@ public abstract class CollectionSchema<V> implements Schema<Collection<V>> {
      */
     protected abstract void writeValueTo(Output output, int fieldNumber, V value,
                                          boolean repeated) throws IOException;
-
-    /**
-     * Transfers the value from the input to the output.
-     */
-    protected abstract void transferValue(Pipe pipe, Input input, Output output,
-                                          int number, boolean repeated) throws IOException;
 
     @Override
     public final String getFieldName(int number) {

@@ -19,7 +19,6 @@ import java.lang.reflect.Array;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 import io.protostuff.StatefulOutput;
@@ -42,14 +41,6 @@ public abstract class ArraySchema extends PolymorphicSchema {
 
     static final String STR_ARRAY_LEN = "c";
     static final String STR_ARRAY_DIMENSION = "b";
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
 
     public ArraySchema(IdStrategy strategy) {
         super(strategy);
@@ -141,30 +132,6 @@ public abstract class ArraySchema extends PolymorphicSchema {
         strategy.COLLECTION_SCHEMA.mergeFrom(input, mArrayWrapper);
 
         return mArrayWrapper.array;
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy) throws IOException {
-        final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        switch (number) {
-            case ID_ARRAY:
-                ObjectSchema.transferArray(pipe, input, output, number, pipeSchema,
-                        false, strategy);
-                return;
-
-            case ID_ARRAY_MAPPED:
-                ObjectSchema.transferArray(pipe, input, output, number, pipeSchema,
-                        true, strategy);
-                return;
-
-            default:
-                throw new ProtostuffException("Corrupt input.");
-        }
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

@@ -24,19 +24,16 @@ import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 import io.protostuff.runtime.MapSchema.MapWrapper;
 
 /**
- * This base class handles all the IO for reading and writing polymorphic fields. When a field's type is
- * polymorphic/dynamic (e.g interface/abstract/object), the type (id) needs to be written (ahead) before its
- * value/content to be able to deserialize it correctly.
- * <p>
- * The underlying impl will determine how the type (id) should be written.
- * <p>
- * An {@link IdStrategy} is standalone if the {@link #primaryGroup} is not set.
+ * This base class handles all the IO for reading and writing polymorphic fields. When a field's
+ * type is polymorphic/dynamic (e.g interface/abstract/object), the type (id) needs to be written
+ * (ahead) before its value/content to be able to deserialize it correctly. <p> The underlying impl
+ * will determine how the type (id) should be written. <p> An {@link IdStrategy} is standalone if
+ * the {@link #primaryGroup} is not set.
  *
  * @author Leo Romanoff
  * @author David Yu
@@ -191,27 +188,7 @@ public abstract class IdStrategy {
             }
         }
     };
-    final Pipe.Schema<Collection<Object>> COLLECTION_PIPE_SCHEMA = new Pipe.Schema<Collection<Object>>(
-            COLLECTION_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            for (int number = input.readFieldNumber(wrappedSchema); ; number = input
-                    .readFieldNumber(wrappedSchema)) {
-                switch (number) {
-                    case 0:
-                        return;
-                    case 1:
-                        output.writeObject(number, pipe, DYNAMIC_VALUE_PIPE_SCHEMA,
-                                true);
-                        break;
-                    default:
-                        throw new ProtostuffException(
-                                "The collection was incorrectly " + "serialized.");
-                }
-            }
-        }
-    };
+
     final Schema<Object> ARRAY_SCHEMA = new Schema<Object>() {
         @Override
         public String getFieldName(int number) {
@@ -259,27 +236,7 @@ public abstract class IdStrategy {
             }
         }
     };
-    final Pipe.Schema<Object> ARRAY_PIPE_SCHEMA = new Pipe.Schema<Object>(
-            ARRAY_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            for (int number = input.readFieldNumber(wrappedSchema); ; number = input
-                    .readFieldNumber(wrappedSchema)) {
-                switch (number) {
-                    case 0:
-                        return;
-                    case 1:
-                        output.writeObject(number, pipe, DYNAMIC_VALUE_PIPE_SCHEMA,
-                                true);
-                        break;
-                    default:
-                        throw new ProtostuffException("The array was incorrectly "
-                                + "serialized.");
-                }
-            }
-        }
-    };
+
     final Schema<Entry<Object, Object>> ENTRY_SCHEMA = new Schema<Entry<Object, Object>>() {
         @Override
         public final String getFieldName(int number) {
@@ -463,51 +420,6 @@ public abstract class IdStrategy {
             }
         }
     };
-    final Pipe.Schema<Entry<Object, Object>> ENTRY_PIPE_SCHEMA = new Pipe.Schema<Entry<Object, Object>>(
-            ENTRY_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            for (int number = input.readFieldNumber(wrappedSchema); ; number = input
-                    .readFieldNumber(wrappedSchema)) {
-                switch (number) {
-                    case 0:
-                        return;
-                    case 1:
-                        output.writeObject(number, pipe, DYNAMIC_VALUE_PIPE_SCHEMA,
-                                false);
-                        break;
-                    case 2:
-                        output.writeObject(number, pipe, DYNAMIC_VALUE_PIPE_SCHEMA,
-                                false);
-                        break;
-                    default:
-                        throw new ProtostuffException("The map was incorrectly "
-                                + "serialized.");
-                }
-            }
-        }
-    };
-    final Pipe.Schema<Map<Object, Object>> MAP_PIPE_SCHEMA = new Pipe.Schema<Map<Object, Object>>(
-            MAP_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            for (int number = input.readFieldNumber(wrappedSchema); ; number = input
-                    .readFieldNumber(wrappedSchema)) {
-                switch (number) {
-                    case 0:
-                        return;
-                    case 1:
-                        output.writeObject(number, pipe, ENTRY_PIPE_SCHEMA, true);
-                        break;
-                    default:
-                        throw new ProtostuffException("The map was incorrectly "
-                                + "serialized.");
-                }
-            }
-        }
-    };
 
     // map
     final Schema<Object> CLASS_SCHEMA = new Schema<Object>() {
@@ -553,15 +465,7 @@ public abstract class IdStrategy {
             ClassSchema.writeObjectTo(output, message, this, IdStrategy.this);
         }
     };
-    final Pipe.Schema<Object> CLASS_PIPE_SCHEMA = new Pipe.Schema<Object>(
-            CLASS_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            ClassSchema.transferObject(this, pipe, input, output,
-                    IdStrategy.this);
-        }
-    };
+
     final Schema<Object> POLYMORPHIC_MAP_SCHEMA = new Schema<Object>() {
         @Override
         public String getFieldName(int number) {
@@ -747,44 +651,6 @@ public abstract class IdStrategy {
         }
     };
 
-    // pojo
-    final Pipe.Schema<Object> POLYMORPHIC_MAP_PIPE_SCHEMA = new Pipe.Schema<Object>(
-            POLYMORPHIC_MAP_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            PolymorphicMapSchema.transferObject(this, pipe, input, output,
-                    IdStrategy.this);
-        }
-    };
-    final Pipe.Schema<Object> POLYMORPHIC_COLLECTION_PIPE_SCHEMA = new Pipe.Schema<Object>(
-            POLYMORPHIC_COLLECTION_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            PolymorphicCollectionSchema.transferObject(this, pipe, input,
-                    output, IdStrategy.this);
-        }
-    };
-    final Pipe.Schema<Object> DYNAMIC_VALUE_PIPE_SCHEMA = new Pipe.Schema<Object>(
-            DYNAMIC_VALUE_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            ObjectSchema.transferObject(this, pipe, input, output,
-                    IdStrategy.this);
-        }
-    };
-    final Pipe.Schema<Object> OBJECT_PIPE_SCHEMA = new Pipe.Schema<Object>(
-            OBJECT_SCHEMA) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            ObjectSchema.transferObject(this, pipe, input, output,
-                    IdStrategy.this);
-        }
-    };
-
     // delegate
 
     protected IdStrategy(IdStrategy primaryGroup, int groupId) {
@@ -803,8 +669,8 @@ public abstract class IdStrategy {
     }
 
     /**
-     * Generates a schema from the given class. If this strategy is part of a group, the existing fields of that group's
-     * schema will be re-used.
+     * Generates a schema from the given class. If this strategy is part of a group, the existing
+     * fields of that group's schema will be re-used.
      */
     protected <T> Schema<T> newSchema(Class<T> typeClass) {
         // check if this is part of a group
@@ -884,21 +750,21 @@ public abstract class IdStrategy {
     // class
 
     /**
-     * Returns the {@link HasSchema schema wrapper}. The caller is responsible that the typeClass is a pojo (e.g not an
-     * enum/array/etc).
+     * Returns the {@link HasSchema schema wrapper}. The caller is responsible that the typeClass is
+     * a pojo (e.g not an enum/array/etc).
      */
     public abstract <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass,
                                                       boolean create);
 
     /**
-     * Returns the {@link EnumIO}. The callers (internal field factories) are responsible that the class provided is an
-     * enum class.
+     * Returns the {@link EnumIO}. The callers (internal field factories) are responsible that the
+     * class provided is an enum class.
      */
     protected abstract EnumIO<? extends Enum<?>> getEnumIO(Class<?> enumClass);
 
     /**
-     * Returns the {@link CollectionSchema.MessageFactory}. The callers (internal field factories) are responsible that
-     * the class provided implements {@link Collection}.
+     * Returns the {@link CollectionSchema.MessageFactory}. The callers (internal field factories)
+     * are responsible that the class provided implements {@link Collection}.
      */
     protected abstract CollectionSchema.MessageFactory getCollectionFactory(
             Class<?> clazz);
@@ -906,8 +772,8 @@ public abstract class IdStrategy {
     // polymorphic requirements
 
     /**
-     * Returns the {@link MapSchema.MessageFactory}. The callers (internal field factories}) are responsible that the
-     * class provided implements {@link Map}.
+     * Returns the {@link MapSchema.MessageFactory}. The callers (internal field factories}) are
+     * responsible that the class provided implements {@link Map}.
      */
     protected abstract MapSchema.MessageFactory getMapFactory(Class<?> clazz);
 
@@ -994,14 +860,15 @@ public abstract class IdStrategy {
         IdStrategy create();
 
         /**
-         * Called after the method {@link #create()} has been called. This is used to prevent classloader issues.
-         * RuntimeEnv's {@link RuntimeEnv#ID_STRATEGY} need to be set first.
+         * Called after the method {@link #create()} has been called. This is used to prevent
+         * classloader issues. RuntimeEnv's {@link RuntimeEnv#ID_STRATEGY} need to be set first.
          */
         void postCreate();
     }
 
     /**
-     * Thrown when a type is not known by the IdStrategy. The DefaultIdStrategy will never throw this exception though.
+     * Thrown when a type is not known by the IdStrategy. The DefaultIdStrategy will never throw
+     * this exception though.
      */
     public static class UnknownTypeException extends RuntimeException {
         private static final long serialVersionUID = 1L;

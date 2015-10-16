@@ -45,13 +45,8 @@ public class JsonEscapeTest extends AbstractTest {
         foo.setSomeBar(bars);
         foo.setSomeString(strings);
 
-        byte[] protostuff = ProtostuffIOUtil.toByteArray(foo, foo.cachedSchema(), buf());
-
-        byte[] json = JsonIOUtil.toByteArray(ProtostuffIOUtil.newPipe(protostuff),
-                Foo.getPipeSchema(), false);
-
-        byte[] json2 = JsonXIOUtil.toByteArray(ProtostuffIOUtil.newPipe(protostuff),
-                Foo.getPipeSchema(), false, buf());
+        byte[] json = JsonIOUtil.toByteArray(foo, foo.cachedSchema(), false);
+        byte[] json2 = JsonXIOUtil.toByteArray(foo, foo.cachedSchema(), false, LinkedBuffer.allocate());
 
         assertTrue(json.length == json2.length);
 
@@ -70,13 +65,8 @@ public class JsonEscapeTest extends AbstractTest {
         bar.setSomeBytes(ByteString.copyFromUtf8(ESCAPE_TARGET));
         bar.setSomeString(ESCAPE_TARGET);
 
-        byte[] protostuff = ProtostuffIOUtil.toByteArray(bar, bar.cachedSchema(), buf());
-
-        byte[] json = JsonIOUtil.toByteArray(ProtostuffIOUtil.newPipe(protostuff),
-                Bar.getPipeSchema(), false);
-
-        byte[] json2 = JsonXIOUtil.toByteArray(ProtostuffIOUtil.newPipe(protostuff),
-                Bar.getPipeSchema(), false, buf());
+        byte[] json = JsonIOUtil.toByteArray(bar, bar.cachedSchema(), false);
+        byte[] json2 = JsonXIOUtil.toByteArray(bar, bar.cachedSchema(), false, buf());
 
         assertTrue(json.length == json2.length);
 

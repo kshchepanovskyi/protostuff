@@ -13,12 +13,11 @@
  */
 package io.protostuff.runtime;
 
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
- * Used when the type is either polymorphic or too complex. Unlike DerivativeSchema, this is designed to have no concept
- * of merging.
+ * Used when the type is either polymorphic or too complex. Unlike DerivativeSchema, this is
+ * designed to have no concept of merging.
  *
  * @author David Yu
  */
@@ -40,11 +39,6 @@ public abstract class PolymorphicSchema implements Schema<Object> {
     public Class<? super Object> typeClass() {
         return Object.class;
     }
-
-    /**
-     * The pipe schema associated with this schema.
-     */
-    public abstract Pipe.Schema<Object> getPipeSchema();
 
     /**
      * Set the value to the owner.

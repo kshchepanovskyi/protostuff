@@ -24,7 +24,6 @@ import java.util.Map;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 import io.protostuff.StatefulOutput;
@@ -153,15 +152,6 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema {
         fCheckedMap_keyType.setAccessible(true);
         fCheckedMap_valueType.setAccessible(true);
     }
-
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
 
     public PolymorphicMapSchema(IdStrategy strategy) {
         super(strategy);
@@ -668,151 +658,6 @@ public abstract class PolymorphicMapSchema extends PolymorphicSchema {
         }
 
         return map;
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy) throws IOException {
-        final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        switch (number) {
-            case ID_EMPTY_MAP:
-                output.writeUInt32(number, input.readUInt32(), false);
-                break;
-
-            case ID_SINGLETON_MAP:
-                if (0 != input.readUInt32())
-                    throw new ProtostuffException("Corrupt input.");
-
-                output.writeUInt32(number, 0, false);
-
-                transferSingletonMap(pipeSchema, pipe, input, output, strategy);
-                return;
-
-            case ID_UNMODIFIABLE_MAP:
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
-                break;
-
-            case ID_UNMODIFIABLE_SORTED_MAP:
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
-                break;
-
-            case ID_SYNCHRONIZED_MAP:
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
-                break;
-
-            case ID_SYNCHRONIZED_SORTED_MAP:
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
-                break;
-
-            case ID_CHECKED_MAP:
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
-
-                if (1 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                output.writeObject(1, pipe, strategy.CLASS_PIPE_SCHEMA, false);
-
-                if (2 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                output.writeObject(2, pipe, strategy.CLASS_PIPE_SCHEMA, false);
-                break;
-
-            case ID_CHECKED_SORTED_MAP:
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_MAP_PIPE_SCHEMA, false);
-
-                if (1 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                output.writeObject(1, pipe, strategy.CLASS_PIPE_SCHEMA, false);
-
-                if (2 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                output.writeObject(2, pipe, strategy.CLASS_PIPE_SCHEMA, false);
-                break;
-
-            case ID_ENUM_MAP:
-                strategy.transferEnumId(input, output, number);
-
-                if (output instanceof StatefulOutput) {
-                    // update using the derived schema.
-                    ((StatefulOutput) output).updateLast(strategy.MAP_PIPE_SCHEMA,
-                            pipeSchema);
-                }
-
-                Pipe.transferDirect(strategy.MAP_PIPE_SCHEMA, pipe, input, output);
-                return;
-            case ID_MAP:
-                strategy.transferMapId(input, output, number);
-
-                if (output instanceof StatefulOutput) {
-                    // update using the derived schema.
-                    ((StatefulOutput) output).updateLast(strategy.MAP_PIPE_SCHEMA,
-                            pipeSchema);
-                }
-
-                Pipe.transferDirect(strategy.MAP_PIPE_SCHEMA, pipe, input, output);
-                return;
-
-            default:
-                throw new ProtostuffException("Corrupt input.");
-        }
-
-        if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-    }
-
-    static void transferSingletonMap(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                                     Input input, Output output, IdStrategy strategy) throws IOException {
-        switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
-            case 0:
-                // both are null
-                return;
-            case 1: {
-                // key exists
-                break;
-            }
-            case 3: {
-                // key is null
-                output.writeObject(3, pipe, strategy.OBJECT_PIPE_SCHEMA, false);
-
-                if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-                    throw new ProtostuffException("Corrupt input.");
-
-                return;
-            }
-            default:
-                throw new ProtostuffException("Corrupt input.");
-        }
-
-        output.writeObject(1, pipe, strategy.OBJECT_PIPE_SCHEMA, false);
-
-        switch (input.readFieldNumber(pipeSchema.wrappedSchema)) {
-            case 0:
-                // key exists but null value
-                return;
-            case 3:
-                // key and value exist
-                break;
-            default:
-                throw new ProtostuffException("Corrupt input.");
-        }
-
-        output.writeObject(3, pipe, strategy.OBJECT_PIPE_SCHEMA, false);
-
-        if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

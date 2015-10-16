@@ -23,7 +23,6 @@ import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Morph;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.Tag;
 import io.protostuff.WireFormat.FieldType;
@@ -81,9 +80,8 @@ final class RuntimeMapFieldFactory {
                 // the key is not a simple parameterized type.
                 return createMapObjectKObjectV(number, name, f, messageFactory,
                         strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema,
                         strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                        strategy);
             }
 
             final Class<Object> clazzV = (Class<Object>) getGenericType(f, 1);
@@ -95,21 +93,21 @@ final class RuntimeMapFieldFactory {
                     return createMapInlineKObjectV(number, name, f,
                             messageFactory, inlineK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 if (Message.class.isAssignableFrom(clazzK)) {
                     return createMapPojoKObjectV(number, name, f,
                             messageFactory, clazzK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 if (clazzK.isEnum()) {
                     return createMapEnumKObjectV(number, name, f,
                             messageFactory, clazzK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 final PolymorphicSchema psK = PolymorphicSchemaFactories
@@ -118,16 +116,16 @@ final class RuntimeMapFieldFactory {
 
                 if (psK != null) {
                     return createMapObjectKObjectV(number, name, f,
-                            messageFactory, psK, psK.getPipeSchema(),
+                            messageFactory, psK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 if (pojo(clazzK, f.getAnnotation(Morph.class), strategy)) {
                     return createMapPojoKObjectV(number, name, f,
                             messageFactory, clazzK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 /*
@@ -140,9 +138,8 @@ final class RuntimeMapFieldFactory {
                  */
                 return createMapObjectKObjectV(number, name, f, messageFactory,
                         strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema,
                         strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                        strategy);
             }
 
             final Delegate<Object> inlineK = getDelegateOrInline(clazzK,
@@ -168,7 +165,7 @@ final class RuntimeMapFieldFactory {
                                 strategy);
                 if (psV != null) {
                     return createMapInlineKObjectV(number, name, f,
-                            messageFactory, inlineK, psV, psV.getPipeSchema(),
+                            messageFactory, inlineK, psV,
                             strategy);
                 }
 
@@ -180,7 +177,7 @@ final class RuntimeMapFieldFactory {
                     return createMapInlineKObjectV(number, name, f,
                             messageFactory, inlineK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 return createMapInlineKPolymorphicV(number, name, f,
@@ -207,7 +204,7 @@ final class RuntimeMapFieldFactory {
                                 strategy);
                 if (psV != null) {
                     return createMapEnumKObjectV(number, name, f,
-                            messageFactory, clazzK, psV, psV.getPipeSchema(),
+                            messageFactory, clazzK, psV,
                             strategy);
                 }
 
@@ -219,7 +216,7 @@ final class RuntimeMapFieldFactory {
                     return createMapEnumKObjectV(number, name, f,
                             messageFactory, clazzK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 return createMapEnumKPolymorphicV(number, name, f,
@@ -230,9 +227,9 @@ final class RuntimeMapFieldFactory {
                     .getSchemaFromCollectionOrMapGenericType(clazzK, strategy);
             if (psK != null) {
                 return createMapObjectKObjectV(number, name, f, messageFactory,
-                        psK, psK.getPipeSchema(),
+                        psK,
                         strategy.OBJECT_ELEMENT_SCHEMA,
-                        strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                        strategy);
             }
 
             if (pojo(clazzK, f.getAnnotation(Morph.class), strategy)) {
@@ -255,7 +252,7 @@ final class RuntimeMapFieldFactory {
                                 strategy);
                 if (psV != null) {
                     return createMapPojoKObjectV(number, name, f,
-                            messageFactory, clazzK, psV, psV.getPipeSchema(),
+                            messageFactory, clazzK, psV,
                             strategy);
                 }
 
@@ -267,7 +264,7 @@ final class RuntimeMapFieldFactory {
                     return createMapPojoKObjectV(number, name, f,
                             messageFactory, clazzK,
                             strategy.OBJECT_ELEMENT_SCHEMA,
-                            strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                            strategy);
                 }
 
                 return createMapPojoKPolymorphicV(number, name, f,
@@ -276,16 +273,10 @@ final class RuntimeMapFieldFactory {
 
             return createMapObjectKObjectV(number, name, f, messageFactory,
                     strategy.OBJECT_ELEMENT_SCHEMA,
-                    strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema,
                     strategy.OBJECT_ELEMENT_SCHEMA,
-                    strategy.OBJECT_ELEMENT_SCHEMA.pipeSchema, strategy);
+                    strategy);
         }
 
-        @Override
-        public void transfer(Pipe pipe, Input input, Output output, int number,
-                             boolean repeated) throws IOException {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public Map<?, ?> readFrom(Input input) throws IOException {
@@ -370,12 +361,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Enum<?>> wrapper) throws IOException {
                 return inlineK.readFrom(input);
@@ -385,12 +370,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 inlineK.writeTo(output, fieldNumber, key, repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineK.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -406,11 +385,6 @@ final class RuntimeMapFieldFactory {
                 eioV.writeTo(output, fieldNumber, repeated, val);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -450,12 +424,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return inlineK.readFrom(input);
@@ -465,12 +433,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 inlineK.writeTo(output, fieldNumber, key, repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineK.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -486,11 +448,6 @@ final class RuntimeMapFieldFactory {
                 inlineV.writeTo(output, fieldNumber, val, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineV.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -533,12 +490,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return inlineK.readFrom(input);
@@ -548,12 +499,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 inlineK.writeTo(output, fieldNumber, key, repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineK.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -570,12 +515,6 @@ final class RuntimeMapFieldFactory {
                         repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaV.getPipeSchema(),
-                        repeated);
-            }
         };
     }
 
@@ -616,12 +555,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return inlineK.readFrom(input);
@@ -631,12 +564,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 inlineK.writeTo(output, fieldNumber, key, repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineK.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -667,13 +594,6 @@ final class RuntimeMapFieldFactory {
                         strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA.pipeSchema,
-                        repeated);
-            }
         };
     }
 
@@ -681,7 +601,7 @@ final class RuntimeMapFieldFactory {
                                                         String name, final java.lang.reflect.Field f,
                                                         MessageFactory messageFactory, final Delegate<Object> inlineK,
                                                         final Schema<Object> valueSchema,
-                                                        final Pipe.Schema<Object> valuePipeSchema, final IdStrategy strategy) {
+                                                        final IdStrategy strategy) {
         return new RuntimeMapField<T, Object, Object>(FieldType.MESSAGE,
                 number, name, f.getAnnotation(Tag.class), messageFactory) {
 
@@ -715,12 +635,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return inlineK.readFrom(input);
@@ -730,12 +644,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 inlineK.writeTo(output, fieldNumber, key, repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineK.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -764,11 +672,6 @@ final class RuntimeMapFieldFactory {
                 output.writeObject(fieldNumber, val, valueSchema, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, valuePipeSchema, repeated);
-            }
         };
     }
 
@@ -811,12 +714,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Enum<?> kFrom(Input input,
                                     MapWrapper<Enum<?>, Enum<?>> wrapper) throws IOException {
                 return eioK.readFrom(input);
@@ -826,12 +723,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Enum<?> key,
                                boolean repeated) throws IOException {
                 eioK.writeTo(output, fieldNumber, repeated, key);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -847,11 +738,6 @@ final class RuntimeMapFieldFactory {
                 eioV.writeTo(output, fieldNumber, repeated, val);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -893,12 +779,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Enum<?> kFrom(Input input,
                                     MapWrapper<Enum<?>, Object> wrapper) throws IOException {
                 return eioK.readFrom(input);
@@ -908,12 +788,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Enum<?> key,
                                boolean repeated) throws IOException {
                 eioK.writeTo(output, fieldNumber, repeated, key);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -929,11 +803,6 @@ final class RuntimeMapFieldFactory {
                 inlineV.writeTo(output, fieldNumber, val, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineV.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -977,12 +846,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Enum<?> kFrom(Input input,
                                     MapWrapper<Enum<?>, Object> wrapper) throws IOException {
                 return eioK.readFrom(input);
@@ -992,12 +855,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Enum<?> key,
                                boolean repeated) throws IOException {
                 eioK.writeTo(output, fieldNumber, repeated, key);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -1014,12 +871,6 @@ final class RuntimeMapFieldFactory {
                         repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaV.getPipeSchema(),
-                        repeated);
-            }
         };
     }
 
@@ -1062,12 +913,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Enum<?> kFrom(Input input,
                                     MapWrapper<Enum<?>, Object> wrapper) throws IOException {
                 return eioK.readFrom(input);
@@ -1077,12 +922,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Enum<?> key,
                                boolean repeated) throws IOException {
                 eioK.writeTo(output, fieldNumber, repeated, key);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -1112,21 +951,13 @@ final class RuntimeMapFieldFactory {
                 output.writeObject(fieldNumber, val,
                         strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA, repeated);
             }
-
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA.pipeSchema,
-                        repeated);
-            }
         };
     }
 
     private static <T> Field<T> createMapEnumKObjectV(int number, String name,
                                                       final java.lang.reflect.Field f, MessageFactory messageFactory,
                                                       final Class<Object> clazzK, final Schema<Object> valueSchema,
-                                                      final Pipe.Schema<Object> valuePipeSchema, final IdStrategy strategy) {
+                                                      final IdStrategy strategy) {
         final EnumIO<?> eioK = strategy.getEnumIO(clazzK);
 
         return new RuntimeMapField<T, Enum<?>, Object>(FieldType.MESSAGE,
@@ -1162,12 +993,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Enum<?> kFrom(Input input,
                                     MapWrapper<Enum<?>, Object> wrapper) throws IOException {
                 return eioK.readFrom(input);
@@ -1177,12 +1002,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Enum<?> key,
                                boolean repeated) throws IOException {
                 eioK.writeTo(output, fieldNumber, repeated, key);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
 
             @Override
@@ -1209,12 +1028,6 @@ final class RuntimeMapFieldFactory {
             protected void vTo(Output output, int fieldNumber, Object val,
                                boolean repeated) throws IOException {
                 output.writeObject(fieldNumber, val, valueSchema, repeated);
-            }
-
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, valuePipeSchema, repeated);
             }
         };
     }
@@ -1259,12 +1072,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Enum<?>> wrapper) throws IOException {
                 return input.mergeObject(null, schemaK.getSchema());
@@ -1274,13 +1081,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 output.writeObject(fieldNumber, key, schemaK.getSchema(),
-                        repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaK.getPipeSchema(),
                         repeated);
             }
 
@@ -1295,12 +1095,6 @@ final class RuntimeMapFieldFactory {
             protected void vTo(Output output, int fieldNumber, Enum<?> val,
                                boolean repeated) throws IOException {
                 eioV.writeTo(output, fieldNumber, repeated, val);
-            }
-
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                EnumIO.transfer(pipe, input, output, number, repeated);
             }
         };
     }
@@ -1344,12 +1138,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return input.mergeObject(null, schemaK.getSchema());
@@ -1359,13 +1147,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 output.writeObject(fieldNumber, key, schemaK.getSchema(),
-                        repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaK.getPipeSchema(),
                         repeated);
             }
 
@@ -1382,11 +1163,6 @@ final class RuntimeMapFieldFactory {
                 inlineV.writeTo(output, fieldNumber, val, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                inlineV.transfer(pipe, input, output, number, repeated);
-            }
         };
     }
 
@@ -1431,12 +1207,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return input.mergeObject(null, schemaK.getSchema());
@@ -1446,13 +1216,6 @@ final class RuntimeMapFieldFactory {
             protected void kTo(Output output, int fieldNumber, Object key,
                                boolean repeated) throws IOException {
                 output.writeObject(fieldNumber, key, schemaK.getSchema(),
-                        repeated);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaK.getPipeSchema(),
                         repeated);
             }
 
@@ -1470,12 +1233,6 @@ final class RuntimeMapFieldFactory {
                         repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaV.getPipeSchema(),
-                        repeated);
-            }
         };
     }
 
@@ -1519,22 +1276,9 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return input.mergeObject(null, schemaK.getSchema());
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaK.getPipeSchema(),
-                        repeated);
             }
 
             @Override
@@ -1572,20 +1316,13 @@ final class RuntimeMapFieldFactory {
                         strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe,
-                        strategy.POLYMORPHIC_POJO_ELEMENT_SCHEMA.pipeSchema,
-                        repeated);
-            }
         };
     }
 
     private static <T> Field<T> createMapPojoKObjectV(int number, String name,
                                                       final java.lang.reflect.Field f, MessageFactory messageFactory,
                                                       final Class<Object> clazzK, final Schema<Object> valueSchema,
-                                                      final Pipe.Schema<Object> valuePipeSchema, final IdStrategy strategy) {
+                                                      final IdStrategy strategy) {
         final HasSchema<Object> schemaK = strategy.getSchemaWrapper(clazzK,
                 true);
 
@@ -1622,22 +1359,9 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 return input.mergeObject(null, schemaK.getSchema());
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schemaK.getPipeSchema(),
-                        repeated);
             }
 
             @Override
@@ -1673,20 +1397,14 @@ final class RuntimeMapFieldFactory {
                 output.writeObject(fieldNumber, val, valueSchema, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, valuePipeSchema, repeated);
-            }
         };
     }
 
     private static <T> Field<T> createMapObjectKObjectV(int number,
                                                         String name, final java.lang.reflect.Field f,
                                                         MessageFactory messageFactory, final Schema<Object> keySchema,
-                                                        final Pipe.Schema<Object> keyPipeSchema,
                                                         final Schema<Object> valueSchema,
-                                                        final Pipe.Schema<Object> valuePipeSchema, final IdStrategy strategy) {
+                                                        final IdStrategy strategy) {
         return new RuntimeMapField<T, Object, Object>(FieldType.MESSAGE,
                 number, name, f.getAnnotation(Tag.class), messageFactory) {
 
@@ -1720,12 +1438,6 @@ final class RuntimeMapFieldFactory {
             }
 
             @Override
-            protected void transfer(Pipe pipe, Input input, Output output,
-                                    boolean repeated) throws IOException {
-                output.writeObject(number, pipe, schema.pipeSchema, repeated);
-            }
-
-            @Override
             protected Object kFrom(Input input,
                                    MapWrapper<Object, Object> wrapper) throws IOException {
                 final Object value = input.mergeObject(wrapper, keySchema);
@@ -1737,12 +1449,6 @@ final class RuntimeMapFieldFactory {
                 }
 
                 return wrapper.setValue(null);
-            }
-
-            @Override
-            protected void kTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, keyPipeSchema, repeated);
             }
 
             @Override
@@ -1777,11 +1483,6 @@ final class RuntimeMapFieldFactory {
                 output.writeObject(fieldNumber, val, valueSchema, repeated);
             }
 
-            @Override
-            protected void vTransfer(Pipe pipe, Input input, Output output,
-                                     int number, boolean repeated) throws IOException {
-                output.writeObject(number, pipe, valuePipeSchema, repeated);
-            }
         };
     }
 

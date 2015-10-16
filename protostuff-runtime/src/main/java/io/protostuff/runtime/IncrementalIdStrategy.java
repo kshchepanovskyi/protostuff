@@ -28,14 +28,14 @@ import java.util.concurrent.locks.LockSupport;
 import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
- * The ids are generated (incremental) on the fly and you can optionally register classes by reserving the first x ids
- * via {@link Registry}. To minimize overhead, {@link ArrayList}s are used for the id mapping rather than
- * {@link ConcurrentHashMap}. This optimization has a disadvantage though. Ids will not be unlimited. You'll have to
- * specificy a max id for the 4 types (pojo, enum, collection, map)
+ * The ids are generated (incremental) on the fly and you can optionally register classes by
+ * reserving the first x ids via {@link Registry}. To minimize overhead, {@link ArrayList}s are used
+ * for the id mapping rather than {@link ConcurrentHashMap}. This optimization has a disadvantage
+ * though. Ids will not be unlimited. You'll have to specificy a max id for the 4 types (pojo, enum,
+ * collection, map)
  *
  * @author David Yu
  */
@@ -64,6 +64,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
                 enumIdMax, enumIdStart,
                 pojoIdMax, pojoIdStart);
     }
+
     public IncrementalIdStrategy(
             IdStrategy primaryGroup, int groupId,
             int collectionIdMax, int collectionIdStart,
@@ -557,10 +558,8 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
     /**
      * To use {@link IncrementalIdStrategy} without registering anything, set the system property:
      * "-Dprotostuff.runtime.id_strategy_factory=io.protostuff.runtime.IncrementalIdStrategy$Factory"
-     * <p>
-     * Note that the pojos will be limited to 63 and the enums to 15.
-     * <p>
-     * It is best that you use the {@link Registry} to configure the strategy and set the max limits for each type.
+     * <p> Note that the pojos will be limited to 63 and the enums to 15. <p> It is best that you
+     * use the {@link Registry} to configure the strategy and set the max limits for each type.
      */
     public static class Factory implements IdStrategy.Factory {
         @Override
@@ -754,8 +753,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
          * Pojo ids start at 1.
          */
         @Override
-        public <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
-                                         int id) {
+        public <T> Registry registerPojo(Schema<T> schema, int id) {
             if (id >= strategy.pojoIdStart)
                 throw new IllegalArgumentException("pojo ids must be lesser than " + strategy.pojoIdStart);
             else if (strategy.pojos.get(id) != null) {
@@ -766,7 +764,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
             if (strategy.pojoMapping.containsKey(schema.typeClass()))
                 throw new IllegalArgumentException("Duplicate registration for: " + schema.typeClass());
 
-            Registered<T> wrapper = new Registered<>(id, schema, pipeSchema);
+            Registered<T> wrapper = new Registered<>(id, schema);
             strategy.pojos.set(id, wrapper);
 
             strategy.pojoMapping.put(schema.typeClass(), wrapper);
@@ -775,12 +773,10 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
         }
 
         /**
-         * If you are sure that you are only using a single implementation of your interface/abstract class, then it
-         * makes sense to map it directly to its impl class to avoid writing the type.
-         * <p>
-         * Note that the type is always written when your field is {@link java.lang.Object}.
-         * <p>
-         * Pojo ids start at 1.
+         * If you are sure that you are only using a single implementation of your
+         * interface/abstract class, then it makes sense to map it directly to its impl class to
+         * avoid writing the type. <p> Note that the type is always written when your field is
+         * {@link java.lang.Object}. <p> Pojo ids start at 1.
          */
         @Override
         public <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass) {
@@ -797,9 +793,7 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
         }
 
         /**
-         * Register a {@link Delegate} and assign an id.
-         * <p>
-         * Delegate ids start at 1.
+         * Register a {@link Delegate} and assign an id. <p> Delegate ids start at 1.
          */
         @Override
         public <T> Registry registerDelegate(Delegate<T> delegate, int id) {
@@ -879,13 +873,11 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
     static final class Registered<T> extends BaseHS<T> {
 
         final Schema<T> schema;
-        final Pipe.Schema<T> pipeSchema;
 
-        Registered(int id, Schema<T> schema, Pipe.Schema<T> pipeSchema) {
+        Registered(int id, Schema<T> schema) {
             this.id = id;
 
             this.schema = schema;
-            this.pipeSchema = pipeSchema;
         }
 
         @Override
@@ -893,17 +885,12 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
             return schema;
         }
 
-        @Override
-        public io.protostuff.Pipe.Schema<T> getPipeSchema() {
-            return pipeSchema;
-        }
     }
 
     static final class Lazy<T> extends BaseHS<T> {
         final IdStrategy strategy;
         final Class<T> typeClass;
         private volatile Schema<T> schema;
-        private volatile Pipe.Schema<T> pipeSchema;
 
         Lazy(Class<T> typeClass, IdStrategy strategy) {
             this.typeClass = typeClass;
@@ -936,18 +923,5 @@ public final class IncrementalIdStrategy extends NumericIdStrategy {
             return schema;
         }
 
-        @Override
-        public Pipe.Schema<T> getPipeSchema() {
-            Pipe.Schema<T> pipeSchema = this.pipeSchema;
-            if (pipeSchema == null) {
-                synchronized (this) {
-                    if ((pipeSchema = this.pipeSchema) == null) {
-                        this.pipeSchema = pipeSchema = RuntimeSchema.resolvePipeSchema(
-                                getSchema(), typeClass, true);
-                    }
-                }
-            }
-            return pipeSchema;
-        }
     }
 }

@@ -18,7 +18,6 @@ import java.io.IOException;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 
@@ -34,14 +33,6 @@ public abstract class PolymorphicEnumSchema extends PolymorphicSchema {
 
     static final int ID_ENUM_VALUE = 1;
     static final String STR_ENUM_VALUE = "a";
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
 
     public PolymorphicEnumSchema(IdStrategy strategy) {
         super(strategy);
@@ -107,27 +98,6 @@ public abstract class PolymorphicEnumSchema extends PolymorphicSchema {
             throw new ProtostuffException("Corrupt input.");
 
         return value;
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy) throws IOException {
-        if (ID_ENUM != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-
-        strategy.transferEnumId(input, output, ID_ENUM);
-
-        if (ID_ENUM_VALUE != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-
-        EnumIO.transfer(pipe, input, output, 1, false);
-
-        if (0 != input.readFieldNumber(pipeSchema.wrappedSchema))
-            throw new ProtostuffException("Corrupt input.");
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

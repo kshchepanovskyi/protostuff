@@ -32,57 +32,6 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Creates a protobuf pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data) {
-        return newPipe(data, 0, data.length);
-    }
-
-    /**
-     * Creates a protobuf pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data, int offset, int len) {
-        final ByteArrayInput byteArrayInput = new ByteArrayInput(data, offset, len, false);
-        return new Pipe() {
-            @Override
-            protected Input begin(Pipe.Schema<?> pipeSchema) throws IOException {
-                return byteArrayInput;
-            }
-
-            @Override
-            protected void end(Pipe.Schema<?> pipeSchema, Input input,
-                               boolean cleanupOnly) throws IOException {
-                if (cleanupOnly)
-                    return;
-
-                assert input == byteArrayInput;
-            }
-        };
-    }
-
-    /**
-     * Creates a protobuf pipe from an {@link InputStream}.
-     */
-    public static Pipe newPipe(final InputStream in) {
-        final CodedInput codedInput = new CodedInput(in, false);
-        return new Pipe() {
-            @Override
-            protected Input begin(Pipe.Schema<?> pipeSchema) throws IOException {
-                return codedInput;
-            }
-
-            @Override
-            protected void end(Pipe.Schema<?> pipeSchema, Input input,
-                               boolean cleanupOnly) throws IOException {
-                if (cleanupOnly)
-                    return;
-
-                assert input == codedInput;
-            }
-        };
-    }
-
-    /**
      * Merges the {@code message} with the byte array using the given {@code schema}.
      */
     public static <T> void mergeFrom(byte[] data, T message, Schema<T> schema) {
@@ -106,8 +55,7 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Merges the {@code message} from the {@link InputStream} using the given {@code schema}.
-     * <p>
+     * Merges the {@code message} from the {@link InputStream} using the given {@code schema}. <p>
      * The {@code buffer}'s internal byte array will be used for reading the message.
      */
     public static <T> void mergeFrom(InputStream in, T message, Schema<T> schema,
@@ -116,7 +64,8 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Merges the {@code message} (delimited) from the {@link InputStream} using the given {@code schema}.
+     * Merges the {@code message} (delimited) from the {@link InputStream} using the given {@code
+     * schema}.
      *
      * @return the size of the message
      */
@@ -126,10 +75,9 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Merges the {@code message} (delimited) from the {@link InputStream} using the given {@code schema}.
-     * <p>
-     * The delimited message size must not be larger than the {@code buffer}'s size/capacity. {@link ProtobufException}
-     * "size limit exceeded" is thrown otherwise.
+     * Merges the {@code message} (delimited) from the {@link InputStream} using the given {@code
+     * schema}. <p> The delimited message size must not be larger than the {@code buffer}'s
+     * size/capacity. {@link ProtobufException} "size limit exceeded" is thrown otherwise.
      *
      * @return the size of the message
      */
@@ -139,8 +87,8 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Used by the code generated messages that implement {@link java.io.Externalizable}. Merges from the
-     * {@link DataInput}.
+     * Used by the code generated messages that implement {@link java.io.Externalizable}. Merges
+     * from the {@link DataInput}.
      *
      * @return the size of the message
      */
@@ -226,8 +174,8 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Used by the code generated messages that implement {@link java.io.Externalizable}. Writes to the
-     * {@link DataOutput} .
+     * Used by the code generated messages that implement {@link java.io.Externalizable}. Writes to
+     * the {@link DataOutput} .
      *
      * @return the size of the message.
      */
@@ -247,7 +195,8 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Serializes the {@code messages} (delimited) into an {@link OutputStream} using the given schema.
+     * Serializes the {@code messages} (delimited) into an {@link OutputStream} using the given
+     * schema.
      *
      * @return the total size of the messages (excluding the length prefix varint)
      */
@@ -273,7 +222,8 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Parses the {@code messages} (delimited) from the {@link InputStream} using the given {@code schema}.
+     * Parses the {@code messages} (delimited) from the {@link InputStream} using the given {@code
+     * schema}.
      *
      * @return the list containing the messages.
      */
@@ -318,13 +268,11 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Optimal/Optional mergeDelimitedFrom - If the message does not fit the buffer, no merge is done and this method
-     * will return false.
-     * <p>
-     * This is strictly for reading a single message from the stream because the buffer is aggressively filled when
-     * reading the delimited size (which could result into reading more bytes than it has to).
-     * <p>
-     * The remaining bytes will be drained (consumed and discared) when the message is too large.
+     * Optimal/Optional mergeDelimitedFrom - If the message does not fit the buffer, no merge is
+     * done and this method will return false. <p> This is strictly for reading a single message
+     * from the stream because the buffer is aggressively filled when reading the delimited size
+     * (which could result into reading more bytes than it has to). <p> The remaining bytes will be
+     * drained (consumed and discared) when the message is too large.
      */
     public static <T> boolean optMergeDelimitedFrom(InputStream in,
                                                     T message, Schema<T> schema,
@@ -333,11 +281,10 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Optimal/Optional mergeDelimitedFrom - If the message does not fit the buffer, no merge is done and this method
-     * will return false.
-     * <p>
-     * This is strictly for reading a single message from the stream because the buffer is aggressively filled when
-     * reading the delimited size (which could result into reading more bytes than it has to).
+     * Optimal/Optional mergeDelimitedFrom - If the message does not fit the buffer, no merge is
+     * done and this method will return false. <p> This is strictly for reading a single message
+     * from the stream because the buffer is aggressively filled when reading the delimited size
+     * (which could result into reading more bytes than it has to).
      */
     public static <T> boolean optMergeDelimitedFrom(InputStream in,
                                                     T message, Schema<T> schema, boolean drainRemainingBytesIfTooLarge,
@@ -374,8 +321,8 @@ public final class ProtobufIOUtil {
     }
 
     /**
-     * Optimal writeDelimitedTo - The varint32 prefix is written to the buffer instead of directly writing to
-     * outputstream.
+     * Optimal writeDelimitedTo - The varint32 prefix is written to the buffer instead of directly
+     * writing to outputstream.
      *
      * @return the size of the message
      */

@@ -38,7 +38,6 @@ import java.util.Date;
 
 import io.protostuff.AbstractTest;
 import io.protostuff.ByteString;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
@@ -68,8 +67,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
     protected abstract <T> void mergeFrom(InputStream in, T message,
                                           Schema<T> schema) throws IOException;
 
-    protected abstract <T> void roundTrip(T message, Schema<T> schema,
-                                          Pipe.Schema<T> pipeSchema) throws IOException;
 
     public void testNullAll() throws IOException {
         if (!RuntimeEnv.ALLOW_NULL_ARRAY_ELEMENT) {
@@ -79,9 +76,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
 
         Schema<PojoWithNonPrimitiveArrays> schema =
                 RuntimeSchema.getSchema(PojoWithNonPrimitiveArrays.class);
-
-        Pipe.Schema<PojoWithNonPrimitiveArrays> pipeSchema =
-                ((RuntimeSchema<PojoWithNonPrimitiveArrays>) schema).getPipeSchema();
 
         PojoWithNonPrimitiveArrays p = new PojoWithNonPrimitiveArrays(
                 new Boolean[]{null, null, null},
@@ -112,7 +106,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testNullFirst() throws IOException {
@@ -123,9 +116,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
 
         Schema<PojoWithNonPrimitiveArrays> schema =
                 RuntimeSchema.getSchema(PojoWithNonPrimitiveArrays.class);
-
-        Pipe.Schema<PojoWithNonPrimitiveArrays> pipeSchema =
-                ((RuntimeSchema<PojoWithNonPrimitiveArrays>) schema).getPipeSchema();
 
         PojoWithNonPrimitiveArrays p = new PojoWithNonPrimitiveArrays(
                 new Boolean[]{null, true, false},
@@ -156,7 +146,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testNullLast() throws IOException {
@@ -167,9 +156,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
 
         Schema<PojoWithNonPrimitiveArrays> schema =
                 RuntimeSchema.getSchema(PojoWithNonPrimitiveArrays.class);
-
-        Pipe.Schema<PojoWithNonPrimitiveArrays> pipeSchema =
-                ((RuntimeSchema<PojoWithNonPrimitiveArrays>) schema).getPipeSchema();
 
         PojoWithNonPrimitiveArrays p = new PojoWithNonPrimitiveArrays(
                 new Boolean[]{true, false, null},
@@ -200,7 +186,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testNullMid() throws IOException {
@@ -211,9 +196,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
 
         Schema<PojoWithNonPrimitiveArrays> schema =
                 RuntimeSchema.getSchema(PojoWithNonPrimitiveArrays.class);
-
-        Pipe.Schema<PojoWithNonPrimitiveArrays> pipeSchema =
-                ((RuntimeSchema<PojoWithNonPrimitiveArrays>) schema).getPipeSchema();
 
         PojoWithNonPrimitiveArrays p = new PojoWithNonPrimitiveArrays(
                 new Boolean[]{true, null, false},
@@ -244,7 +226,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testNullFirstAndLast() throws IOException {
@@ -255,9 +236,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
 
         Schema<PojoWithNonPrimitiveArrays> schema =
                 RuntimeSchema.getSchema(PojoWithNonPrimitiveArrays.class);
-
-        Pipe.Schema<PojoWithNonPrimitiveArrays> pipeSchema =
-                ((RuntimeSchema<PojoWithNonPrimitiveArrays>) schema).getPipeSchema();
 
         PojoWithNonPrimitiveArrays p = new PojoWithNonPrimitiveArrays(
                 new Boolean[]{null, true, false, null},
@@ -288,7 +266,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
 
-        roundTrip(p, schema, pipeSchema);
     }
 
     public void testNullInBetween() throws IOException {
@@ -299,9 +276,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
 
         Schema<PojoWithNonPrimitiveArrays> schema =
                 RuntimeSchema.getSchema(PojoWithNonPrimitiveArrays.class);
-
-        Pipe.Schema<PojoWithNonPrimitiveArrays> pipeSchema =
-                ((RuntimeSchema<PojoWithNonPrimitiveArrays>) schema).getPipeSchema();
 
         PojoWithNonPrimitiveArrays p = new PojoWithNonPrimitiveArrays(
                 new Boolean[]{null, true, null, false, null},
@@ -331,8 +305,6 @@ public abstract class NullArrayElementTest extends AbstractTest {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         mergeFrom(in, pFromStream, schema);
         assertEquals(p, pFromStream);
-
-        roundTrip(p, schema, pipeSchema);
     }
 
     public enum Size {

@@ -19,10 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.protostuff.AbstractTest;
-import io.protostuff.Pipe;
 import io.protostuff.ProtobufIOUtil;
 import io.protostuff.ProtostuffIOUtil;
-import io.protostuff.ProtostuffPipeTest;
 import io.protostuff.Schema;
 
 /**
@@ -124,14 +122,6 @@ public class PolymorphicSerializationTest extends AbstractTest {
         List<Zoo> parsedList = ProtostuffIOUtil.parseListFrom(in, schema);
 
         assertEquals(list, parsedList);
-    }
-
-    public void testPipe() throws Exception {
-        Schema<Zoo> schema = RuntimeSchema.getSchema(Zoo.class);
-        Pipe.Schema<Zoo> pipeSchema = ((RuntimeSchema<Zoo>) schema).getPipeSchema();
-        Zoo p = filledZoo();
-
-        ProtostuffPipeTest.roundTrip(p, schema, pipeSchema);
     }
 
     public void testMerge() throws Exception {

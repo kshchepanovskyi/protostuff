@@ -27,9 +27,7 @@ import java.util.Set;
 
 import io.protostuff.Exclude;
 import io.protostuff.Input;
-import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.Tag;
 import io.protostuff.runtime.RuntimeEnv.DefaultInstantiator;
@@ -38,8 +36,8 @@ import io.protostuff.runtime.RuntimeEnv.Instantiator;
 import static io.protostuff.runtime.RuntimeEnv.ID_STRATEGY;
 
 /**
- * A schema that can be generated and cached at runtime for objects that have no schema. This is particularly useful for
- * pojos from 3rd party libraries.
+ * A schema that can be generated and cached at runtime for objects that have no schema. This is
+ * particularly useful for pojos from 3rd party libraries.
  *
  * @author David Yu
  */
@@ -51,7 +49,6 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     public static final int MIN_TAG_FOR_HASH_FIELD_MAP = 100;
     private static final Set<String> NO_EXCLUSIONS = Collections.emptySet();
     public final Instantiator<T> instantiator;
-    private final Pipe.Schema<T> pipeSchema;
     private final FieldMap<T> fieldMap;
     private final Class<T> typeClass;
 
@@ -62,23 +59,19 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
 
     public RuntimeSchema(Class<T> typeClass, Collection<Field<T>> fields, Instantiator<T> instantiator) {
         this.fieldMap = createFieldMap(fields);
-        this.pipeSchema = new RuntimePipeSchema<>(this, fieldMap);
         this.instantiator = instantiator;
         this.typeClass = typeClass;
     }
 
     /**
-     * Maps the {@code baseClass} to a specific non-interface/non-abstract {@code typeClass} and registers it (this must
-     * be done on application startup).
-     * <p>
-     * With this approach, there is no overhead of writing the type metadata if a {@code baseClass} field is serialized.
-     * <p>
-     * Returns true if the baseClass does not exist.
-     * <p>
-     * NOTE: This is only supported when {@link RuntimeEnv#ID_STRATEGY} is {@link DefaultIdStrategy}.
+     * Maps the {@code baseClass} to a specific non-interface/non-abstract {@code typeClass} and
+     * registers it (this must be done on application startup). <p> With this approach, there is no
+     * overhead of writing the type metadata if a {@code baseClass} field is serialized. <p> Returns
+     * true if the baseClass does not exist. <p> NOTE: This is only supported when {@link
+     * RuntimeEnv#ID_STRATEGY} is {@link DefaultIdStrategy}.
      *
-     * @throws IllegalArgumentException
-     *             if the {@code typeClass} is an interface or an abstract class.
+     * @throws IllegalArgumentException if the {@code typeClass} is an interface or an abstract
+     *                                  class.
      */
     public static <T> boolean map(Class<? super T> baseClass, Class<T> typeClass) {
         if (ID_STRATEGY instanceof DefaultIdStrategy)
@@ -89,10 +82,9 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     }
 
     /**
-     * Returns true if this there is no existing one or the same schema has already been registered (this must be done
-     * on application startup).
-     * <p>
-     * NOTE: This is only supported when {@link RuntimeEnv#ID_STRATEGY} is {@link DefaultIdStrategy}.
+     * Returns true if this there is no existing one or the same schema has already been registered
+     * (this must be done on application startup). <p> NOTE: This is only supported when {@link
+     * RuntimeEnv#ID_STRATEGY} is {@link DefaultIdStrategy}.
      */
     public static <T> boolean register(Class<T> typeClass, Schema<T> schema) {
         if (ID_STRATEGY instanceof DefaultIdStrategy)
@@ -104,9 +96,8 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     }
 
     /**
-     * Returns true if the {@code typeClass} was not lazily created.
-     * <p>
-     * Method overload for backwards compatibility.
+     * Returns true if the {@code typeClass} was not lazily created. <p> Method overload for
+     * backwards compatibility.
      */
     public static boolean isRegistered(Class<?> typeClass) {
         return isRegistered(typeClass, ID_STRATEGY);
@@ -120,9 +111,8 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     }
 
     /**
-     * Gets the schema that was either registered or lazily initialized at runtime.
-     * <p>
-     * Method overload for backwards compatibility.
+     * Gets the schema that was either registered or lazily initialized at runtime. <p> Method
+     * overload for backwards compatibility.
      */
     public static <T> Schema<T> getSchema(Class<T> typeClass) {
         return getSchema(typeClass, ID_STRATEGY);
@@ -137,9 +127,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     }
 
     /**
-     * Returns the schema wrapper.
-     * <p>
-     * Method overload for backwards compatibility.
+     * Returns the schema wrapper. <p> Method overload for backwards compatibility.
      */
     static <T> HasSchema<T> getSchemaWrapper(Class<T> typeClass) {
         return getSchemaWrapper(typeClass, ID_STRATEGY);
@@ -154,9 +142,7 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     }
 
     /**
-     * Generates a schema from the given class.
-     * <p>
-     * Method overload for backwards compatibility.
+     * Generates a schema from the given class. <p> Method overload for backwards compatibility.
      */
     public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass) {
         return createFrom(typeClass, NO_EXCLUSIONS, ID_STRATEGY);
@@ -251,8 +237,9 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
     }
 
     /**
-     * Generates a schema from the given class with the declared fields (inclusive) based from the given Map. The value
-     * of a the Map's entry will be the name used for the field (which enables aliasing).
+     * Generates a schema from the given class with the declared fields (inclusive) based from the
+     * given Map. The value of a the Map's entry will be the name used for the field (which enables
+     * aliasing).
      */
     public static <T> RuntimeSchema<T> createFrom(Class<T> typeClass,
                                                   Map<String, String> declaredFields, IdStrategy strategy) {
@@ -305,31 +292,6 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
         }
     }
 
-    /**
-     * Invoked only when applications are having pipe io operations.
-     */
-    @SuppressWarnings("unchecked")
-    static <T> Pipe.Schema<T> resolvePipeSchema(Schema<T> schema,
-                                                Class<? super T> clazz, boolean throwIfNone) {
-        if (Message.class.isAssignableFrom(clazz)) {
-            try {
-                // use the pipe schema of code-generated messages if available.
-                java.lang.reflect.Method m = clazz.getDeclaredMethod("getPipeSchema");
-                return (Pipe.Schema<T>) m.invoke(null);
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-
-        if (RuntimeSchema.class.isAssignableFrom(schema.getClass()))
-            return ((RuntimeSchema<T>) schema).getPipeSchema();
-
-        if (throwIfNone)
-            throw new RuntimeException("No pipe schema for: " + clazz);
-
-        return null;
-    }
-
     private FieldMap<T> createFieldMap(Collection<Field<T>> fields) {
         int lastFieldNumber = 0;
         for (Field<T> field : fields) {
@@ -346,13 +308,6 @@ public final class RuntimeSchema<T> implements Schema<T>, FieldMap<T> {
 
     private boolean preferHashFieldMap(Collection<Field<T>> fields, int lastFieldNumber) {
         return lastFieldNumber > MIN_TAG_FOR_HASH_FIELD_MAP && lastFieldNumber >= 2 * fields.size();
-    }
-
-    /**
-     * Returns the pipe schema linked to this.
-     */
-    public Pipe.Schema<T> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

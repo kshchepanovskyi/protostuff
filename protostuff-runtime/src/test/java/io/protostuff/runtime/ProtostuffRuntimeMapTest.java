@@ -20,7 +20,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 
-import io.protostuff.Pipe;
 import io.protostuff.ProtobufIOUtil;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
@@ -54,41 +53,6 @@ public class ProtostuffRuntimeMapTest extends AbstractRuntimeMapTest {
     protected <T> void writeTo(OutputStream out, T message, Schema<T> schema)
             throws IOException {
         ProtostuffIOUtil.writeTo(out, message, schema, buf());
-    }
-
-    @Override
-    protected <T> void roundTrip(T message, Schema<T> schema,
-                                 Pipe.Schema<T> pipeSchema) throws Exception {
-        byte[] protobuf = ProtobufIOUtil.toByteArray(message, schema, buf());
-
-        ByteArrayInputStream protobufStream = new ByteArrayInputStream(protobuf);
-
-        byte[] protostuff = ProtostuffIOUtil.toByteArray(
-                ProtobufIOUtil.newPipe(protobuf, 0, protobuf.length),
-                pipeSchema, buf());
-
-        byte[] protostuffFromStream = ProtostuffIOUtil.toByteArray(
-                ProtobufIOUtil.newPipe(protobufStream), pipeSchema, buf());
-
-        assertTrue(Arrays.equals(protostuff, protostuffFromStream));
-
-        T parsedMessage = schema.newMessage();
-        ProtostuffIOUtil.mergeFrom(protostuff, parsedMessage, schema);
-        SerializableObjects.assertEquals(message, parsedMessage);
-
-        ByteArrayInputStream protostuffStream = new ByteArrayInputStream(
-                protostuff);
-
-        byte[] protobufRoundTrip = ProtobufIOUtil.toByteArray(
-                ProtostuffIOUtil.newPipe(protostuff, 0, protostuff.length),
-                pipeSchema, buf());
-
-        byte[] protobufRoundTripFromStream = ProtobufIOUtil.toByteArray(
-                ProtostuffIOUtil.newPipe(protostuffStream), pipeSchema, buf());
-
-        assertTrue(Arrays.equals(protobufRoundTrip, protobufRoundTripFromStream));
-
-        assertTrue(Arrays.equals(protobufRoundTrip, protobuf));
     }
 
 }

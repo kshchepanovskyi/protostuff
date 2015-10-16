@@ -13,7 +13,6 @@
  */
 package io.protostuff.runtime;
 
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 import io.protostuff.runtime.PolymorphicSchema.Handler;
 
@@ -30,13 +29,6 @@ public abstract class HasSchema<T> implements PolymorphicSchema.Factory {
      * Gets the schema.
      */
     public abstract Schema<T> getSchema();
-
-    // for the array of this type
-
-    /**
-     * Gets the pipe schema.
-     */
-    public abstract Pipe.Schema<T> getPipeSchema();
 
     @Override
     @SuppressWarnings("unchecked")

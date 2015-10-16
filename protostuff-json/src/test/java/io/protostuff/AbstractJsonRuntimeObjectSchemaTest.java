@@ -52,43 +52,4 @@ public abstract class AbstractJsonRuntimeObjectSchemaTest extends AbstractRuntim
     protected <T> void writeTo(OutputStream out, T message, Schema<T> schema) throws IOException {
         JsonIOUtil.writeTo(out, message, schema, isNumeric());
     }
-
-    @Override
-    protected <T> void roundTrip(T message, Schema<T> schema,
-                                 Pipe.Schema<T> pipeSchema) throws Exception {
-        byte[] json = JsonIOUtil.toByteArray(message, schema, isNumeric());
-
-        ByteArrayInputStream jsonStream = new ByteArrayInputStream(json);
-
-        byte[] protostuff = ProtostuffIOUtil.toByteArray(
-                JsonIOUtil.newPipe(json, 0, json.length, isNumeric()), pipeSchema, buf());
-
-        byte[] protostuffFromStream = ProtostuffIOUtil.toByteArray(
-                JsonIOUtil.newPipe(jsonStream, isNumeric()), pipeSchema, buf());
-
-        assertTrue(Arrays.equals(protostuff, protostuffFromStream));
-
-        T parsedMessage = schema.newMessage();
-        ProtostuffIOUtil.mergeFrom(protostuff, parsedMessage, schema);
-        SerializableObjects.assertEquals(message, parsedMessage);
-
-        ByteArrayInputStream protostuffStream = new ByteArrayInputStream(protostuff);
-
-        byte[] jsonRoundTrip = JsonIOUtil.toByteArray(
-                ProtostuffIOUtil.newPipe(protostuff, 0, protostuff.length), pipeSchema, isNumeric());
-
-        byte[] jsonRoundTripFromStream = JsonIOUtil.toByteArray(
-                ProtostuffIOUtil.newPipe(protostuffStream), pipeSchema, isNumeric());
-
-        assertTrue(jsonRoundTrip.length == jsonRoundTripFromStream.length);
-
-        String strJsonRoundTrip = STRING.deser(jsonRoundTrip);
-
-        assertEquals(strJsonRoundTrip, STRING.deser(jsonRoundTripFromStream));
-
-        assertTrue(jsonRoundTrip.length == json.length);
-
-        assertEquals(strJsonRoundTrip, STRING.deser(json));
-    }
-
 }

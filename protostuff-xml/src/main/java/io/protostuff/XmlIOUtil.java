@@ -47,105 +47,6 @@ public final class XmlIOUtil {
     }
 
     /**
-     * Creates an xml pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data) throws IOException {
-        return newPipe(data, 0, data.length);
-    }
-
-    /**
-     * Creates an xml pipe from a byte array.
-     */
-    public static Pipe newPipe(byte[] data, int offset, int length) throws IOException {
-        return newPipe(new ByteArrayInputStream(data, offset, length));
-    }
-
-    /**
-     * Creates an xml pipe from an {@link InputStream}.
-     */
-    public static Pipe newPipe(InputStream in) throws IOException {
-        try {
-            return newPipe(DEFAULT_INPUT_FACTORY.createXMLStreamReader(in, XML_ENCODING));
-        } catch (XMLStreamException e) {
-            throw new XmlInputException(e);
-        }
-    }
-
-    /**
-     * Creates an xml pipe from a {@link Reader}.
-     */
-    public static Pipe newPipe(Reader reader) throws IOException {
-        try {
-            return newPipe(DEFAULT_INPUT_FACTORY.createXMLStreamReader(reader));
-        } catch (XMLStreamException e) {
-            throw new XmlInputException(e);
-        }
-    }
-
-    /**
-     * Creates an xml pipe from an {@link XMLStreamReader}.
-     */
-    public static Pipe newPipe(final XMLStreamReader parser) {
-        final XmlInput xmlInput = new XmlInput(parser);
-        return new Pipe() {
-            @Override
-            protected Input begin(Pipe.Schema<?> pipeSchema) throws IOException {
-                // final String simpleName = pipeSchema.wrappedSchema.messageName();
-
-                try {
-                    if (parser.nextTag() != START_ELEMENT ||
-                            !pipeSchema.wrappedSchema.messageName().equals(parser.getLocalName())) {
-                        throw new XmlInputException("Expected token START_ELEMENT: " +
-                                pipeSchema.wrappedSchema.messageName());
-                    }
-
-                    if (parser.nextTag() == END_ELEMENT) {
-                        // if(!simpleName.equals(parser.getLocalName()))
-                        // throw new XmlInputException("Expecting token END_ELEMENT: " +
-                        // simpleName);
-
-                        // empty message;
-                        return null;
-                    }
-                } catch (XMLStreamException e) {
-                    throw new XmlInputException(e);
-                }
-
-                return xmlInput;
-            }
-
-            @Override
-            protected void end(Pipe.Schema<?> pipeSchema, Input input,
-                               boolean cleanupOnly) throws IOException {
-                if (cleanupOnly) {
-                    try {
-                        parser.close();
-                    } catch (XMLStreamException e) {
-                        // ignore
-                    }
-                    return;
-                }
-
-                assert input == xmlInput;
-
-                // final String simpleName = pipeSchema.wrappedSchema.messageName();
-                // final String localName = parser.getLocalName();
-
-                try {
-                    parser.close();
-                } catch (XMLStreamException e) {
-                    // end of pipe transfer ... ignore
-                }
-
-                /*
-                 * if(!simpleName.equals(localName)) { throw new XmlInputException("Expecting token END_ELEMENT: " +
-                 * simpleName); }
-                 */
-            }
-        };
-    }
-
-    /**
      * Merges the {@code message} with the byte array using the given {@code schema}.
      */
     public static <T> void mergeFrom(byte[] data, T message, Schema<T> schema) {
@@ -352,7 +253,8 @@ public final class XmlIOUtil {
     }
 
     /**
-     * Serializes the {@code message} into an {@link XMLStreamWriter} using the given {@code schema}.
+     * Serializes the {@code message} into an {@link XMLStreamWriter} using the given {@code
+     * schema}.
      */
     public static <T> void writeTo(XMLStreamWriter writer, T message, Schema<T> schema)
             throws IOException, XMLStreamException {

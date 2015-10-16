@@ -115,7 +115,7 @@ public class IncrementalRuntimeObjectSchemaTest extends TestCase {
                     .registerPojo(PojoWithArray2D.class, 5)
                     .registerPojo(PojoWithCollection.class, 6)
                     .registerPojo(PojoWithMap.class, 7)
-                    .registerPojo(Bat.SCHEMA, Bat.PIPE_SCHEMA, 8)
+                    .registerPojo(Bat.SCHEMA, 8)
                     .registerPojo(WrapsBat.class, 9)
                     .registerPojo(PojoWithCustomArrayListAndHashMap.class, 10);
 

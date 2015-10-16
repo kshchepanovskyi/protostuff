@@ -51,41 +51,4 @@ public class XmlRuntimeObjectSchemaTest extends AbstractRuntimeObjectSchemaTest 
         XmlIOUtil.writeTo(out, message, schema);
     }
 
-    @Override
-    protected <T> void roundTrip(T message, Schema<T> schema,
-                                 Pipe.Schema<T> pipeSchema) throws Exception {
-        byte[] xml = XmlIOUtil.toByteArray(message, schema);
-
-        ByteArrayInputStream xmlStream = new ByteArrayInputStream(xml);
-
-        byte[] protostuff = ProtostuffIOUtil.toByteArray(
-                XmlIOUtil.newPipe(xml, 0, xml.length), pipeSchema, buf());
-
-        byte[] protostuffFromStream = ProtostuffIOUtil.toByteArray(
-                XmlIOUtil.newPipe(xmlStream), pipeSchema, buf());
-
-        assertTrue(Arrays.equals(protostuff, protostuffFromStream));
-
-        T parsedMessage = schema.newMessage();
-        ProtostuffIOUtil.mergeFrom(protostuff, parsedMessage, schema);
-        SerializableObjects.assertEquals(message, parsedMessage);
-
-        ByteArrayInputStream protostuffStream = new ByteArrayInputStream(protostuff);
-
-        byte[] xmlRoundTrip = XmlIOUtil.toByteArray(
-                ProtostuffIOUtil.newPipe(protostuff, 0, protostuff.length), pipeSchema);
-        byte[] xmlRoundTripFromStream = XmlIOUtil.toByteArray(
-                ProtostuffIOUtil.newPipe(protostuffStream), pipeSchema);
-
-        assertTrue(xmlRoundTrip.length == xmlRoundTripFromStream.length);
-
-        String strXmlRoundTrip = STRING.deser(xmlRoundTrip);
-
-        assertEquals(strXmlRoundTrip, STRING.deser(xmlRoundTripFromStream));
-
-        assertTrue(xmlRoundTrip.length == xml.length);
-
-        assertEquals(strXmlRoundTrip, STRING.deser(xml));
-    }
-
 }

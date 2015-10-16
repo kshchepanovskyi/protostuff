@@ -18,7 +18,6 @@ import java.io.IOException;
 import io.protostuff.GraphInput;
 import io.protostuff.Input;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.ProtostuffException;
 import io.protostuff.Schema;
 import io.protostuff.StatefulOutput;
@@ -45,15 +44,6 @@ public abstract class PolymorphicThrowableSchema extends PolymorphicSchema {
         }
         __cause = cause;
     }
-
-    protected final Pipe.Schema<Object> pipeSchema = new Pipe.Schema<Object>(
-            this) {
-        @Override
-        protected void transfer(Pipe pipe, Input input, Output output)
-                throws IOException {
-            transferObject(this, pipe, input, output, strategy);
-        }
-    };
 
     public PolymorphicThrowableSchema(IdStrategy strategy) {
         super(strategy);
@@ -154,34 +144,6 @@ public abstract class PolymorphicThrowableSchema extends PolymorphicSchema {
 
         derivedSchema.mergeFrom(input, pojo);
         return pojo;
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy) throws IOException {
-        final int number = input.readFieldNumber(pipeSchema.wrappedSchema);
-        if (number != ID_THROWABLE)
-            throw new ProtostuffException("Corrupt input.");
-
-        transferObject(pipeSchema, pipe, input, output, strategy, number);
-    }
-
-    static void transferObject(Pipe.Schema<Object> pipeSchema, Pipe pipe,
-                               Input input, Output output, IdStrategy strategy, int number)
-            throws IOException {
-        final Pipe.Schema<Object> derivedPipeSchema = strategy.transferPojoId(
-                input, output, number).getPipeSchema();
-
-        if (output instanceof StatefulOutput) {
-            // update using the derived schema.
-            ((StatefulOutput) output).updateLast(derivedPipeSchema, pipeSchema);
-        }
-
-        Pipe.transferDirect(derivedPipeSchema, pipe, input, output);
-    }
-
-    @Override
-    public Pipe.Schema<Object> getPipeSchema() {
-        return pipeSchema;
     }
 
     @Override

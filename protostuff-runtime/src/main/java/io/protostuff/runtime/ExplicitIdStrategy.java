@@ -25,7 +25,6 @@ import java.util.Map;
 import io.protostuff.Input;
 import io.protostuff.Message;
 import io.protostuff.Output;
-import io.protostuff.Pipe;
 import io.protostuff.Schema;
 
 /**
@@ -662,8 +661,7 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
          * Pojo ids start at 1.
          */
         @Override
-        public <T> Registry registerPojo(Schema<T> schema, Pipe.Schema<T> pipeSchema,
-                                         int id) {
+        public <T> Registry registerPojo(Schema<T> schema, int id) {
             if (id >= strategy.pojos.size())
                 grow(strategy.pojos, id + 1);
             else if (strategy.pojos.get(id) != null) {
@@ -674,7 +672,7 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
             if (strategy.pojoMapping.containsKey(schema.typeClass()))
                 throw new IllegalArgumentException("Duplicate registration for: " + schema.typeClass());
 
-            Registered<T> wrapper = new Registered<>(id, schema, pipeSchema);
+            Registered<T> wrapper = new Registered<>(id, schema);
             strategy.pojos.set(id, wrapper);
 
             strategy.pojoMapping.put(schema.typeClass(), wrapper);
@@ -683,12 +681,10 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
         }
 
         /**
-         * If you are sure that you are only using a single implementation of your interface/abstract class, then it
-         * makes sense to map it directly to its impl class to avoid writing the type.
-         * <p>
-         * Note that the type is always written when your field is {@link java.lang.Object}.
-         * <p>
-         * Pojo ids start at 1.
+         * If you are sure that you are only using a single implementation of your
+         * interface/abstract class, then it makes sense to map it directly to its impl class to
+         * avoid writing the type. <p> Note that the type is always written when your field is
+         * {@link java.lang.Object}. <p> Pojo ids start at 1.
          */
         @Override
         public <T> Registry mapPojo(Class<? super T> baseClass, Class<T> implClass) {
@@ -705,9 +701,7 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
         }
 
         /**
-         * Register a {@link Delegate} and assign an id.
-         * <p>
-         * Delegate ids start at 1.
+         * Register a {@link Delegate} and assign an id. <p> Delegate ids start at 1.
          */
         @Override
         public <T> Registry registerDelegate(Delegate<T> delegate, int id) {
@@ -797,13 +791,11 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
     static final class Registered<T> extends BaseHS<T> {
 
         final Schema<T> schema;
-        final Pipe.Schema<T> pipeSchema;
 
-        Registered(int id, Schema<T> schema, Pipe.Schema<T> pipeSchema) {
+        Registered(int id, Schema<T> schema) {
             super(id);
 
             this.schema = schema;
-            this.pipeSchema = pipeSchema;
         }
 
         @Override
@@ -811,17 +803,12 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
             return schema;
         }
 
-        @Override
-        public io.protostuff.Pipe.Schema<T> getPipeSchema() {
-            return pipeSchema;
-        }
     }
 
     static final class Lazy<T> extends BaseHS<T> {
         final IdStrategy strategy;
         final Class<T> typeClass;
         private volatile Schema<T> schema;
-        private volatile Pipe.Schema<T> pipeSchema;
 
         Lazy(int id, Class<T> typeClass, IdStrategy strategy) {
             super(id);
@@ -855,18 +842,5 @@ public final class ExplicitIdStrategy extends NumericIdStrategy {
             return schema;
         }
 
-        @Override
-        public Pipe.Schema<T> getPipeSchema() {
-            Pipe.Schema<T> pipeSchema = this.pipeSchema;
-            if (pipeSchema == null) {
-                synchronized (this) {
-                    if ((pipeSchema = this.pipeSchema) == null) {
-                        this.pipeSchema = pipeSchema = RuntimeSchema.resolvePipeSchema(
-                                getSchema(), typeClass, true);
-                    }
-                }
-            }
-            return pipeSchema;
-        }
     }
 }
