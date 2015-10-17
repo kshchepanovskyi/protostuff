@@ -418,7 +418,6 @@
         <module>protostuff-json</module>
         <module>protostuff-xml</module>
         <module>protostuff-yaml</module>
-        <module>protostuff-kvp</module>
         <module>protostuff-bom</module>
         <module>protostuff-benchmarks</module>
     </modules>
